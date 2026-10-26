@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EMM Detail · Detailing en Lugo</title>
+<meta name="description" content="EMM Detail: lavados a mano, limpieza de tapicería, pulidos y tratamientos cerámicos en Lugo. Calle San Lorenzo 11. Consulta precios y reserva online.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07080a; --bg2:#0d0f13; --card:#12151b; --line:#1f242d;
+    --ink:#f2f4f7; --mut:#8b93a1; --blue:#2f7bff; --blue2:#69a3ff; --glow:rgba(47,123,255,.35);
+    --r:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  img{display:block;max-width:100%}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;cursor:pointer}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+  h1,h2,h3,.disp{font-family:Unbounded,Inter,sans-serif;letter-spacing:-.01em;line-height:1.1}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--blue2)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:0;border-radius:999px;padding:15px 26px;font-weight:600;font-size:15px;transition:.2s}
+  .btn-blue{background:var(--blue);color:#fff;box-shadow:0 10px 30px var(--glow)}
+  .btn-blue:hover{background:#4a8cff;transform:translateY(-1px)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid #2c323d}
+  .btn-ghost:hover{border-color:var(--blue2)}
+
+  /* LOGO (recreado de su carta) */
+  .logo{display:inline-flex;flex-direction:column;align-items:center;line-height:1}
+  .logo .w{font-family:Unbounded;font-weight:900;font-size:22px;letter-spacing:-.03em;transform:skewX(-12deg)}
+  .logo .w b{background:linear-gradient(180deg,#9cc3ff 0%,#2f7bff 55%,#1a4fc4 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .logo .w i{font-style:normal;background:linear-gradient(180deg,#ffffff 0%,#c5cbd6 50%,#7d8696 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .logo small{display:flex;align-items:center;gap:6px;font-size:6.5px;font-weight:600;letter-spacing:.42em;color:#9aa3b2;margin-top:5px}
+  .logo small::before,.logo small::after{content:"";width:14px;height:1.5px;background:var(--blue)}
+
+  /* NAV */
+  nav{position:fixed;inset:0 0 auto;z-index:50;transition:.25s}
+  nav.solid{background:rgba(7,8,10,.86);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:72px}
+  .links{display:flex;gap:30px;font-size:14px;color:#c8cdd6}
+  .links a:hover{color:#fff}
+  nav .btn{padding:11px 20px;font-size:14px}
+
+  /* HERO */
+  .hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden}
+  .hero-img{position:absolute;inset:0;background:url(img/hero-detail.jpg) 70% center/cover no-repeat}
+  .hero-img::after{content:"";position:absolute;inset:0;background:
+    linear-gradient(90deg,rgba(7,8,10,.92) 0%,rgba(7,8,10,.6) 38%,rgba(7,8,10,0) 62%),
+    linear-gradient(0deg,var(--bg) 0%,transparent 25%)}
+  .hero .wrap{position:relative;width:100%;padding-top:90px;padding-bottom:60px}
+  .hero h1{font-size:clamp(38px,6.4vw,82px);font-weight:800;max-width:780px;margin:18px 0 22px}
+  .hero h1 em{font-style:normal;color:var(--blue);text-shadow:0 0 40px var(--glow)}
+  .hero p.lead{font-size:clamp(16px,1.6vw,19px);color:#c3c9d3;max-width:540px}
+  .hero .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:40px}
+  .chip{display:flex;align-items:center;gap:8px;font-size:13px;color:#c3c9d3;background:rgba(18,21,27,.7);border:1px solid var(--line);border-radius:999px;padding:8px 14px;backdrop-filter:blur(6px)}
+  .dot{width:8px;height:8px;border-radius:50%;background:#2ecc71;box-shadow:0 0 0 4px rgba(46,204,113,.15)}
+
+  section{padding:110px 0}
+  .head{max-width:640px;margin-bottom:50px}
+  .head h2{font-size:clamp(28px,4vw,46px);font-weight:700;margin-top:14px}
+  .head p{color:var(--mut);margin-top:14px;font-size:17px}
+
+  /* SERVICIOS */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .svc{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:.25s}
+  .svc:hover{border-color:#2d3d5c;transform:translateY(-3px)}
+  .svc .ph{aspect-ratio:16/10;background-size:cover;background-position:center;position:relative}
+  .svc .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,var(--card),transparent 60%)}
+  .svc .bd{padding:18px 22px 22px;display:flex;flex-direction:column;flex:1}
+  .svc h3{font-size:18px;font-weight:700}
+  .svc p{color:var(--mut);font-size:14.5px;margin:10px 0 18px;flex:1}
+  .svc .ft{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#aab2bf;border-top:1px solid var(--line);padding-top:14px}
+  .svc .ft b{color:#fff;font-size:15px}
+  .svc .ft button{background:none;border:0;color:var(--blue2);font-weight:600}
+  .svc .ft button:hover{color:#fff}
+  .svc.feat{grid-column:span 2;flex-direction:row}
+  .svc.feat .ph{aspect-ratio:auto;flex:1.1;min-height:300px}
+  .svc.feat .ph::after{background:linear-gradient(90deg,transparent 50%,var(--card))}
+  .svc.feat .bd{flex:1;padding:34px}
+  .svc.feat h3{font-size:24px}
+  .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue2);margin-bottom:10px}
+
+  /* TARIFAS */
+  #tarifas{background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .tbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tab{background:var(--card);border:1px solid var(--line);color:#c3c9d3;border-radius:999px;padding:10px 18px;font-size:14px;font-weight:600}
+  .tab.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .size{display:flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px}
+  .size button{border:0;background:none;color:var(--mut);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:600}
+  .size button.on{background:#fff;color:#000}
+  .tlist{display:grid;gap:12px}
+  .ti{display:grid;grid-template-columns:1fr auto;gap:24px;padding:24px;background:var(--card);border:1px solid var(--line);border-radius:16px;animation:fade .3s}
+  .ti h3{font-size:18px;font-weight:700}
+  .ti .meta{display:flex;gap:14px;flex-wrap:wrap;color:var(--mut);font-size:13px;margin-top:8px}
+  .ti .meta span{display:flex;align-items:center;gap:6px}
+  .ti .ds{color:#aab2bf;font-size:14.5px;margin-top:10px;max-width:620px}
+  .ti details{margin-top:10px}
+  .ti summary{cursor:pointer;color:var(--blue2);font-size:13px;font-weight:600;list-style:none}
+  .ti summary::-webkit-details-marker{display:none}
+  .ti summary::after{content:" +"}
+  .ti details[open] summary::after{content:" −"}
+  .ti ul{margin:10px 0 0 18px;color:#aab2bf;font-size:14px;display:grid;gap:4px}
+  .ti .pr{text-align:right;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:150px}
+  .ti .pr small{color:var(--mut);font-size:12px}
+  .ti .pr b{font-family:Unbounded;font-size:26px;font-weight:700;line-height:1.1}
+  .ti .pr .btn{margin-top:12px;padding:10px 18px;font-size:13px}
+  .tnote{color:var(--mut);font-size:13px;margin-top:18px}
+
+  /* ANTES/DESPUÉS */
+  .ba-wrap{display:grid;grid-template-columns:1fr 1.25fr;gap:60px;align-items:center}
+  .ba{position:relative;border-radius:var(--r);overflow:hidden;aspect-ratio:4/3;border:1px solid var(--line);user-select:none;touch-action:pan-y;cursor:ew-resize}
+  .ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .ba .before{clip-path:inset(0 calc(100% - var(--x,50%)) 0 0)}
+  .ba .bar{position:absolute;top:0;bottom:0;left:var(--x,50%);width:2px;background:#fff;transform:translateX(-1px)}
+  .ba .knob{position:absolute;top:50%;left:var(--x,50%);width:48px;height:48px;border-radius:50%;background:#fff;color:#000;display:grid;place-items:center;transform:translate(-50%,-50%);box-shadow:0 6px 24px rgba(0,0,0,.5);font-weight:700}
+  .ba .lb{position:absolute;bottom:16px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:rgba(0,0,0,.6);padding:7px 12px;border-radius:999px}
+  .ba .lb.l{left:16px}.ba .lb.r{right:16px;background:var(--blue)}
+  .ba-list{list-style:none;margin-top:26px;display:grid;gap:14px}
+  .ba-list li{display:flex;gap:12px;color:#c3c9d3}
+  .ba-list li b{color:#fff}
+  .ck{flex:none;width:22px;height:22px;border-radius:50%;background:rgba(47,123,255,.15);color:var(--blue2);display:grid;place-items:center;font-size:12px;margin-top:2px}
+
+  /* PROCESO */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:s}
+  .step{padding:28px 24px;border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,var(--bg2),var(--bg))}
+  .step::before{counter-increment:s;content:"0" counter(s);font-family:Unbounded;font-weight:800;font-size:34px;color:transparent;-webkit-text-stroke:1px #3a4252;display:block;margin-bottom:18px}
+  .step h3{font-size:16px;font-weight:700;margin-bottom:8px}
+  .step p{color:var(--mut);font-size:14px}
+
+  /* RESERVA */
+  #reservar{background:radial-gradient(ellipse at 50% 0%,rgba(47,123,255,.12),transparent 60%),var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .bk{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+  .bk>*,.loc>*,.ba-wrap>*{min-width:0}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:30px}
+  .prog{display:flex;gap:6px;margin-bottom:26px}
+  .prog i{flex:1;height:4px;border-radius:4px;background:var(--line);transition:.3s}
+  .prog i.on{background:var(--blue)}
+  .stp{display:none}.stp.on{display:block;animation:fade .3s}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}}
+  .stp h3{font-size:20px;font-weight:700;margin-bottom:6px}
+  .stp .sub{color:var(--mut);font-size:14px;margin-bottom:22px}
+  .grp{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin:18px 0 10px}
+  .grp:first-child{margin-top:0}
+  .opts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .opt{text-align:left;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px 16px;color:var(--ink);transition:.15s;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .opt:hover{border-color:#34507f}
+  .opt.sel{border-color:var(--blue);background:rgba(47,123,255,.1);box-shadow:0 0 0 1px var(--blue) inset}
+  .opt b{display:block;font-size:14.5px}
+  .opt small{color:var(--mut);font-size:12.5px}
+  .opt em{font-style:normal;font-weight:700;color:var(--blue2);white-space:nowrap;font-size:14px}
+  .opts.two .opt{flex-direction:column;text-align:center;padding:22px 16px}
+  .opts.two .opt span{font-size:30px}
+  .days{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;scrollbar-color:#2a303b transparent}
+  .day{flex:none;width:66px;text-align:center;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:10px 0;color:var(--ink)}
+  .day small{display:block;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em}
+  .day b{font-family:Unbounded;font-size:20px;display:block;margin:2px 0}
+  .day.sel{border-color:var(--blue);background:rgba(47,123,255,.12)}
+  .day:disabled{opacity:.3;cursor:not-allowed}
+  .slots{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:18px}
+  .slot{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:11px 0;color:var(--ink);font-weight:600;font-size:14px}
+  .slot.sel{background:var(--blue);border-color:var(--blue)}
+  .slot:disabled{opacity:.28;text-decoration:line-through;cursor:not-allowed}
+  .note{font-size:13px;color:var(--mut);margin-top:14px}
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .fields .full{grid-column:1/-1}
+  label.f{display:block;font-size:13px;color:#aab2bf}
+  label.f input,label.f textarea{width:100%;margin-top:6px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:13px 14px;color:var(--ink);font:inherit;font-size:15px}
+  label.f input:focus,label.f textarea:focus{outline:0;border-color:var(--blue)}
+  .legal{display:flex;gap:10px;font-size:13px;color:var(--mut);margin-top:6px;align-items:flex-start}
+  .legal input{margin-top:3px;accent-color:var(--blue)}
+  .nav-b{display:flex;justify-content:space-between;align-items:center;margin-top:26px;gap:10px}
+  .back{background:none;border:0;color:var(--mut);font-size:14px}
+  .back:hover{color:#fff}
+  .btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none;transform:none}
+  .sum{position:sticky;top:96px}
+  .sum h4{font-family:Unbounded;font-size:15px;margin-bottom:18px}
+  .sum dl{display:grid;gap:14px}
+  .sum dt{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.1em}
+  .sum dd{font-weight:600;margin-top:2px}
+  .sum .empty{color:#4c5462}
+  .sum .tot{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline}
+  .sum .tot b{font-family:Unbounded;font-size:22px}
+  .sum .ig{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--mut)}
+  .sum .ig a{color:var(--blue2)}
+  .done{text-align:center;padding:20px 0}
+  .done .big{width:76px;height:76px;border-radius:50%;margin:0 auto 20px;background:rgba(47,123,255,.15);border:1px solid var(--blue);display:grid;place-items:center;font-size:34px;color:var(--blue2)}
+  .done h3{font-size:24px}
+  .done p{color:var(--mut);margin:10px auto 0;max-width:420px}
+  .done .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+
+  /* RESEÑAS */
+  .rev{display:grid;grid-template-columns:1.2fr 1fr;gap:24px}
+  .rev-card{border-radius:22px;padding:40px;background:linear-gradient(135deg,#0f1a30,#0b0d12 70%);border:1px solid #1d2a44;position:relative;overflow:hidden}
+  .rev-card::after{content:"★";position:absolute;right:-20px;bottom:-70px;font-size:260px;color:rgba(47,123,255,.07)}
+  .rev-card h3{font-size:clamp(22px,2.6vw,30px);margin:12px 0 14px}
+  .rev-card p{color:#aab2bf;max-width:440px}
+  .rev-card .btn{margin-top:26px}
+  .stars{color:#ffc93c;letter-spacing:4px;font-size:22px}
+  .ig-card{border-radius:22px;overflow:hidden;position:relative;min-height:300px;background:url(img/llanta.jpg) center/cover;border:1px solid var(--line);display:flex;align-items:flex-end}
+  .ig-card::before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.9),transparent 65%)}
+  .ig-card div{position:relative;padding:28px}
+  .ig-card b{font-family:Unbounded;font-size:20px;display:block}
+  .ig-card span{color:#c3c9d3;font-size:14px}
+
+  /* UBICACIÓN */
+  .loc{display:grid;grid-template-columns:1fr 1.4fr;gap:24px}
+  .info{display:grid;gap:14px;align-content:start}
+  .info .it{display:flex;gap:16px;padding:20px;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+  .info .it .ico{flex:none;width:42px;height:42px;border-radius:12px;background:rgba(47,123,255,.12);color:var(--blue2);display:grid;place-items:center}
+  .info .it small{color:var(--mut);font-size:13px;display:block}
+  .info .it b{font-weight:600}
+  .map{border-radius:22px;overflow:hidden;border:1px solid var(--line);min-height:380px;filter:grayscale(1) invert(.92) contrast(.9) hue-rotate(180deg)}
+  .map iframe{width:100%;height:100%;min-height:380px;border:0;display:block}
+
+  footer{padding:50px 0 110px;border-top:1px solid var(--line);color:var(--mut);font-size:14px}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+
+  .fab{position:fixed;left:16px;right:16px;bottom:16px;z-index:60;display:none}
+  .fab .btn{width:100%}
+
+  .rv{opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s}
+  .rv.in{opacity:1;transform:none}
+
+  svg.i{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+  /* MENÚ MÓVIL */
+  .menu-btn{display:none;width:44px;height:44px;border-radius:12px;border:1px solid #2c323d;background:rgba(18,21,27,.7);color:#fff;align-items:center;justify-content:center}
+  .only-m{display:none}
+
+  /* COMPARADOR */
+  .ba:focus-visible{outline:2px solid var(--blue2);outline-offset:3px}
+  .cap{color:var(--mut);font-size:12.5px;margin-top:10px;text-align:right}
+
+  /* FAQ */
+  .faq{display:grid;gap:10px;max-width:860px}
+  .faq details{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:0 22px}
+  .faq details[open]{border-color:#2d3d5c}
+  .faq summary{cursor:pointer;list-style:none;padding:20px 30px 20px 0;font-weight:600;font-size:16px;position:relative}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";position:absolute;right:0;top:50%;transform:translateY(-50%);color:var(--blue2);font-size:22px;font-weight:400}
+  .faq details[open] summary::after{content:"−"}
+  .faq p{color:#aab2bf;font-size:15px;padding-bottom:20px;max-width:720px}
+
+  /* LEGAL */
+  dialog#legal{margin:auto;max-width:620px;width:calc(100% - 32px);max-height:85vh;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:20px;padding:26px}
+  dialog#legal::backdrop{background:rgba(0,0,0,.7)}
+  .lg-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .lg-head h3{font-size:20px}
+  .lg-x{background:none;border:1px solid var(--line);color:#fff;border-radius:10px;width:36px;height:36px}
+  #legalBody p{color:#aab2bf;font-size:14.5px;margin-bottom:12px}
+  #legalBody b{color:#fff}
+  .demo-note{font-size:12px;color:#4c5462;margin-top:6px}
+
+  @media (max-width:980px){
+    .sum:not(.has){display:none}
+    .grid{grid-template-columns:1fr 1fr}
+    .svc.feat{grid-column:1/-1}
+    .ba-wrap,.bk,.rev,.loc{grid-template-columns:minmax(0,1fr)}
+    .steps{grid-template-columns:1fr 1fr}
+    .sum{position:static;order:-1}
+  }
+  @media (max-width:680px){
+    .links,nav .btn{display:none}
+    .menu-btn{display:flex}
+    .links.open{display:flex;flex-direction:column;gap:0;position:absolute;top:72px;left:0;right:0;background:rgba(7,8,10,.97);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:6px 16px 16px}
+    .links.open a{padding:14px 2px;border-bottom:1px solid var(--line);font-size:16px;color:#fff}
+    .links.open .only-m{display:block;border:0;margin-top:12px;text-align:center;background:var(--blue);border-radius:999px;font-weight:600}
+    nav.menu-on{background:rgba(7,8,10,.97)}
+    section{padding:76px 0}
+    .wrap{padding:0 16px}
+    .hero{align-items:flex-start}
+    .hero-img{inset:0 0 auto 0;height:125vw;max-height:560px;background-image:url(img/hero-movil.jpg);background-size:cover;background-position:center 20%}
+    .hero-img::after{background:linear-gradient(0deg,var(--bg) 0%,rgba(7,8,10,.45) 25%,rgba(7,8,10,0) 50%),linear-gradient(180deg,rgba(7,8,10,.7) 0%,transparent 20%)}
+    .hero .wrap{padding-top:min(84vw,380px);padding-bottom:40px}
+    .grid,.steps{grid-template-columns:1fr}
+    .svc.feat{flex-direction:column}
+    .svc.feat .ph{min-height:220px}
+    .svc.feat .ph::after{background:linear-gradient(0deg,var(--card),transparent 60%)}
+    .svc.feat .bd{padding:22px}
+    .ti{grid-template-columns:1fr;gap:14px;padding:20px}
+    .ti .pr{flex-direction:row;align-items:center;justify-content:space-between;text-align:left;border-top:1px solid var(--line);padding-top:14px}
+    .ti .pr .btn{margin-top:0}
+    .panel{padding:22px 18px}
+    .opts,.fields{grid-template-columns:1fr}
+    .opts.two{grid-template-columns:1fr 1fr}
+    .slots{grid-template-columns:repeat(4,1fr)}
+    .rev-card{padding:28px}
+    .fab.show{display:block}
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap">
+    <a href="#" class="logo" aria-label="EMM Detail"><span class="w"><b>EMM</b><i>DETAIL</i></span><small>AUTOMOTIVE DETAILING</small></a>
+    <div class="links" id="links">
+      <a href="#servicios">Servicios</a>
+      <a href="#tarifas">Tarifas</a>
+      <a href="#resultados">Resultados</a>
+      <a href="#faq">Preguntas</a>
+      <a href="#ubicacion">Dónde estamos</a>
+      <a href="#reservar" class="only-m">Reservar cita</a>
+    </div>
+    <a href="#reservar" class="btn btn-blue">Reservar cita</a>
+    <button class="menu-btn" id="menuBtn" aria-label="Abrir menú" aria-expanded="false" aria-controls="links">
+      <svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-img"></div>
+  <div class="wrap">
+    <div class="eyebrow">La diferencia está en los detalles</div>
+    <h1>Recupera el brillo de tu coche en <em>Lugo.</em></h1>
+    <p class="lead">Lavado a mano, limpieza de tapicería y pulido con protección cerámica. Consulta las tarifas y pide tu cita en un minuto.</p>
+    <div class="ctas">
+      <a href="#reservar" class="btn btn-blue">Pedir cita
+        <svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a href="#tarifas" class="btn btn-ghost">Ver servicios y precios</a>
+    </div>
+    <div class="chips">
+      <div class="chip" id="openChip"><span class="dot"></span><span>Horario · 9:00 – 19:00</span></div>
+      <div class="chip">📍 Calle San Lorenzo, 11 · Lugo</div>
+      <div class="chip">✨ Lavados desde 45 €</div>
+    </div>
+  </div>
+</header>
+
+<section id="servicios">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="eyebrow">Servicios</div>
+      <h2>Todo lo que tu coche necesita para volver a brillar.</h2>
+      <p>Del lavado de mantenimiento al pulido con cerámico de 4 años. Siempre a mano y con método seguro.</p>
+    </div>
+    <div class="grid">
+      <article class="svc feat rv">
+        <div class="ph" style="background-image:url(img/pulido.jpg)"></div>
+        <div class="bd">
+          <span class="tag">Pulidos y cerámicos</span>
+          <h3>Devolvemos el brillo de sus primeros días</h3>
+          <p>Limpieza detallada, descontaminación total de la pintura y pulido en 3 pasos que elimina en torno al 70 % de los arañazos. Lo rematamos con cera híbrida o con tratamiento cerámico de hasta 4 años.</p>
+          <div class="ft"><span>Desde <b>419 €</b> · 2 – 4 días</span><button data-tab="pul">Ver tarifas →</button></div>
+        </div>
+      </article>
+      <article class="svc rv">
+        <div class="ph" style="background-image:url(img/espuma.jpg)"></div>
+        <div class="bd">
+          <h3>Lavados</h3>
+          <p>Lavado exterior a mano, llantas, aspirado, salpicadero, cristales y cera líquida. O el Premium EMMD, con prelavado y descontaminación de llantas.</p>
+          <div class="ft"><span>Desde <b>45 €</b> · 2 – 4 h</span><button data-tab="lav">Ver tarifas →</button></div>
+        </div>
+      </article>
+      <article class="svc rv">
+        <div class="ph" style="background-image:url(img/interior.jpg)"></div>
+        <div class="bd">
+          <h3>Limpieza de tapicería</h3>
+          <p>Inyección-extracción en asientos, alfombras y moquetas, tratamiento de manchas, neutralización de olores y secado con deshumidificador.</p>
+          <div class="ft"><span>Desde <b>179 €</b> · 4 – 5 h</span><button data-tab="lav">Ver tarifas →</button></div>
+        </div>
+      </article>
+      <article class="svc rv">
+        <div class="ph" style="background-image:url(img/llanta.jpg)"></div>
+        <div class="bd">
+          <h3>Detailing integral</h3>
+          <p>Interior y exterior a fondo: desmontaje de asientos, compartimento del motor, descontaminación química y cera de alta calidad.</p>
+          <div class="ft"><span>Desde <b>279 €</b> · 9 h</span><button data-tab="lav">Ver tarifas →</button></div>
+        </div>
+      </article>
+      <article class="svc rv">
+        <div class="ph" style="background-image:url(img/hero2.jpg)"></div>
+        <div class="bd">
+          <h3>Cerámico de cristales</h3>
+          <p>Tratamiento antilluvia que repele el agua y la suciedad. Más visibilidad y seguridad conduciendo con lluvia, hasta 6 meses.</p>
+          <div class="ft"><span><b>99 €</b> · 4 h</span><button data-tab="ext">Ver tarifas →</button></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="tarifas">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="eyebrow">Tarifas</div>
+      <h2>Precios claros, sin sorpresas.</h2>
+      <p>Elige el tamaño de tu coche y verás el precio de cada servicio.</p>
+    </div>
+    <div class="tbar">
+      <div class="tabs" id="tabs">
+        <button class="tab on" data-c="lav">Lavados y limpieza</button>
+        <button class="tab" data-c="pul">Pulidos y cerámicos</button>
+        <button class="tab" data-c="ext">Extras</button>
+      </div>
+      <div class="size" id="size">
+        <button class="on" data-v="0">Hasta 5 plazas</button>
+        <button data-v="1">Más de 5 plazas</button>
+      </div>
+    </div>
+    <div class="tlist" id="tlist"></div>
+    <div class="tnote">Los servicios marcados como «desde» se ajustan según el estado del vehículo: te confirmamos el precio al verlo, antes de empezar.</div>
+  </div>
+</section>
+
+<section id="resultados">
+  <div class="wrap ba-wrap">
+    <div class="rv">
+      <div class="eyebrow">Así estaba, así quedó</div>
+      <h2 style="font-size:clamp(28px,4vw,46px);margin-top:14px">Los resultados hablan por sí solos.</h2>
+      <p style="color:var(--mut);margin-top:14px;font-size:17px">Desliza para comparar. Cada coche que sale de nuestro taller lo revisamos con luz de inspección antes de entregártelo.</p>
+      <ul class="ba-list">
+        <li><span class="ck">✓</span><span><b>Lavado a mano con método seguro</b>, sin rodillos, para cuidar la pintura.</span></li>
+        <li><span class="ck">✓</span><span><b>Precio cerrado</b> antes de empezar, sin sorpresas.</span></li>
+        <li><span class="ck">✓</span><span><b>Fotos del antes y el después</b> de tu propio coche.</span></li>
+      </ul>
+    </div>
+    <figure class="rv" style="margin:0">
+      <div class="ba" id="ba" tabindex="0" role="slider" aria-label="Comparar antes y después del pulido" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="50 % antes">
+        <img src="img/despues.jpg" alt="Capó negro después del pulido, con acabado espejo">
+        <img src="img/antes.jpg" alt="El mismo capó antes del pulido, con swirls y marcas de agua" class="before">
+        <span class="lb l">Antes</span><span class="lb r">Después</span>
+        <div class="bar"></div><div class="knob">⇆</div>
+      </div>
+      <figcaption class="cap">Imagen ilustrativa. Muy pronto, con trabajos reales de nuestro taller.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="proceso" style="padding-top:20px">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="eyebrow">Cómo trabajamos</div>
+      <h2>Sencillo de principio a fin.</h2>
+    </div>
+    <div class="steps">
+      <div class="step rv"><h3>Reservas online</h3><p>Eliges servicio, día y hora en un minuto. Sin llamadas ni esperas.</p></div>
+      <div class="step rv"><h3>Inspeccionamos</h3><p>Revisamos el coche contigo y te confirmamos el precio cerrado.</p></div>
+      <div class="step rv"><h3>Nos ponemos a ello</h3><p>Trabajamos cada detalle con tiempo y con el producto adecuado.</p></div>
+      <div class="step rv"><h3>Te lo entregamos</h3><p>Te avisamos cuando está listo y te enseñamos el resultado.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="reservar">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="eyebrow">Pide tu cita</div>
+      <h2>Elige día y hora.</h2>
+      <p>Escoge el servicio y el hueco que mejor te venga. Te confirmamos la cita por mensaje.</p>
+    </div>
+    <div class="bk">
+      <div class="panel">
+        <div class="prog"><i class="on"></i><i></i><i></i><i></i></div>
+
+        <div class="stp on" data-s="1">
+          <h3>¿Qué servicio necesitas?</h3>
+          <div class="sub">Si dudas, elige el más parecido: lo ajustamos al ver el coche.</div>
+          <div id="svcOpts"></div>
+        </div>
+
+        <div class="stp" data-s="2">
+          <h3>¿Qué coche traes?</h3>
+          <div class="sub">El precio depende del número de plazas.</div>
+          <div class="opts two" id="vehOpts">
+            <button class="opt" data-k="0"><span>🚗</span><b>Hasta 5 plazas</b><small>Utilitario, berlina, SUV</small></button>
+            <button class="opt" data-k="1"><span>🚐</span><b>Más de 5 plazas</b><small>Monovolumen, 7 plazas, furgoneta</small></button>
+          </div>
+        </div>
+
+        <div class="stp" data-s="3">
+          <h3>Día y hora</h3>
+          <div class="sub" id="slotHint">Elige el día y la hora a la que traes el coche.</div>
+          <div class="days" id="days"></div>
+          <div class="slots" id="slots"></div>
+          <div class="note" id="slotNote"></div>
+        </div>
+
+        <div class="stp" data-s="4">
+          <h3>Tus datos</h3>
+          <div class="sub">Solo lo necesario para confirmarte la cita.</div>
+          <div class="fields">
+            <label class="f">Nombre<input id="fName" autocomplete="name" placeholder="Tu nombre"></label>
+            <label class="f">Teléfono<input id="fTel" type="tel" autocomplete="tel" placeholder="600 000 000"></label>
+            <label class="f full">Coche (marca, modelo y color)<input id="fCar" placeholder="Ej. Golf GTI negro"></label>
+            <label class="f full">¿Algo que debamos saber? <span style="color:#4c5462">(opcional)</span><textarea id="fMsg" rows="2" placeholder="Pelo de mascota, manchas, arañazo en la puerta…"></textarea></label>
+          </div>
+          <label class="legal"><input type="checkbox" id="fOk"> <span>He leído y acepto la <a href="#" data-legal="privacidad" style="color:var(--blue2);text-decoration:underline">política de privacidad</a>. Usaremos tus datos solo para gestionar tu cita.</span></label>
+        </div>
+
+        <div class="stp" data-s="5">
+          <div class="done">
+            <div class="big">✓</div>
+            <h3>¡Solicitud enviada!</h3>
+            <p id="doneTxt"></p>
+            <div class="row">
+              <button class="btn btn-blue" id="ics">Añadir al calendario</button>
+              <button class="btn btn-ghost" id="again">Hacer otra reserva</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-b" id="navB">
+          <button class="back" id="back" style="visibility:hidden">← Atrás</button>
+          <button class="btn btn-blue" id="next" disabled>Continuar</button>
+        </div>
+      </div>
+
+      <aside class="panel sum">
+        <h4>Tu reserva</h4>
+        <dl>
+          <div><dt>Servicio</dt><dd id="sSvc" class="empty">—</dd></div>
+          <div><dt>Vehículo</dt><dd id="sVeh" class="empty">—</dd></div>
+          <div><dt>Fecha y hora</dt><dd id="sDate" class="empty">—</dd></div>
+          <div><dt>Tiempo de trabajo</dt><dd id="sDur" class="empty">—</dd></div>
+        </dl>
+        <div class="tot"><span style="color:var(--mut);font-size:13px">Precio</span><b id="sPrice">—</b></div>
+        <div class="ig">¿Prefieres hablar con nosotros? <a href="https://ig.me/m/emmdetail" target="_blank" rel="noopener">Escríbenos por Instagram</a> y te respondemos.</div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap rev">
+    <div class="rev-card rv">
+      <div class="stars">★★★★★</div>
+      <h3>¿Ya nos has confiado tu coche?</h3>
+      <p>Somos nuevos en Lugo y tu opinión nos ayuda muchísimo. Cuéntale a otros conductores cómo te ha ido: te lleva 20 segundos.</p>
+      <a class="btn btn-blue" href="https://www.google.com/maps/search/?api=1&query=EMM+Detail+Calle+San+Lorenzo+11+Lugo" target="_blank" rel="noopener">Dejar reseña en Google</a>
+    </div>
+    <a class="ig-card rv" href="https://www.instagram.com/emmdetail/" target="_blank" rel="noopener">
+      <div><b>@emmdetail</b><span>Antes y después, trabajos del día y novedades. Síguenos en Instagram →</span></div>
+    </a>
+  </div>
+</section>
+
+<section id="faq" style="padding-top:0">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="eyebrow">Preguntas frecuentes</div>
+      <h2>Lo que más nos preguntáis.</h2>
+    </div>
+    <div class="faq rv">
+      <details><summary>¿Cuánto tiempo se queda el coche en el taller?</summary>
+        <p>Depende del servicio: un lavado lleva entre 2 y 4 horas, la limpieza de tapicería unas 4 – 5 horas y la limpieza integral o el detailing completo, toda la jornada. Los pulidos con cerámico necesitan de 2 a 4 días, así que esos coches se dejan por la mañana.</p></details>
+      <details><summary>¿Qué arañazos se pueden quitar con un pulido?</summary>
+        <p>El pulido elimina los swirls (los círculos que dejan los rodillos y las bayetas), los hologramas y los arañazos superficiales: en torno al 70 % con nuestro pulido de 3 pasos. Los arañazos profundos, los que se notan al pasar la uña, se suavizan mucho pero pueden no desaparecer del todo. Te lo decimos al ver el coche.</p></details>
+      <details><summary>¿Cómo sé lo que voy a pagar?</summary>
+        <p>Los precios de la carta van según el número de plazas del coche. En los servicios marcados como «desde», revisamos el coche contigo antes de empezar y te damos el precio cerrado. Nunca empezamos un trabajo sin que sepas lo que cuesta.</p></details>
+      <details><summary>¿Qué cuidados necesita el coche después de un tratamiento cerámico?</summary>
+        <p>Los primeros días conviene no lavarlo y evitar que se moje en lo posible. Después, lávalo a mano con un champú de pH neutro y evita los túneles de rodillos. Te damos las pautas por escrito al recoger el coche.</p></details>
+      <details><summary>No sé qué servicio necesita mi coche</summary>
+        <p>Es lo normal. Pide una <a href="#reservar" data-book-link="valoracion" style="color:var(--blue2);text-decoration:underline">valoración</a>: te pasas por el taller, miramos el coche contigo en unos minutos y te recomendamos lo que de verdad necesita, sin compromiso.</p></details>
+    </div>
+  </div>
+</section>
+
+<section id="ubicacion" style="padding-top:0">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="eyebrow">Dónde estamos</div>
+      <h2>Te esperamos en Lugo.</h2>
+    </div>
+    <div class="loc">
+      <div class="info rv">
+        <div class="it"><div class="ico"><svg class="i" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></div>
+          <div><small>Dirección</small><b>Calle San Lorenzo, 11 · 27003 Lugo</b><small>Junto al Gadis de la Avenida da Coruña</small></div></div>
+        <div class="it"><div class="ico"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+          <div><small>Horario</small><b>Lunes a viernes · 9:00 – 19:00</b><small>Sábados · 9:00 – 14:00 · Domingos cerrado</small></div></div>
+        <div class="it"><div class="ico"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6"/></svg></div>
+          <div><small>Instagram</small><b><a href="https://www.instagram.com/emmdetail/" target="_blank" rel="noopener">@emmdetail</a></b><small>Mándanos fotos de tu coche y te orientamos</small></div></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
+          <a href="https://ig.me/m/emmdetail" target="_blank" rel="noopener" class="btn btn-blue">Escríbenos</a>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=Calle+San+Lorenzo+11+Lugo" target="_blank" rel="noopener" class="btn btn-ghost">Cómo llegar</a>
+        </div>
+      </div>
+      <div class="map rv">
+        <iframe loading="lazy" title="Mapa EMM Detail" src="https://www.google.com/maps?q=Calle+San+Lorenzo+11,+Lugo&z=16&output=embed"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div><a href="#" class="logo" style="align-items:flex-start"><span class="w"><b>EMM</b><i>DETAIL</i></span><small>AUTOMOTIVE DETAILING</small></a><div style="margin-top:10px">Tu coche. Nuestra pasión.</div></div>
+    <div>© 2026 EMM Detail · Lugo · <a href="#" data-legal="aviso" style="text-decoration:underline">Aviso legal</a> · <a href="#" data-legal="privacidad" style="text-decoration:underline">Privacidad</a>
+      <div class="demo-note">Web de demostración preparada por AetherIA</div></div>
+  </div>
+</footer>
+
+<dialog id="legal" aria-labelledby="legalTitle">
+  <div class="lg-head"><h3 id="legalTitle"></h3><button class="lg-x" data-close aria-label="Cerrar">✕</button></div>
+  <div id="legalBody"></div>
+</dialog>
+<template id="tpl-aviso">
+  <p><b>Titular:</b> [Razón social] · NIF [NIF]<br><b>Domicilio:</b> Calle San Lorenzo, 11 · 27003 Lugo<br><b>Contacto:</b> [email] · Instagram @emmdetail</p>
+  <p>Esta web informa sobre los servicios de detailing de EMM Detail y permite solicitar cita. Los precios publicados incluyen los impuestos aplicables salvo que se indique lo contrario y pueden ajustarse según el estado del vehículo, siempre con confirmación previa al cliente.</p>
+  <p>Los textos, imágenes y la marca EMM Detail pertenecen a su titular y no pueden reproducirse sin autorización.</p>
+</template>
+<template id="tpl-privacidad">
+  <p><b>Responsable:</b> [Razón social] (EMM Detail), NIF [NIF], Calle San Lorenzo, 11 · 27003 Lugo · [email].</p>
+  <p><b>Para qué usamos tus datos:</b> gestionar tu solicitud de cita y contactarte para confirmarla. No los usamos para publicidad ni los cedemos a terceros salvo obligación legal.</p>
+  <p><b>Base legal:</b> tu consentimiento al enviar la solicitud y la gestión del servicio que pides.</p>
+  <p><b>Cuánto tiempo:</b> el necesario para atender tu cita y cumplir las obligaciones legales.</p>
+  <p><b>Tus derechos:</b> puedes acceder, rectificar o suprimir tus datos, y oponerte o limitar su uso, escribiendo a [email]. También puedes reclamar ante la Agencia Española de Protección de Datos (aepd.es).</p>
+</template>
+
+<div class="fab" id="fab"><a href="#reservar" class="btn btn-blue">Reservar cita</a></div>
+
+<script>
+// ---------- Carta de servicios (de su carta impresa) ----------
+// p: [hasta 5 plazas, más de 5 plazas] · un solo valor = mismo precio · h: horas · days: días
+const CATS = {duda:'¿No lo tienes claro?', lav:'Lavados y limpieza', pul:'Pulidos y cerámicos', ext:'Extras'};
+// Horario: [apertura, cierre] en horas por día (0 = domingo). Pendiente de confirmar con el taller.
+const HOURS = {0:null, 1:[9,19], 2:[9,19], 3:[9,19], 4:[9,19], 5:[9,19], 6:[9,14]};
+const SVCS = [
+  {k:'valoracion', c:'duda', n:'Valoración del coche', t:'15 – 20 min', visit:true, note:'Sin compromiso',
+   ds:'Miramos el coche contigo y te recomendamos lo que de verdad necesita.'},
+  {k:'mant', c:'lav', n:'Lavado de mantenimiento', t:'2 – 3 h', h:2.5, p:[45,65],
+   ds:'El lavado completo para mantener tu coche siempre a punto.',
+   inc:['Lavado exterior a mano','Limpieza de llantas y acabado de neumáticos','Aspirado completo del habitáculo y maletero','Limpieza de salpicadero, volante y consola central','Limpieza interior y exterior de cristales','Cera líquida para aportar brillo y protección']},
+  {k:'premium', c:'lav', n:'Lavado Premium EMMD', t:'3 – 4 h', h:3.5, p:[119,139],
+   ds:'Nuestro lavado más completo, por dentro y por fuera.',
+   inc:['Prelavado y lavado exterior a mano con método seguro','Limpieza intensiva y descontaminación de llantas','Aspirado profundo de asientos, moquetas, zonas de difícil acceso y maletero','Acondicionamiento de plásticos y vinilos interiores','Limpieza profunda de alfombrillas con espuma y extracción','Limpieza de marcos de puertas y cristales','Acondicionamiento de plásticos exteriores y neumáticos','Cera líquida para aportar brillo y protección']},
+  {k:'tapiceria', c:'lav', n:'Limpieza de tapicería', t:'4 – 5 h', h:4.5, p:[179,199],
+   ds:'Asientos, alfombras y moquetas como el primer día.',
+   inc:['Aspirado profundo de asientos, alfombras, moquetas y maletero','Limpieza y desinfección de asientos textiles con inyección-extracción','Extracción en alfombras y moquetas','Tratamiento de manchas según su naturaleza','Neutralización de olores impregnados','Secado asistido con deshumidificador y ventilación profesional']},
+  {k:'integral', c:'lav', n:'Limpieza Integral Premium', t:'7 – 8 h', h:7.5, p:[229], desde:true,
+   ds:'El interior a fondo, con desmontaje de asientos.',
+   inc:['Aspirado profundo incluyendo zonas de difícil acceso','Desmontaje de asientos para limpiar moqueta y espacio inferior','Inyección-extracción de asientos, alfombras, moquetas y maletero','Tratamiento específico de manchas','Limpieza controlada del techo','Limpieza profunda de salpicadero, volante, consola y paneles','Acondicionamiento de plásticos y vinilos','Neutralización de olores y secado con deshumidificador']},
+  {k:'detailing', c:'lav', n:'Detailing Integral Interior + Exterior', t:'9 h', h:9, p:[279], desde:true,
+   ds:'El tratamiento completo: interior, exterior y motor.',
+   inc:['Lavado exterior a mano con método seguro','Limpieza del compartimento del motor','Descontaminación de llantas, pasos de rueda y carrocería','Cera líquida de alta calidad','Desmontaje de asientos y limpieza completa de moqueta','Inyección-extracción de tapicería y tratamiento de manchas','Limpieza de techo, salpicadero, consola y paneles','Neutralización de olores y secado con deshumidificador']},
+  {k:'pul1', c:'pul', n:'Pulido abrillantado + cera híbrida', t:'2 días', days:2, p:[419,479],
+   ds:'Pulido en 3 pasos tras limpieza detallada y descontaminación total de la pintura. Elimina en torno al 70 % de los arañazos.'},
+  {k:'pul2', c:'pul', n:'Pulido abrillantado + cerámico Light', t:'2 días', days:2, p:[549,619],
+   ds:'Pulido en 3 pasos con tratamiento cerámico Light: durabilidad y resistencia a químicos de hasta 2 años. Elimina en torno al 70 % de los arañazos.'},
+  {k:'pul3', c:'pul', n:'Pulido profesional + cerámico Infinite', t:'4 días', days:4, p:[789,859],
+   ds:'Pulido profesional y cerámico Infinite: hasta 4 años de protección frente a rayos UV, químicos (pH 2–11), excrementos e insectos, con gran efecto autolimpiante.'},
+  {k:'cristales', c:'ext', n:'Cerámico de cristales (antilluvia)', t:'4 h', h:4, p:[99],
+   ds:'Repele el agua y reduce la adherencia de la suciedad. Más visibilidad y seguridad con lluvia, hasta 6 meses.'},
+  {k:'cuero', c:'ext', n:'Limpieza y protección de cuero', t:'Según plazas', h:2, p:[29], unit:'por plaza',
+   ds:'Limpieza e hidratación del cuero y protector Geist Repel, que repele la suciedad y los tintes de la ropa.'},
+  {k:'ppf', c:'ext', n:'PPF · Film de protección de pintura', t:'Según proyecto', visit:true,
+   ds:'Film transparente que protege la pintura de piedras, roces y desgaste. Te pasamos presupuesto tras ver el coche.'},
+];
+const byK = k => SVCS.find(s=>s.k===k);
+const eur = n => n.toLocaleString('es-ES') + ' €';
+function priceOf(s, v){
+  if (!s.p) return {txt:'Consultar', pre:'Presupuesto'};
+  const n = s.p.length>1 ? s.p[v||0] : s.p[0];
+  return {txt:eur(n), pre: s.desde ? 'Desde' : (s.unit ? '' : ''), post: s.unit||''};
+}
+
+// ---------- Tarifas ----------
+const tv = {c:'lav', v:0};
+function renderTarifas(){
+  $('tlist').innerHTML = SVCS.filter(s=>s.c===tv.c).map(s=>{
+    const p = priceOf(s, tv.v);
+    return `<div class="ti">
+      <div>
+        <h3>${s.n}</h3>
+        <div class="meta"><span>⏱ ${s.t}</span>${s.p && s.p.length>1 ? `<span>${tv.v?'Más de 5 plazas':'Hasta 5 plazas'}</span>`:''}</div>
+        <div class="ds">${s.ds}</div>
+        ${s.inc ? `<details><summary>Qué incluye</summary><ul>${s.inc.map(i=>`<li>${i}</li>`).join('')}</ul></details>`:''}
+      </div>
+      <div class="pr"><div><small>${p.pre||'&nbsp;'}</small><b>${p.txt}</b>${p.post?`<small>${p.post}</small>`:''}</div>
+        <button class="btn btn-blue" data-book="${s.k}">${s.visit?'Pedir cita':'Reservar'}</button></div>
+    </div>`;
+  }).join('');
+}
+const $ = id => document.getElementById(id);
+$('tabs').onclick = e => { const b=e.target.closest('.tab'); if(!b) return; tv.c=b.dataset.c; document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t===b)); renderTarifas(); };
+$('size').onclick = e => { const b=e.target.closest('button'); if(!b) return; tv.v=+b.dataset.v; document.querySelectorAll('#size button').forEach(t=>t.classList.toggle('on',t===b)); renderTarifas(); };
+document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
+  document.querySelector(`.tab[data-c="${b.dataset.tab}"]`).click();
+  $('tarifas').scrollIntoView({behavior:'smooth'});
+});
+$('tlist').onclick = e => {
+  const b=e.target.closest('[data-book]'); if(!b) return;
+  startBooking(b.dataset.book, tv.v);
+};
+
+// ---------- Reserva ----------
+const DOW = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const VEH = ['Hasta 5 plazas','Más de 5 plazas'];
+const st = {s:1, svc:null, veh:null, day:null, slot:null};
+const needsVeh = s => s && s.p && s.p.length>1;
+const isLong = s => s && (s.days || s.h>=7);
+
+$('svcOpts').innerHTML = Object.entries(CATS).map(([c,name]) =>
+  `<div class="grp">${name}</div><div class="opts">` +
+  SVCS.filter(s=>s.c===c).map(s=>{ const p=s.p?(s.desde?'desde ':'')+eur(s.p[0]):(s.note||'Consultar');
+    return `<button class="opt" data-k="${s.k}"><span><b>${s.n}</b><small>${s.t}</small></span><em>${p}</em></button>`; }).join('') +
+  `</div>`).join('');
+$('svcOpts').onclick = e => { const b=e.target.closest('.opt'); if(!b) return;
+  st.svc=b.dataset.k; st.slot=null; markSel(); refresh();
+  setTimeout(()=>go(needsVeh(byK(st.svc)) ? 2 : 3), 220); };
+$('vehOpts').onclick = e => { const b=e.target.closest('.opt'); if(!b) return;
+  st.veh=+b.dataset.k; markSel(); refresh(); setTimeout(()=>go(3), 220); };
+function markSel(){
+  document.querySelectorAll('#svcOpts .opt').forEach(o=>o.classList.toggle('sel',o.dataset.k===st.svc));
+  document.querySelectorAll('#vehOpts .opt').forEach(o=>o.classList.toggle('sel',+o.dataset.k===st.veh));
+}
+function startBooking(k, v){
+  st.svc=k; st.slot=null; st.veh = needsVeh(byK(k)) ? v : null;
+  markSel(); go(3);
+  $('reservar').scrollIntoView({behavior:'smooth'});
+}
+
+// Días y horas
+const today = new Date(); today.setHours(0,0,0,0);
+const days = [];
+for (let i=0; days.length<18; i++){ const d=new Date(today); d.setDate(d.getDate()+i); days.push(d); }
+function seed(n){ let x=Math.sin(n)*10000; return x-Math.floor(x); }
+const toMin = t => { const [h,m]=t.split(':').map(Number); return h*60+m; };
+const nowMin = () => { const n=new Date(); return n.getHours()*60+n.getMinutes(); };
+const sameDay = (a,b) => a.toDateString()===b.toDateString();
+const hm = m => Math.floor(m/60)+':'+String(m%60).padStart(2,'0');
+function slotsFor(d){
+  const hrs = HOURS[d.getDay()];
+  if (!hrs) return [];
+  const sat = d.getDay()===6, s = byK(st.svc) || {};
+  let list = [];
+  if (isLong(s)) { if (!sat) list = ['9:00','9:30','10:00']; }   // se deja el coche por la mañana
+  else {
+    const close = hrs[1]*60, dur = s.visit ? 30 : Math.round((s.h||1)*60);
+    for (let m=hrs[0]*60; m+dur<=close; m+=30) list.push(hm(m));
+  }
+  const key = d.getDate()*31 + d.getMonth();
+  return list.map((t,i)=>({t, busy: seed(key*13+i*7+(st.svc||'').length) < 0.33 || (sameDay(d,today) && toMin(t) <= nowMin()+60)}));
+}
+function renderDays(){
+  const free = days.map(d=>slotsFor(d).some(s=>!s.busy));
+  if (st.day===null || !free[st.day]) st.day = free.indexOf(true);
+  $('days').innerHTML = days.map((d,i) =>
+    `<button class="day ${st.day===i?'sel':''}" data-i="${i}" ${free[i]?'':'disabled'}>
+      <small>${sameDay(d,today)?'Hoy':DOW[d.getDay()]}</small><b>${d.getDate()}</b><small>${MES[d.getMonth()]}</small></button>`).join('');
+  renderSlots();
+}
+function renderSlots(){
+  const s = byK(st.svc) || {};
+  const list = st.day>=0 ? slotsFor(days[st.day]) : [];
+  $('slots').innerHTML = list.map(x=>`<button class="slot ${st.slot===x.t?'sel':''}" data-t="${x.t}" ${x.busy?'disabled':''}>${x.t}</button>`).join('');
+  $('slotHint').textContent = isLong(s) ? `Este trabajo lleva ${s.days?s.days+' días':'toda la jornada'}: elige a qué hora nos dejas el coche.`
+                             : s.visit ? 'Elige cuándo te pasas para que valoremos tu coche (unos 20 minutos).'
+                             : 'Elige el día y la hora a la que traes el coche.';
+  $('slotNote').textContent = isLong(s) ? 'Los trabajos largos se reciben de lunes a viernes por la mañana.'
+                            : (days[st.day] && days[st.day].getDay()===6 ? 'Los sábados atendemos solo por la mañana.' : '');
+}
+$('days').onclick = e => { const b=e.target.closest('.day'); if(!b||b.disabled) return; st.day=+b.dataset.i; st.slot=null; renderDays(); refresh(); };
+$('slots').onclick = e => { const b=e.target.closest('.slot'); if(!b||b.disabled) return; st.slot=b.dataset.t; renderSlots(); refresh(); };
+
+['fName','fTel','fCar','fOk'].forEach(id => $(id).addEventListener('input', refresh));
+
+function valid(){
+  if (st.s===1) return !!st.svc;
+  if (st.s===2) return st.veh!==null;
+  if (st.s===3) return !!st.slot;
+  if (st.s===4) return $('fName').value.trim().length>1 && $('fTel').value.replace(/\D/g,'').length>=9 && $('fCar').value.trim() && $('fOk').checked;
+  return false;
+}
+function go(n){
+  st.s = n;
+  document.querySelectorAll('.stp').forEach(x=>x.classList.toggle('on', +x.dataset.s===n));
+  document.querySelectorAll('.prog i').forEach((x,i)=>x.classList.toggle('on', i<Math.min(n,4)));
+  if (n===3) renderDays();
+  $('navB').style.display = n===5 ? 'none' : '';
+  $('back').style.visibility = n>1 ? 'visible' : 'hidden';
+  $('next').textContent = n===4 ? 'Confirmar reserva' : 'Continuar';
+  refresh();
+}
+$('next').onclick = () => { if(!valid()) return;
+  if (st.s===4) return confirmBk();
+  go(st.s===1 && !needsVeh(byK(st.svc)) ? 3 : st.s+1); };
+$('back').onclick = () => go(st.s===3 && !needsVeh(byK(st.svc)) ? 1 : Math.max(1, st.s-1));
+
+function dateTxt(){
+  if (st.day===null || st.day<0 || !st.slot) return null;
+  const d=days[st.day];
+  return `${DOW[d.getDay()]} ${d.getDate()} ${MES[d.getMonth()]} · ${st.slot}`;
+}
+function set(id, v){ $(id).textContent = v || '—'; $(id).classList.toggle('empty', !v); }
+function refresh(){
+  const s = byK(st.svc);
+  set('sSvc', s && s.n);
+  set('sVeh', s && (needsVeh(s) ? (st.veh!==null ? VEH[st.veh] : null) : 'Cualquier tamaño'));
+  set('sDate', dateTxt());
+  set('sDur', s && (s.visit ? 'Valoración · 20 min' : s.t));
+  let p = null;
+  if (s) { if (!s.p) p=s.note||'A presupuestar'; else if (!needsVeh(s) || st.veh!==null) { const x=priceOf(s, st.veh||0); p=(s.desde?'desde ':'')+x.txt+(x.post?' '+x.post:''); } }
+  $('sPrice').textContent = p || '—';
+  document.querySelector('.sum').classList.toggle('has', !!s);
+  $('next').disabled = !valid();
+}
+function confirmBk(){
+  const name = $('fName').value.trim().split(' ')[0];
+  const b = t => { const el=document.createElement('b'); el.style.color='#fff'; el.textContent=t; return el; };
+  // El nombre lo escribe el visitante: se inserta como texto, nunca como HTML
+  $('doneTxt').replaceChildren(
+    `Gracias, ${name}. Hemos recibido tu solicitud para el `, b(dateTxt()),
+    ` (${byK(st.svc).n.toLowerCase()}). Te escribiremos para confirmarte la cita lo antes posible.`);
+  go(5);
+}
+$('again').onclick = () => {
+  Object.assign(st,{svc:null,veh:null,day:null,slot:null});
+  ['fName','fTel','fCar','fMsg'].forEach(id=>$(id).value=''); $('fOk').checked=false;
+  markSel(); go(1);
+};
+$('ics').onclick = () => {
+  const s=byK(st.svc), d=new Date(days[st.day]); const [h,m]=st.slot.split(':').map(Number); d.setHours(h,m);
+  // Trabajos de varios días: el evento es la entrega del coche; el resto, su duración real
+  const mins = s.visit ? 20 : isLong(s) ? 30 : Math.round((s.h||1)*60);
+  const e=new Date(d.getTime()+mins*60000);
+  const f=x=>x.getFullYear()+String(x.getMonth()+1).padStart(2,'0')+String(x.getDate()).padStart(2,'0')+'T'+String(x.getHours()).padStart(2,'0')+String(x.getMinutes()).padStart(2,'0')+'00';
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//EMM Detail//Reservas//ES','BEGIN:VEVENT',
+    'UID:'+Date.now()+'@emmdetail','DTSTAMP:'+f(new Date()),'DTSTART:'+f(d),'DTEND:'+f(e),
+    'SUMMARY:EMM Detail · '+s.n,'LOCATION:Calle San Lorenzo 11\\, Lugo','END:VEVENT','END:VCALENDAR'].join('\r\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([ics],{type:'text/calendar'})); a.download='cita-emm-detail.ics'; a.click();
+};
+
+// ---------- Antes / después ----------
+const ba = $('ba');
+let baPos = 50;
+function setPos(p){ baPos=Math.max(0,Math.min(100,p)); ba.style.setProperty('--x',baPos+'%');
+  ba.setAttribute('aria-valuenow', Math.round(baPos)); ba.setAttribute('aria-valuetext', Math.round(baPos)+' % antes'); }
+function setX(clientX){ const r=ba.getBoundingClientRect(); setPos((clientX-r.left)/r.width*100); }
+ba.addEventListener('keydown', e => {
+  const step = {ArrowLeft:-5, ArrowDown:-5, ArrowRight:5, ArrowUp:5, PageDown:-20, PageUp:20}[e.key];
+  if (step) { setPos(baPos+step); e.preventDefault(); }
+  else if (e.key==='Home') { setPos(0); e.preventDefault(); }
+  else if (e.key==='End') { setPos(100); e.preventDefault(); }
+});
+let drag=false;
+ba.addEventListener('pointerdown',e=>{drag=true; ba.setPointerCapture(e.pointerId); setX(e.clientX);});
+ba.addEventListener('pointermove',e=>{ if(drag) setX(e.clientX); });
+ba.addEventListener('pointerup',()=>drag=false);
+
+// ---------- Nav, revelado y botón flotante ----------
+const nav=$('nav'), fab=$('fab');
+const onScroll = () => {
+  nav.classList.toggle('solid', scrollY>30);
+  const r=$('reservar').getBoundingClientRect();
+  // Oculto por defecto: solo aparece al bajar del hero y fuera de la sección de reserva
+  fab.classList.toggle('show', innerHeight>0 && scrollY>innerHeight*.6 && !(r.top<innerHeight && r.bottom>0));
+};
+addEventListener('scroll', onScroll, {passive:true}); onScroll();
+const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} }),{threshold:.12});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+
+// ---------- Menú móvil ----------
+const links = $('links'), menuBtn = $('menuBtn');
+function setMenu(open){ links.classList.toggle('open',open); nav.classList.toggle('menu-on',open); menuBtn.setAttribute('aria-expanded',open); }
+menuBtn.onclick = () => setMenu(!links.classList.contains('open'));
+links.addEventListener('click', e => { if (e.target.closest('a')) setMenu(false); });
+
+// ---------- Abierto / cerrado según el horario ----------
+function openStatus(){
+  const now = new Date(), d = now.getDay(), hrs = HOURS[d], m = now.getHours()*60+now.getMinutes();
+  if (hrs && m >= hrs[0]*60 && m < hrs[1]*60) return {open:true, txt:`Abierto ahora · cierra a las ${hrs[1]}:00`};
+  for (let i=0; i<8; i++){
+    const dd = (d+i)%7, h = HOURS[dd];
+    if (!h || (i===0 && m >= h[0]*60)) continue;
+    const when = i===0 ? 'hoy' : i===1 ? 'mañana' : ['el domingo','el lunes','el martes','el miércoles','el jueves','el viernes','el sábado'][dd];
+    return {open:false, txt:`Cerrado · abre ${when} a las ${h[0]}:00`};
+  }
+  return {open:false, txt:'Cerrado'};
+}
+function paintOpen(){ const s=openStatus(), c=$('openChip');
+  c.querySelector('span:last-child').textContent = s.txt;
+  c.querySelector('.dot').style.cssText = s.open ? '' : 'background:#e0a43a;box-shadow:0 0 0 4px rgba(224,164,58,.15)'; }
+paintOpen(); setInterval(paintOpen, 60000);
+
+// ---------- Avisos legales ----------
+const legal = $('legal');
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-legal]'); if (!a) return;
+  e.preventDefault();
+  $('legalTitle').textContent = a.dataset.legal==='aviso' ? 'Aviso legal' : 'Política de privacidad';
+  $('legalBody').replaceChildren($('tpl-'+a.dataset.legal).content.cloneNode(true));
+  legal.showModal();
+});
+legal.addEventListener('click', e => { if (e.target===legal || e.target.closest('[data-close]')) legal.close(); });
+
+// Enlaces de texto que abren la reserva con un servicio ya elegido
+document.querySelectorAll('[data-book-link]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); startBooking(a.dataset.bookLink, 0); }));
+
+renderTarifas();
+refresh();
+</script>
+</body>
+</html>
