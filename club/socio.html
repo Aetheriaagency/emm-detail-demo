@@ -54,7 +54,7 @@
   .opcion { display: flex; justify-content: space-between; align-items: center; gap: 10px; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 13px 14px; }
   .opcion.on { border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue) inset; }
   .opcion s { color: var(--mut); font-size: 12px; margin-right: 6px; }
-  .dias { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+  .dias { display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; padding-bottom: 4px; }
   .dia { flex: 0 0 auto; width: 62px; text-align: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 9px 0; font-size: 12px; }
   .dia b { display: block; font-size: 18px; font-family: Unbounded; }
   .dia.on { border-color: var(--blue); background: rgba(47, 123, 255, 0.12); }
