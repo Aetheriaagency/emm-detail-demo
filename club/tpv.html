@@ -1,0 +1,958 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#07080a">
+<title>EMM Detail · TPV de mostrador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css">
+<style>
+  [hidden] { display: none !important; }
+  /* ───── Estructura: barra arriba, catálogo a la izquierda, ticket a la derecha ───── */
+  body { height: 100vh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; font-variant-numeric: tabular-nums; }
+  .top { display: flex; align-items: center; gap: 16px; padding: 10px 20px; border-bottom: 1px solid var(--line); background: var(--bg2); }
+  .top .titulo { font-family: Unbounded; font-weight: 700; font-size: 14px; padding-left: 16px; border-left: 1px solid var(--line2); }
+  .top .titulo span { color: var(--mut); font-weight: 500; }
+  .top .der-top { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .reloj { font-weight: 600; font-size: 13.5px; color: #c3c9d3; text-align: right; line-height: 1.25; }
+  .reloj b { display: block; font-family: Unbounded; font-size: 16px; color: var(--ink); }
+  .main { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 400px; }
+  .izq { min-height: 0; overflow: auto; padding: 18px 20px 30px; display: flex; flex-direction: column; gap: 16px; }
+  .panel { min-height: 0; display: flex; flex-direction: column; border-left: 1px solid var(--line); background: var(--bg2); }
+
+  /* ───── Cliente ───── */
+  .buscador { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .buscar { position: relative; flex: 1 1 260px; }
+  .buscar input { padding-left: 40px; height: 46px; border-radius: 14px; }
+  .buscar svg { position: absolute; left: 14px; top: 15px; opacity: 0.6; }
+  .resultados { position: absolute; z-index: 30; left: 0; right: 0; top: 52px; background: var(--card2); border: 1px solid var(--line2); border-radius: 14px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5); overflow: hidden; }
+  .res { display: flex; width: 100%; text-align: left; gap: 12px; align-items: center; padding: 10px 14px; background: none; border: 0; border-top: 1px solid var(--line); }
+  .res:first-child { border-top: 0; }
+  .res:hover, .res.on { background: rgba(47, 123, 255, 0.12); }
+  .res .mut { font-size: 12.5px; }
+  .avatar { flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; background: #1b2130; border: 2px solid var(--c, var(--line2)); }
+  .ficha { display: grid; grid-template-columns: auto 1fr auto; gap: 14px 18px; align-items: center; background: linear-gradient(120deg, rgba(47, 123, 255, 0.10), var(--card) 55%); border-color: #26324a; }
+  .ficha .avatar { width: 54px; height: 54px; font-size: 17px; }
+  .ficha h2 { font-size: 18px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .ficha .datos { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-end; }
+  .dato small { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mut); }
+  .dato b { font-family: Unbounded; font-size: 19px; }
+  .ficha .fila2 { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .coche { border: 1px solid var(--line2); background: var(--bg2); border-radius: 12px; padding: 7px 12px; font-size: 13px; text-align: left; line-height: 1.3; }
+  .coche small { display: block; color: var(--mut); font-size: 11.5px; }
+  .coche.on { border-color: var(--blue); background: rgba(47, 123, 255, 0.14); }
+  .ventaja { margin-left: auto; font-size: 13px; color: #c3c9d3; }
+  .ventaja b { color: var(--ink); }
+  .acciones { display: flex; flex-direction: column; gap: 8px; align-self: start; }
+  .nudge { font-size: 13px; color: #c3c9d3; }
+  .nudge b { color: var(--blue2); }
+
+  /* ───── Catálogo ───── */
+  .tabs { display: flex; gap: 6px; background: var(--bg2); border: 1px solid var(--line); border-radius: 999px; padding: 5px; width: max-content; max-width: 100%; }
+  .tab { border: 0; background: none; border-radius: 999px; padding: 9px 16px; font-weight: 600; font-size: 14px; color: var(--mut); display: flex; align-items: center; gap: 8px; }
+  .tab.on { background: var(--blue); color: #fff; }
+  .tab .badge { min-width: 20px; height: 20px; border-radius: 10px; background: var(--ok); color: #04210f; font-size: 11.5px; font-weight: 700; display: grid; place-items: center; padding: 0 6px; }
+  .cabecera { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .seg { display: inline-flex; border: 1px solid var(--line2); border-radius: 999px; padding: 3px; }
+  .seg button { border: 0; background: none; border-radius: 999px; padding: 6px 12px; font-size: 12.5px; font-weight: 600; color: var(--mut); }
+  .seg button.on { background: #222a38; color: var(--ink); }
+  .grupo { margin-top: 18px; }
+  .grupo h3 { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mut); margin-bottom: 10px; font-family: Inter; font-weight: 700; }
+  .rejilla-cat { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 10px; }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 13px 14px; text-align: left; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; min-height: 108px; transition: 0.12s; }
+  .tile:hover:not(:disabled) { border-color: var(--blue); background: var(--card2); }
+  .tile:active:not(:disabled) { transform: scale(0.97); }
+  .tile:disabled { opacity: 0.45; cursor: not-allowed; }
+  .tile .nom { font-weight: 600; font-size: 14px; line-height: 1.3; }
+  .tile .pie { display: flex; justify-content: space-between; align-items: flex-end; gap: 8px; }
+  .tile .pr { font-family: Unbounded; font-weight: 700; font-size: 15px; white-space: nowrap; }
+  .tile .pr s { display: block; font-family: Inter; font-weight: 500; font-size: 12px; color: var(--mut); }
+  .tile .pr.socio { color: var(--blue2); }
+  .tile .meta { font-size: 12px; color: var(--mut); }
+  .tile .meta.poco { color: #ffd28a; }
+  .tile.pum { animation: pum 0.35s; }
+  @keyframes pum { 50% { border-color: var(--ok); box-shadow: 0 0 0 3px rgba(52, 199, 123, 0.25); } }
+  .orden { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; align-items: center; text-align: left; width: 100%; background: linear-gradient(180deg, rgba(52, 199, 123, 0.12), var(--card)); border: 1px solid rgba(52, 199, 123, 0.5); border-radius: 14px; padding: 14px 16px; }
+  .orden:hover { border-color: var(--ok); }
+  .orden b { font-size: 15px; }
+  .orden.gris { background: var(--card); border-color: var(--line); cursor: default; }
+  .listado { display: grid; gap: 10px; }
+  .pedido { display: flex; gap: 12px; align-items: center; justify-content: space-between; }
+
+  /* ───── Ticket ───── */
+  .t-cab { padding: 16px 18px 12px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .t-cab h2 { font-size: 16px; }
+  .t-cab .mut { font-size: 12.5px; }
+  .lineas { flex: 1; min-height: 120px; overflow: auto; padding: 6px 18px; }
+  .ln { display: grid; grid-template-columns: 1fr auto auto 26px; gap: 10px; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--line); }
+  .ln.nueva { animation: entra 0.25s; }
+  @keyframes entra { from { opacity: 0; transform: translateX(8px); } }
+  .ln .n { font-weight: 600; font-size: 14px; line-height: 1.3; }
+  .ln .n small { display: block; font-weight: 500; font-size: 12px; color: var(--mut); }
+  .ln .n small .dto { color: var(--blue2); }
+  .ln .tot { font-weight: 700; font-size: 14px; text-align: right; min-width: 74px; }
+  .ln.canje .n, .ln.canje .tot { color: #7ee2ad; }
+  .cant { display: flex; align-items: center; border: 1px solid var(--line2); border-radius: 999px; }
+  .cant button { width: 28px; height: 28px; border: 0; background: none; font-size: 16px; font-weight: 700; color: #c3c9d3; }
+  .cant span { min-width: 18px; text-align: center; font-weight: 700; font-size: 13.5px; }
+  .x { width: 26px; height: 26px; border-radius: 50%; border: 0; background: none; color: var(--mut); font-size: 18px; line-height: 1; }
+  .x:hover { color: var(--bad); background: rgba(255, 93, 93, 0.1); }
+  .t-pie { border-top: 1px solid var(--line); padding: 14px 18px 18px; display: grid; gap: 12px; background: var(--bg); }
+  .canje-f { display: flex; gap: 8px; }
+  .canje-f input { text-transform: uppercase; letter-spacing: 0.15em; padding: 9px 12px; }
+  .canje-f input::placeholder { text-transform: none; letter-spacing: 0; }
+  .sumas { display: grid; gap: 4px; font-size: 14px; }
+  .sumas .entre span:last-child { font-weight: 600; }
+  .sumas .verde { color: #7ee2ad; }
+  .total { display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px; }
+  .total span { font-weight: 600; }
+  .total b { font-family: Unbounded; font-size: 28px; }
+  .puntos { font-size: 13px; color: var(--blue2); font-weight: 600; }
+  .cobrar { width: 100%; padding: 16px; font-size: 17px; border-radius: 16px; }
+
+  /* ───── Ventanas ───── */
+  dialog.d { padding: 0; }
+  dialog.d .in { padding: 22px; display: grid; gap: 14px; max-height: calc(100vh - 40px); overflow: auto; }
+  dialog.ancho { width: min(560px, calc(100vw - 32px)); }
+  .d .botones { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+  .grande { text-align: center; }
+  .grande small { color: var(--mut); font-weight: 600; font-size: 12.5px; }
+  .grande b { display: block; font-family: Unbounded; font-size: 34px; }
+  .rapidos { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; }
+  .rapido { border: 1px solid var(--line2); background: var(--bg2); border-radius: 12px; padding: 10px 6px; font-weight: 600; font-size: 13.5px; }
+  .rapido:hover:not(:disabled) { border-color: var(--blue2); }
+  .rapido.on { border-color: var(--blue); background: rgba(47, 123, 255, 0.16); }
+  .rapido:disabled { opacity: 0.4; cursor: not-allowed; }
+  .pago { display: grid; grid-template-columns: 1fr 130px auto; gap: 8px; align-items: center; }
+  .pago label { font-weight: 600; font-size: 14px; }
+  .pago label small { display: block; color: var(--mut); font-weight: 500; font-size: 12px; }
+  .pago input { text-align: right; padding: 9px 12px; }
+  .entregado { grid-column: 1 / -1; display: flex; gap: 10px; align-items: center; justify-content: flex-end; font-size: 13.5px; color: var(--mut); }
+  .entregado input { width: 130px; }
+  .pendiente { text-align: center; font-weight: 700; padding: 10px; border-radius: 12px; background: var(--bg2); }
+  .pendiente.ok { color: #7ee2ad; }
+  .pendiente.mal { color: #ffaaaa; }
+  .nfc { display: grid; place-items: center; padding: 10px 0 4px; }
+  .nfc .onda { width: 92px; height: 92px; border-radius: 50%; border: 2px solid var(--blue); display: grid; place-items: center; animation: onda 1.4s infinite; font-family: Unbounded; font-weight: 800; color: var(--blue2); }
+  .nfc .onda.ok { border-color: var(--ok); color: #7ee2ad; animation: none; }
+  @keyframes onda { 0% { box-shadow: 0 0 0 0 var(--glow); } 100% { box-shadow: 0 0 0 26px rgba(47, 123, 255, 0); } }
+  .tarjetas { display: grid; gap: 8px; }
+  .formu { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .formu .todo { grid-column: 1 / -1; }
+  .papel { background: #f4f5f7; color: #12151b; border-radius: 14px; padding: 18px 18px 20px; font-size: 13.5px; }
+  .papel .marca { font-family: Unbounded; font-weight: 900; font-size: 17px; text-align: center; letter-spacing: -0.02em; }
+  .papel .marca i { font-style: normal; color: #1a4fc4; }
+  .papel .c { text-align: center; color: #5b6270; font-size: 12px; }
+  .papel .raya { border-top: 1px dashed #b5bcc8; margin: 10px 0; }
+  .papel .entre { align-items: flex-start; }
+  .papel .gordo { font-weight: 800; font-size: 16px; }
+  .papel .gracias { text-align: center; font-weight: 700; margin-top: 4px; }
+  .cajas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .cajas div { background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+  .cajas small { display: block; color: var(--mut); font-size: 11.5px; font-weight: 600; }
+  .cajas b { font-size: 15px; }
+  .lista-caja { max-height: 300px; overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
+  .lista-caja > div { display: grid; grid-template-columns: 52px 1fr auto; gap: 10px; padding: 9px 12px; border-top: 1px solid var(--line); font-size: 13.5px; }
+  .lista-caja > div:first-child { border-top: 0; }
+
+  @media (max-width: 1100px) { .main { grid-template-columns: minmax(0, 1fr) 360px; } .ficha { grid-template-columns: auto 1fr; } .acciones { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; } }
+  @media (max-width: 760px) {
+    body { height: auto; overflow: auto; }
+    .main { grid-template-columns: 1fr; }
+    .panel { border-left: 0; border-top: 1px solid var(--line); }
+    .top .titulo span, .top .titulo { display: none; }
+    .top { padding: 10px 16px; }
+    .top .btn, .reloj { white-space: nowrap; }
+    .cajas { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="logo"><span class="w"><b>EMM</b><i>DETAIL</i></span><small>AUTOMOTIVE DETAILING</small></span>
+  <div class="titulo">TPV <span>· Mostrador</span></div>
+  <div class="der-top">
+    <button class="btn btn-ghost btn-sm" id="btnCaja">Caja de hoy</button>
+    <div class="reloj" id="reloj"></div>
+  </div>
+</header>
+
+<div class="main">
+  <!-- Izquierda: cliente + catálogo -->
+  <section class="izq">
+    <div id="buscador" class="buscador">
+      <div class="buscar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" autocomplete="off" placeholder="Buscar socio: nombre, teléfono, matrícula o tarjeta">
+        <div class="resultados" id="resultados" hidden></div>
+      </div>
+      <button class="btn btn-blue" id="btnNfc">Leer tarjeta NFC</button>
+      <button class="btn btn-ghost" id="btnAnon">Cliente sin tarjeta</button>
+      <button class="btn btn-ghost" id="btnAlta">+ Hacer socio</button>
+    </div>
+    <div id="ficha"></div>
+
+    <div class="tabs" id="tabs">
+      <button class="tab on" data-tab="servicios">Servicios</button>
+      <button class="tab" data-tab="productos">Productos</button>
+      <button class="tab" data-tab="listos">Coches listos <span class="badge" id="badge" hidden></span></button>
+    </div>
+    <div id="catalogo"></div>
+  </section>
+
+  <!-- Derecha: ticket -->
+  <aside class="panel">
+    <div class="t-cab">
+      <div><h2>Ticket</h2><div class="mut" id="tCliente">Sin cliente</div></div>
+      <button class="btn btn-ghost btn-sm" id="btnVaciar">Vaciar</button>
+    </div>
+    <div class="lineas" id="lineas"></div>
+    <div class="t-pie">
+      <form class="canje-f" id="formCanje">
+        <input id="codigo" maxlength="8" autocomplete="off" placeholder="Código de canje">
+        <button class="btn btn-ghost btn-sm" type="submit">Aplicar</button>
+      </form>
+      <div id="sumas" class="sumas"></div>
+      <button class="btn btn-blue cobrar" id="btnCobrar" disabled>Cobrar</button>
+    </div>
+  </aside>
+</div>
+
+<!-- Leer tarjeta NFC (simulado) -->
+<dialog class="d" id="dNfc"><div class="in">
+  <h3>Leer tarjeta</h3>
+  <div class="nfc"><div class="onda" id="nfcOnda">NFC</div></div>
+  <p class="mut grande" id="nfcTexto" style="font-size:14px">Acerca la tarjeta al lector…</p>
+  <p class="eyebrow">Simular tarjeta</p>
+  <div class="tarjetas" id="nfcLista"></div>
+  <div class="botones"><button class="btn btn-ghost btn-sm" data-cerrar>Cancelar</button></div>
+</div></dialog>
+
+<!-- Alta de socio -->
+<dialog class="d" id="dAlta"><form class="in" id="formAlta">
+  <h3>Hacer socio del club EMM</h3>
+  <p class="mut peq">Se lleva 50 puntos de bienvenida y su tarjeta al momento.</p>
+  <div class="formu">
+    <label class="f todo">Nombre y apellidos *<input name="nombre" required></label>
+    <label class="f">Teléfono *<input name="tel" type="tel" required></label>
+    <label class="f">Email<input name="email" type="email"></label>
+    <label class="f">Coche (modelo y color)<input name="modelo" placeholder="Ej.: Seat Ibiza blanco"></label>
+    <label class="f">Matrícula<input name="matricula" placeholder="0000 ABC"></label>
+    <label class="f todo">Plazas
+      <select name="plazas"><option value="0">Hasta 5 plazas</option><option value="1">Más de 5 plazas</option></select>
+    </label>
+  </div>
+  <div class="botones"><button type="button" class="btn btn-ghost" data-cerrar>Cancelar</button><button class="btn btn-blue" type="submit">Dar de alta</button></div>
+</form></dialog>
+
+<!-- Cobro -->
+<dialog class="d" id="dCobro"><div class="in">
+  <div class="grande"><small>Total a cobrar</small><b id="cTotal"></b><small id="cCliente"></small></div>
+  <div class="rapidos" id="cRapidos"></div>
+  <div id="cFilas" style="display:grid;gap:10px"></div>
+  <div class="pendiente" id="cPendiente"></div>
+  <div class="botones"><button class="btn btn-ghost" data-cerrar>Volver</button><button class="btn btn-ok" id="cConfirmar">Confirmar cobro</button></div>
+</div></dialog>
+
+<!-- Recibo -->
+<dialog class="d" id="dRecibo"><div class="in">
+  <div class="papel" id="papel"></div>
+  <div class="botones"><button class="btn btn-blue" id="btnNuevo" style="width:100%">Nuevo ticket</button></div>
+</div></dialog>
+
+<!-- Recarga del monedero -->
+<dialog class="d" id="dRecarga"><div class="in">
+  <h3>Recargar monedero</h3>
+  <p class="mut peq" id="rSocio"></p>
+  <div class="rapidos" id="rImportes"></div>
+  <label class="f" id="rOtroW" hidden>Otro importe (€)<input id="rOtro" inputmode="decimal" placeholder="0,00"></label>
+  <p class="eyebrow">Cómo paga</p>
+  <div class="rapidos" id="rVia"></div>
+  <div class="sumas card" id="rResumen"></div>
+  <div class="botones"><button class="btn btn-ghost" data-cerrar>Cancelar</button><button class="btn btn-blue" id="rConfirmar">Recargar</button></div>
+</div></dialog>
+
+<!-- Caja de hoy -->
+<dialog class="d ancho" id="dCaja"><div class="in" id="cajaIn"></div></dialog>
+
+<div class="toast" id="toast"></div>
+
+<script src="datos.js"></script>
+<script>
+(function () {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const dinero = (n) => EMM.eur(Math.abs(n) < 0.005 ? 0 : n);
+  const r2 = EMM.r2;
+  const num = (v) => { const x = parseFloat(String(v ?? "").replace(/\s|€/g, "").replace(",", ".")); return isFinite(x) && x > 0 ? r2(x) : 0; };
+  const normal = (t) => String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[\s-]/g, "");
+  const iniciales = (n) => String(n || "?").trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join("").toUpperCase();
+  const FORMAS = { efectivo: "Efectivo", tarjeta: "Tarjeta", bizum: "Bizum", saldo: "Saldo" };
+
+  /* ───────── Estado del mostrador (solo en memoria; sobrevive a los cambios de otras pantallas) ───────── */
+  const st = {
+    modo: null,          // null = sin elegir · "socio" · "anon" (cliente sin tarjeta)
+    socioId: null, cocheId: null,
+    plazas: 0,           // columna de precio cuando no hay coche de socio
+    anonNombre: "", anonCoche: "",
+    lineas: [],          // {tipo, ref, n, cant, precio (base), dto}
+    canje: null,         // {codigo, socioId, valor, n}
+    ordenId: null,       // orden de taller que se entrega con este ticket
+    tab: "servicios",
+  };
+
+  const socioActual = () => (st.modo === "socio" ? EMM.socio(st.socioId) : null);
+  const cocheActual = () => { const s = socioActual(); return s ? s.coches.find((c) => c.id === st.cocheId) || null : null; };
+  const plazasActuales = () => { const c = cocheActual(); return c ? c.plazas : st.plazas; };
+  const lineasCobro = () => st.lineas.map(({ tipo, ref, n, cant, precio, dto }) => ({ tipo, ref, n, cant, precio, dto }));
+
+  /* ───────── Toast ───────── */
+  let tToast;
+  function toast(msg, error = false) {
+    const t = $("#toast");
+    // Con una ventana abierta, el aviso va dentro de ella para que quede por encima del fondo oscuro
+    const abierta = [...document.querySelectorAll("dialog[open]")].pop() || document.body;
+    if (t.parentNode !== abierta) abierta.appendChild(t);
+    t.textContent = msg;
+    t.className = "toast on" + (error ? " error" : "");
+    clearTimeout(tToast);
+    tToast = setTimeout(() => (t.className = "toast" + (error ? " error" : "")), 2600);
+  }
+
+  /* ───────── Reloj ───────── */
+  function reloj() {
+    const d = new Date();
+    const hora = d.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+    $("#reloj").innerHTML = `<b>${hora}</b>${esc(EMM.fechaCorta(EMM.hoyISO()))}`;
+  }
+
+  /* ───────── Coherencia del ticket con los datos actuales ───────── */
+  function normalizar() {
+    if (st.modo === "socio") {
+      const s = EMM.socio(st.socioId);
+      if (!s) { st.modo = null; st.socioId = null; st.cocheId = null; quitarCanje(); }
+      else if (!s.coches.some((c) => c.id === st.cocheId)) st.cocheId = s.coches[0] ? s.coches[0].id : null;
+    }
+    const s = socioActual();
+    const plazas = plazasActuales();
+    const dto = s ? EMM.nivel(s).dto : 0;
+    for (const l of st.lineas) {
+      if (l.tipo === "servicio") { l.precio = EMM.precioBase(l.ref, plazas); l.dto = dto; }
+      if (l.tipo === "producto") { const p = EMM.producto(l.ref); if (p) { l.precio = p.precio; l.n = p.n; } }
+    }
+    if (st.ordenId) {
+      const o = EMM.estado.ordenes.find((x) => x.id === st.ordenId);
+      if (!o || o.estado !== "listo") st.ordenId = null;
+    }
+    // El canje nunca deja el total por debajo de cero
+    const cl = st.lineas.find((l) => l.tipo === "canje");
+    if (cl && st.canje) {
+      const resto = EMM.totalTicket(st.lineas.filter((l) => l.tipo !== "canje"));
+      cl.precio = -r2(Math.min(st.canje.valor, Math.max(0, resto)));
+    }
+  }
+
+  /* ───────── Cliente ───────── */
+  function seleccionarSocio(sid, cocheId = null) {
+    const s = EMM.socio(sid);
+    if (!s) return;
+    if (st.canje && st.canje.socioId !== sid) { quitarCanje(); toast("Se ha quitado el canje: era de otro socio."); }
+    st.modo = "socio";
+    st.socioId = sid;
+    st.cocheId = cocheId && s.coches.some((c) => c.id === cocheId) ? cocheId : s.coches[0] ? s.coches[0].id : null;
+    st.anonNombre = st.anonCoche = "";
+    cerrarBusqueda();
+    render();
+  }
+  function clienteSinTarjeta() {
+    if (st.canje) quitarCanje();
+    st.modo = "anon"; st.socioId = st.cocheId = null; st.anonNombre = st.anonCoche = "";
+    cerrarBusqueda();
+    render();
+  }
+  function cambiarCliente() {
+    if (st.canje) quitarCanje();
+    st.modo = null; st.socioId = st.cocheId = null; st.anonNombre = st.anonCoche = "";
+    render();
+    $("#q").focus();
+  }
+
+  function pintarFicha() {
+    $("#buscador").hidden = !!st.modo;
+    const f = $("#ficha");
+    if (!st.modo) { f.innerHTML = ""; return; }
+    if (st.modo === "anon") {
+      const total = EMM.totalTicket(st.lineas);
+      f.innerHTML = `<div class="card ficha">
+        <div class="avatar">${st.anonNombre ? esc(iniciales(st.anonNombre)) : "?"}</div>
+        <div><h2>${esc(st.anonNombre || "Cliente sin tarjeta")}</h2>
+          <div class="nudge">${st.anonCoche ? esc(st.anonCoche) + " · " : ""}Si se hace socio hoy: <b>+50 puntos</b> de bienvenida${total > 0 ? ` y <b>+${Math.floor(total)}</b> por esta compra` : ""}.</div></div>
+        <div class="acciones"><button class="btn btn-blue btn-sm" data-acc="alta">Hacer socio</button><button class="btn btn-ghost btn-sm" data-acc="cambiar">Cambiar cliente</button></div>
+      </div>`;
+      return;
+    }
+    const s = socioActual();
+    const nv = EMM.nivel(s);
+    const sig = EMM.siguienteNivel(s);
+    const coches = s.coches.map((c) => `<button class="coche ${c.id === st.cocheId ? "on" : ""}" data-coche="${esc(c.id)}">${esc(c.modelo)}<small>${esc(c.matricula || "Sin matrícula")} · ${c.plazas ? "más de 5 plazas" : "hasta 5 plazas"}</small></button>`).join("");
+    const ventaja = nv.dto ? `Nivel ${esc(nv.n)} · <b>${nv.dto} % en servicios</b>` : `Nivel ${esc(nv.n)} · 1 punto por euro`;
+    const falta = sig ? `<br><span class="mut peq">Le faltan ${sig.desde - s.acumulados} puntos para ${esc(sig.n)}</span>` : "";
+    f.innerHTML = `<div class="card ficha">
+      <div class="avatar" style="--c:${nv.color}">${esc(iniciales(s.nombre))}</div>
+      <div>
+        <h2>${esc(s.nombre)} <span class="chip" style="border-color:${nv.color};color:${nv.color};background:${nv.color}1a">${esc(nv.n)}</span></h2>
+        <div class="mut peq">${esc(s.tarjeta)} · ${esc(s.tel)}</div>
+        <div class="datos" style="margin-top:10px">
+          <div class="dato"><small>Puntos</small><b>${s.puntos}</b></div>
+          <div class="dato"><small>Saldo</small><b>${dinero(s.saldo)}</b></div>
+        </div>
+      </div>
+      <div class="acciones"><button class="btn btn-blue btn-sm" data-acc="recarga">Recargar saldo</button><button class="btn btn-ghost btn-sm" data-acc="cambiar">Cambiar cliente</button></div>
+      <div class="fila2">${coches || '<span class="mut peq">Sin coches registrados</span>'}<div class="ventaja">${ventaja}${falta}</div></div>
+    </div>`;
+  }
+
+  /* Búsqueda en vivo */
+  let resultados = [];
+  function buscar() {
+    const q = normal($("#q").value);
+    const caja = $("#resultados");
+    if (!q) { caja.hidden = true; resultados = []; return; }
+    resultados = EMM.estado.socios.filter((s) => normal([s.nombre, s.tel, s.tarjeta, s.email, ...s.coches.map((c) => c.matricula + " " + c.modelo)].join(" ")).includes(q)).slice(0, 6);
+    caja.hidden = false;
+    caja.innerHTML = resultados.length
+      ? resultados.map((s, i) => { const nv = EMM.nivel(s); return `<button class="res ${i === 0 ? "on" : ""}" data-socio="${esc(s.id)}"><span class="avatar" style="--c:${nv.color}">${esc(iniciales(s.nombre))}</span><span style="flex:1"><b>${esc(s.nombre)}</b><br><span class="mut">${esc(s.tarjeta)} · ${esc(s.tel)} · ${esc(s.coches.map((c) => c.matricula).filter(Boolean).join(", "))}</span></span><span class="chip" style="border-color:${nv.color};color:${nv.color}">${esc(nv.n)}</span></button>`; }).join("")
+      : `<div class="vacio">No hay ningún socio con «${esc($("#q").value)}».<br><button class="btn btn-ghost btn-sm" style="margin-top:10px" data-acc="alta">Hacerlo socio</button></div>`;
+  }
+  function cerrarBusqueda() { $("#q").value = ""; $("#resultados").hidden = true; resultados = []; }
+
+  /* ───────── Catálogo ───────── */
+  function pintarTabs() {
+    document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("on", t.dataset.tab === st.tab));
+    const n = EMM.estado.ordenes.filter((o) => o.estado === "listo").length + EMM.estado.pedidos.filter((p) => p.estado === "pendiente").length;
+    const b = $("#badge");
+    b.hidden = !n;
+    b.textContent = n;
+  }
+
+  function pintarCatalogo() {
+    const c = $("#catalogo");
+    if (st.tab === "servicios") c.innerHTML = htmlServicios();
+    else if (st.tab === "productos") c.innerHTML = htmlProductos();
+    else c.innerHTML = htmlListos();
+  }
+
+  function htmlServicios() {
+    const s = socioActual();
+    const coche = cocheActual();
+    const plazas = plazasActuales();
+    const cab = coche
+      ? `<span class="mut peq">Precios para el <b style="color:var(--ink)">${esc(coche.modelo)}</b> · ${plazas ? "más de 5 plazas" : "hasta 5 plazas"}</span>`
+      : `<span class="seg"><button data-plazas="0" class="${plazas ? "" : "on"}">Hasta 5 plazas</button><button data-plazas="1" class="${plazas ? "on" : ""}">Más de 5 plazas</button></span>`;
+    const grupos = ["Lavados", "Pulidos", "Extras"].map((g) => {
+      const tiles = EMM.SERVICIOS.filter((x) => x.c === g).map((x) => {
+        const base = EMM.precioBase(x.k, plazas);
+        const socio = EMM.precioSocio(x.k, plazas, s);
+        const precio = s && socio < base ? `<span class="pr socio"><s>${dinero(base)}</s>${dinero(socio)}</span>` : `<span class="pr">${dinero(base)}</span>`;
+        const tiempo = x.dias ? `${x.dias} días` : `${String(x.h).replace(".", ",")} h`;
+        return `<button class="tile" data-serv="${x.k}" title="${esc(x.n)}"><span class="nom">${esc(x.n)}</span><span class="pie"><span class="meta">${tiempo}</span>${precio}</span></button>`;
+      }).join("");
+      return `<div class="grupo"><h3>${g}</h3><div class="rejilla-cat">${tiles}</div></div>`;
+    }).join("");
+    return `<div class="cabecera">${cab}${s && EMM.nivel(s).dto ? `<span class="chip azul">Precio socio ${esc(EMM.nivel(s).n)} aplicado</span>` : ""}</div>${grupos}`;
+  }
+
+  function htmlProductos() {
+    const tiles = EMM.estado.productos.map((p) => {
+      const enTicket = (st.lineas.find((l) => l.tipo === "producto" && l.ref === p.id) || {}).cant || 0;
+      const quedan = p.stock - enTicket;
+      const meta = p.stock <= 0 ? "Agotado" : `Quedan ${p.stock}`;
+      return `<button class="tile" data-prod="${esc(p.id)}" ${quedan <= 0 ? "disabled" : ""}><span class="nom">${esc(p.n)}</span><span class="pie"><span class="meta ${p.stock <= p.minimo ? "poco" : ""}">${meta}</span><span class="pr">${dinero(p.precio)}</span></span></button>`;
+    }).join("");
+    return `<div class="cabecera"><span class="mut peq">Los productos no llevan descuento de nivel, pero sí suman puntos.</span></div><div class="grupo"><div class="rejilla-cat">${tiles}</div></div>`;
+  }
+
+  function datosOrden(o) {
+    const s = EMM.socio(o.socioId);
+    const cita = EMM.estado.citas.find((c) => c.id === o.citaId);
+    const coche = s ? s.coches.find((c) => c.id === o.cocheId) : null;
+    const plazas = EMM.plazasDeOrden(o);
+    return { s, cita, cliente: s ? s.nombre : (cita && cita.cliente) || "Cliente sin tarjeta", matricula: coche ? coche.matricula : "", precio: EMM.precioSocio(o.servicio, plazas, s) };
+  }
+
+  function htmlListos() {
+    const ords = EMM.estado.ordenes;
+    const listos = ords.filter((o) => o.estado === "listo");
+    const taller = ords.filter((o) => ["recibido", "proceso", "calidad"].includes(o.estado));
+    const pedidos = EMM.estado.pedidos.filter((p) => p.estado === "pendiente");
+    const tarjetaOrden = (o, activa) => {
+      const d = datosOrden(o);
+      const sv = EMM.servicio(o.servicio);
+      return `<${activa ? `button data-orden="${esc(o.id)}"` : "div"} class="orden ${activa ? "" : "gris"}">
+        <div><b>${esc(EMM.cocheDeOrden(o))}</b>${d.matricula ? ` <span class="mut">· ${esc(d.matricula)}</span>` : ""}<br><span class="mut peq">${esc(d.cliente)} · ${esc(sv ? sv.n : o.servicio)}</span></div>
+        <div style="text-align:right">${activa ? `<b>${dinero(d.precio)}</b><br><span class="chip ok">${st.ordenId === o.id ? "En el ticket" : "Cobrar y entregar"}</span>` : `<span class="chip">${esc(EMM.NOMBRE_ESTADO[o.estado])}</span>`}</div>
+      </${activa ? "button" : "div"}>`;
+    };
+    const ped = pedidos.map((p) => {
+      const s = EMM.socio(p.socioId);
+      const pr = EMM.producto(p.productoId);
+      return `<div class="card pedido"><div><b>${esc(pr ? pr.n : "Producto")} ×${p.cant}</b><br><span class="mut peq">${esc(s ? s.nombre : "Socio")} · pedido #${p.num} · ${esc(EMM.fechaCorta(p.fecha.slice(0, 10)))} ${esc(EMM.horaDe(p.fecha))} · pagado con saldo (${dinero(p.total)})</span></div><button class="btn btn-ok btn-sm" data-entregar="${esc(p.id)}">Entregar</button></div>`;
+    }).join("");
+    return `<div class="grupo"><h3>Listos para recoger</h3><div class="listado">${listos.map((o) => tarjetaOrden(o, true)).join("") || '<div class="card vacio">Ningún coche listo todavía. En cuanto el taller marque uno como «listo», aparece aquí.</div>'}</div></div>
+      <div class="grupo"><h3>Pedidos de la app · ya pagados</h3><div class="listado">${ped || '<div class="card vacio">No hay pedidos pendientes de entregar.</div>'}</div></div>
+      ${taller.length ? `<div class="grupo"><h3>Todavía en el taller</h3><div class="listado">${taller.map((o) => tarjetaOrden(o, false)).join("")}</div></div>` : ""}`;
+  }
+
+  /* ───────── Líneas del ticket ───────── */
+  let nueva = null; // la última línea añadida se anima una sola vez
+  function meterLinea(l) {
+    const i = st.lineas.findIndex((x) => x.tipo === "canje");
+    if (i < 0) st.lineas.push(l); else st.lineas.splice(i, 0, l);
+    nueva = l;
+  }
+  function anadirServicio(k, silencio = false) {
+    const ex = st.lineas.find((l) => l.tipo === "servicio" && l.ref === k);
+    if (ex) ex.cant++;
+    else meterLinea({ tipo: "servicio", ref: k, n: EMM.servicio(k).n, cant: 1, precio: EMM.precioBase(k, plazasActuales()), dto: 0 });
+    if (!silencio) render();
+  }
+  function anadirProducto(pid, silencio = false) {
+    const p = EMM.producto(pid);
+    if (!p) return;
+    const ex = st.lineas.find((l) => l.tipo === "producto" && l.ref === pid);
+    if ((ex ? ex.cant : 0) >= p.stock) { if (!silencio) toast(`Solo quedan ${p.stock} en stock.`, true); return; }
+    if (ex) ex.cant++;
+    else meterLinea({ tipo: "producto", ref: pid, n: p.n, cant: 1, precio: p.precio, dto: 0 });
+    if (!silencio) render();
+  }
+  function cambiarCant(i, d) {
+    const l = st.lineas[i];
+    if (!l || l.tipo === "canje") return;
+    if (d > 0 && l.tipo === "producto") { const p = EMM.producto(l.ref); if (p && l.cant >= p.stock) return toast(`Solo quedan ${p.stock} en stock.`, true); }
+    l.cant += d;
+    if (l.cant <= 0) return quitarLinea(i);
+    render();
+  }
+  function quitarLinea(i) {
+    const l = st.lineas[i];
+    if (!l) return;
+    if (l.tipo === "canje") { quitarCanje(); return render(); }
+    st.lineas.splice(i, 1);
+    if (l.tipo === "servicio" && st.ordenId) {
+      const o = EMM.estado.ordenes.find((x) => x.id === st.ordenId);
+      if (o && o.servicio === l.ref) st.ordenId = null;
+    }
+    render();
+  }
+  function quitarCanje() {
+    st.canje = null;
+    st.lineas = st.lineas.filter((l) => l.tipo !== "canje");
+  }
+  function vaciar() { st.lineas = []; st.canje = null; st.ordenId = null; }
+
+  /* Coche listo del taller → al ticket */
+  function cargarOrden(oid) {
+    const o = EMM.estado.ordenes.find((x) => x.id === oid);
+    if (!o || o.estado !== "listo") return;
+    if (st.ordenId === oid) return toast("Ese coche ya está en el ticket.");
+    const d = datosOrden(o);
+    const mismo = d.s && st.modo === "socio" && st.socioId === d.s.id;
+    if (!mismo && st.lineas.length) vaciar();
+    if (d.s) {
+      if (st.canje && st.canje.socioId !== d.s.id) quitarCanje();
+      st.modo = "socio"; st.socioId = d.s.id; st.cocheId = o.cocheId;
+    } else {
+      st.modo = "anon"; st.socioId = st.cocheId = null;
+      st.anonNombre = d.cliente; st.anonCoche = EMM.cocheDeOrden(o); st.plazas = EMM.plazasDeOrden(o);
+    }
+    cerrarBusqueda();
+    st.ordenId = o.id;
+    if (!st.lineas.some((l) => l.tipo === "servicio" && l.ref === o.servicio)) anadirServicio(o.servicio, true);
+    render();
+    toast(`${EMM.cocheDeOrden(o)} cargado en el ticket.`);
+  }
+
+  /* Canje con código */
+  function aplicarCanje(codigo) {
+    codigo = String(codigo || "").trim();
+    if (!codigo) return toast("Escribe el código que enseña el socio en la app.", true);
+    const r = EMM.buscarCanje(codigo);
+    if (r.error) return toast(r.error, true);
+    if (!r.socio || !r.recompensa) return toast("Ese canje no es válido.", true);
+    if (st.canje) quitarCanje();
+    if (!(st.modo === "socio" && st.socioId === r.socio.id)) {
+      if (st.modo === "socio" && st.lineas.length) vaciar();
+      st.modo = "socio"; st.socioId = r.socio.id; st.cocheId = r.socio.coches[0] ? r.socio.coches[0].id : null;
+      cerrarBusqueda();
+    }
+    // Si la recompensa es un producto o un servicio concreto, se mete en el ticket
+    const rc = r.recompensa;
+    if (rc.producto && !st.lineas.some((l) => l.tipo === "producto" && l.ref === rc.producto)) anadirProducto(rc.producto, true);
+    if (rc.servicio && !st.lineas.some((l) => l.tipo === "servicio" && l.ref === rc.servicio)) anadirServicio(rc.servicio, true);
+    st.canje = { codigo: r.canje.codigo, socioId: r.socio.id, valor: rc.valor, n: rc.n };
+    meterLinea({ tipo: "canje", ref: rc.id, n: "Canje: " + rc.n, cant: 1, precio: -rc.valor, dto: 0 });
+    $("#codigo").value = "";
+    render();
+    toast(`Canje válido: ${rc.n} · ${r.socio.nombre}`);
+  }
+
+  function pintarTicket() {
+    const s = socioActual();
+    $("#tCliente").textContent = s ? `${s.nombre} · ${s.tarjeta}` : st.modo === "anon" ? st.anonNombre || "Cliente sin tarjeta" : "Sin cliente";
+    const orden = st.ordenId ? EMM.estado.ordenes.find((o) => o.id === st.ordenId) : null;
+    $("#lineas").innerHTML = st.lineas.length
+      ? st.lineas.map((l, i) => {
+          const tot = l.cant * l.precio * (1 - (l.dto || 0) / 100);
+          if (l.tipo === "canje") return `<div class="ln canje ${l === nueva ? "nueva" : ""}"><div class="n">${esc(l.n)}<small>Código ${esc(st.canje ? st.canje.codigo : "")} · se descuenta del total</small></div><span></span><div class="tot">${dinero(tot)}</div><button class="x" data-quitar="${i}" title="Quitar canje">×</button></div>`;
+          const det = `${dinero(l.precio)}${l.dto ? ` · <span class="dto">−${l.dto} % socio</span>` : ""}${orden && l.tipo === "servicio" && l.ref === orden.servicio ? ` · <span class="dto">entrega ${esc(EMM.cocheDeOrden(orden))}</span>` : ""}`;
+          return `<div class="ln ${l === nueva ? "nueva" : ""}"><div class="n">${esc(l.n)}<small>${det}</small></div><div class="cant"><button data-menos="${i}" aria-label="Uno menos">−</button><span>${l.cant}</span><button data-mas="${i}" aria-label="Uno más">+</button></div><div class="tot">${dinero(tot)}</div><button class="x" data-quitar="${i}" title="Quitar">×</button></div>`;
+        }).join("")
+      : `<div class="vacio" style="padding-top:60px">Toca un servicio o un producto<br>para añadirlo al ticket.</div>`;
+    nueva = null;
+
+    const sinCanje = st.lineas.filter((l) => l.tipo !== "canje");
+    const subtotal = r2(sinCanje.reduce((a, l) => a + l.cant * l.precio, 0));
+    const tras = EMM.totalTicket(sinCanje);
+    const descuento = r2(subtotal - tras);
+    const total = Math.max(0, EMM.totalTicket(st.lineas));
+    const canjeV = r2(tras - total);
+    let h = `<div class="entre"><span class="mut">Subtotal</span><span>${dinero(subtotal)}</span></div>`;
+    if (descuento > 0) h += `<div class="entre"><span class="mut">Descuento socio (${s ? EMM.nivel(s).dto : 0} %)</span><span class="verde">−${dinero(descuento)}</span></div>`;
+    if (st.canje) h += `<div class="entre"><span class="mut">Canje de puntos</span><span class="verde">${canjeV > 0 ? "−" + dinero(canjeV) : "añade algo al ticket"}</span></div>`;
+    h += `<div class="total"><span>Total</span><b>${dinero(total)}</b></div>`;
+    if (s) h += `<div class="puntos">Sumará ${Math.floor(total)} puntos · saldo disponible ${dinero(s.saldo)}</div>`;
+    else if (total > 0) h += `<div class="mut peq">Sin tarjeta no suma puntos. <a href="#" data-acc="alta" style="color:var(--blue2);font-weight:600">Hacer socio</a></div>`;
+    $("#sumas").innerHTML = h;
+    const b = $("#btnCobrar");
+    b.disabled = !st.lineas.length;
+    b.textContent = st.lineas.length ? `Cobrar ${dinero(total)}` : "Cobrar";
+    $("#formCanje").hidden = !!st.canje;
+  }
+
+  /* Avisos cuando otra pantalla deja algo para el mostrador */
+  let vistos = null;
+  function avisarNovedades() {
+    const listos = EMM.estado.ordenes.filter((o) => o.estado === "listo");
+    const pedidos = EMM.estado.pedidos.filter((p) => p.estado === "pendiente");
+    const ahora = new Set([...listos.map((o) => o.id), ...pedidos.map((p) => p.id)]);
+    if (vistos) {
+      const o = listos.find((x) => !vistos.has(x.id));
+      const p = pedidos.find((x) => !vistos.has(x.id));
+      if (o) toast(`Coche listo para entregar: ${EMM.cocheDeOrden(o)}`);
+      else if (p) { const pr = EMM.producto(p.productoId); toast(`Nuevo pedido de la app: ${pr ? pr.n : "producto"}`); }
+    }
+    vistos = ahora;
+  }
+
+  function render() {
+    normalizar();
+    pintarFicha();
+    pintarTabs();
+    pintarCatalogo();
+    pintarTicket();
+    if (!$("#resultados").hidden) buscar();
+    if ($("#dCaja").open) pintarCaja();
+    avisarNovedades();
+  }
+
+  /* ───────── Cobro ───────── */
+  const cobro = { pagos: { efectivo: 0, tarjeta: 0, bizum: 0, saldo: 0 }, entregado: 0, total: 0 };
+  function abrirCobro() {
+    if (!st.lineas.length) return;
+    normalizar();
+    const s = socioActual();
+    cobro.total = Math.max(0, EMM.totalTicket(st.lineas));
+    cobro.pagos = { efectivo: 0, tarjeta: 0, bizum: 0, saldo: 0 };
+    cobro.entregado = 0;
+    $("#cTotal").textContent = dinero(cobro.total);
+    $("#cCliente").textContent = s ? `${s.nombre} · saldo ${dinero(s.saldo)}` : st.modo === "anon" && st.anonNombre ? st.anonNombre : "Cliente sin tarjeta";
+    const formas = Object.keys(FORMAS).filter((f) => f !== "saldo" || s);
+    $("#cRapidos").innerHTML = formas.map((f) => `<button class="rapido" data-todo="${f}" ${f === "saldo" && s.saldo <= 0 ? "disabled" : ""}>${f === "saldo" ? (s.saldo >= cobro.total ? "Todo con saldo" : "Saldo + resto") : "Todo " + (f === "efectivo" ? "en" : "con") + " " + FORMAS[f].toLowerCase()}</button>`).join("");
+    $("#cFilas").innerHTML = formas.map((f) => `<div class="pago">
+        <label for="p-${f}">${FORMAS[f]}${f === "saldo" ? `<small>Disponible ${dinero(s.saldo)}</small>` : ""}</label>
+        <input id="p-${f}" data-pago="${f}" inputmode="decimal" placeholder="0,00" ${f === "saldo" && s.saldo <= 0 ? "disabled" : ""}>
+        <button class="btn btn-ghost btn-sm" data-resto="${f}" ${f === "saldo" && s.saldo <= 0 ? "disabled" : ""}>Resto</button>
+        ${f === "efectivo" ? `<div class="entregado" id="filaEntregado" hidden>Entregado <input id="entregado" inputmode="decimal" placeholder="0,00"> <span id="cambio" style="min-width:120px;text-align:right"></span></div>` : ""}
+      </div>`).join("");
+    actualizarCobro();
+    $("#dCobro").showModal();
+    if (cobro.total === 0) $("#cConfirmar").focus();
+  }
+  function leerPagos() {
+    for (const f of Object.keys(cobro.pagos)) { const i = $("#p-" + f); cobro.pagos[f] = i ? num(i.value) : 0; }
+    const e = $("#entregado");
+    cobro.entregado = e ? num(e.value) : 0;
+  }
+  function escribirPagos() {
+    for (const f of Object.keys(cobro.pagos)) { const i = $("#p-" + f); if (i) i.value = cobro.pagos[f] ? String(cobro.pagos[f].toFixed(2)).replace(".", ",") : ""; }
+    actualizarCobro();
+  }
+  const pagado = () => r2(Object.values(cobro.pagos).reduce((a, b) => a + b, 0));
+  function topeSaldo() { const s = socioActual(); return s ? r2(s.saldo) : 0; }
+  function rellenarResto(f) {
+    leerPagos();
+    cobro.pagos[f] = 0;
+    let resto = r2(cobro.total - pagado());
+    if (f === "saldo") resto = Math.min(resto, topeSaldo());
+    cobro.pagos[f] = Math.max(0, r2(resto));
+    escribirPagos();
+  }
+  function todoCon(f) {
+    cobro.pagos = { efectivo: 0, tarjeta: 0, bizum: 0, saldo: 0 };
+    if (f === "saldo") {
+      cobro.pagos.saldo = Math.min(cobro.total, topeSaldo());
+      const resto = r2(cobro.total - cobro.pagos.saldo);
+      if (resto > 0) cobro.pagos.tarjeta = resto; // lo que no cubre el saldo, con tarjeta
+    } else cobro.pagos[f] = cobro.total;
+    escribirPagos();
+  }
+  function actualizarCobro() {
+    leerPagos();
+    const falta = r2(cobro.total - pagado());
+    const p = $("#cPendiente");
+    let ok = Math.abs(falta) < 0.005;
+    let msg = ok ? "Todo cuadra ✓" : falta > 0 ? `Pendiente: ${dinero(falta)}` : `Te pasas en ${dinero(-falta)}`;
+    if (cobro.pagos.saldo > topeSaldo() + 0.001) { ok = false; msg = `El saldo no llega: tiene ${dinero(topeSaldo())}`; }
+    const fila = $("#filaEntregado");
+    if (fila) {
+      fila.hidden = !(cobro.pagos.efectivo > 0);
+      const cam = $("#cambio");
+      if (cobro.pagos.efectivo > 0 && cobro.entregado > 0) {
+        const c = r2(cobro.entregado - cobro.pagos.efectivo);
+        cam.innerHTML = c >= 0 ? `Cambio <b style="color:var(--ink);font-size:16px">${dinero(c)}</b>` : `<span style="color:#ffaaaa">Faltan ${dinero(-c)}</span>`;
+        if (c < 0) { ok = false; msg = "Lo entregado no llega para el efectivo"; }
+      } else cam.textContent = "";
+    }
+    // Botones rápidos marcados si coinciden con el reparto actual
+    document.querySelectorAll("#cRapidos .rapido").forEach((b) => b.classList.toggle("on", ok && cobro.pagos[b.dataset.todo] > 0));
+    p.textContent = msg;
+    p.className = "pendiente " + (ok ? "ok" : "mal");
+    $("#cConfirmar").disabled = !ok;
+  }
+  function confirmarCobro() {
+    leerPagos();
+    const s = socioActual();
+    const pagos = {};
+    for (const [f, v] of Object.entries(cobro.pagos)) if (v > 0) pagos[f] = r2(v);
+    // Comprobaciones previas (para no dejar nada a medias si algo falla)
+    if (st.canje) { const r = EMM.buscarCanje(st.canje.codigo); if (r.error) return toast(r.error, true); }
+    if (pagos.saldo && (!s || s.saldo + 0.001 < pagos.saldo)) return toast(`El socio solo tiene ${dinero(s ? s.saldo : 0)} de saldo.`, true);
+    const extra = { efectivo: pagos.efectivo || 0, entregado: cobro.entregado, canje: st.canje ? st.canje.n : "" };
+    try {
+      const t = EMM.cobrar({ socioId: s ? s.id : null, lineas: lineasCobro(), pagos, canjeCodigo: st.canje ? st.canje.codigo : null, ordenId: st.ordenId });
+      $("#dCobro").close();
+      mostrarRecibo(t, extra);
+    } catch (e) {
+      toast(e.message || "No se ha podido cobrar.", true);
+    }
+  }
+
+  function mostrarRecibo(t, extra) {
+    const s = EMM.socio(t.socioId);
+    const fecha = new Date(t.fecha);
+    const lineas = t.lineas.map((l) => {
+      const tot = l.cant * l.precio * (1 - (l.dto || 0) / 100);
+      return `<div class="entre"><span>${l.cant > 1 ? l.cant + " × " : ""}${esc(l.n)}${l.dto ? `<br><small style="color:#5b6270">${dinero(l.precio)} − ${l.dto} % socio</small>` : ""}</span><span>${dinero(tot)}</span></div>`;
+    }).join("");
+    const pagos = Object.entries(t.pagos).map(([f, v]) => `<div class="entre"><span>${esc(FORMAS[f] || f)}</span><span>${dinero(v)}</span></div>`).join("") || `<div class="entre"><span>Pagado con el canje</span><span>${dinero(0)}</span></div>`;
+    const cambio = extra.efectivo > 0 && extra.entregado > extra.efectivo ? `<div class="entre"><span>Entregado</span><span>${dinero(extra.entregado)}</span></div><div class="entre gordo"><span>Cambio</span><span>${dinero(extra.entregado - extra.efectivo)}</span></div>` : "";
+    const club = s ? `<div class="raya"></div><div class="entre"><span>Socio</span><span>${esc(s.nombre)} · ${esc(s.tarjeta)}</span></div>
+      <div class="entre"><span>Puntos de esta compra</span><span><b>+${t.puntos}</b></span></div>
+      <div class="entre"><span>Puntos totales</span><span>${s.puntos} · nivel ${esc(EMM.nivel(s).n)}</span></div>
+      <div class="entre"><span>Saldo del monedero</span><span>${dinero(s.saldo)}</span></div>` : "";
+    $("#papel").innerHTML = `<div class="marca">EMM <i>DETAIL</i></div><div class="c">Automotive Detailing · Lugo</div>
+      <div class="raya"></div>
+      <div class="entre"><span><b>Ticket nº ${t.num}</b></span><span>${fecha.toLocaleDateString("es-ES")} · ${fecha.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</span></div>
+      <div class="raya"></div>${lineas}
+      <div class="raya"></div><div class="entre gordo"><span>TOTAL</span><span>${dinero(t.total)}</span></div>
+      <div class="c" style="text-align:right">IVA incluido</div>
+      <div class="raya"></div>${pagos}${cambio}${club}
+      <div class="raya"></div><div class="gracias">¡Gracias por confiar en EMM!</div>`;
+    $("#dRecibo").showModal();
+    toast(s ? `Cobrado · ${s.nombre} suma ${t.puntos} puntos` : `Cobrado ${dinero(t.total)}`);
+  }
+  function nuevoTicket() {
+    vaciar();
+    st.modo = null; st.socioId = st.cocheId = null; st.anonNombre = st.anonCoche = ""; st.plazas = 0;
+    $("#codigo").value = "";
+    cerrarBusqueda();
+    render();
+  }
+
+  /* ───────── Recarga del monedero ───────── */
+  const rec = { importe: 50, otro: false, via: "efectivo" };
+  function abrirRecarga() {
+    const s = socioActual();
+    if (!s) return;
+    rec.importe = 50; rec.otro = false; rec.via = "efectivo";
+    $("#rOtro").value = "";
+    $("#rSocio").textContent = `${s.nombre} · saldo actual ${dinero(s.saldo)}`;
+    pintarRecarga();
+    $("#dRecarga").showModal();
+  }
+  function pintarRecarga() {
+    const s = socioActual();
+    if (!s) return;
+    $("#rImportes").innerHTML = [20, 50, 100].map((v) => `<button class="rapido ${!rec.otro && rec.importe === v ? "on" : ""}" data-imp="${v}">${v} €</button>`).join("") + `<button class="rapido ${rec.otro ? "on" : ""}" data-imp="otro">Otro</button>`;
+    $("#rOtroW").hidden = !rec.otro;
+    $("#rVia").innerHTML = ["efectivo", "tarjeta", "bizum"].map((v) => `<button class="rapido ${rec.via === v ? "on" : ""}" data-via="${v}">${FORMAS[v]}</button>`).join("");
+    const imp = rec.otro ? num($("#rOtro").value) : rec.importe;
+    const bono = EMM.estado.config.bonoRecarga;
+    const regalo = r2((imp * bono) / 100);
+    $("#rResumen").innerHTML = `<div class="entre"><span class="mut">Paga</span><span>${dinero(imp)}</span></div>
+      <div class="entre"><span class="mut">Regalo del club (${bono} %)</span><span style="color:#7ee2ad">+${dinero(regalo)}</span></div>
+      <div class="entre"><span><b>Saldo después</b></span><span><b>${dinero(s.saldo + imp + regalo)}</b></span></div>`;
+    const b = $("#rConfirmar");
+    b.disabled = !(imp > 0);
+    b.textContent = imp > 0 ? `Recargar ${dinero(imp)}` : "Recargar";
+  }
+  function confirmarRecarga() {
+    const s = socioActual();
+    const imp = rec.otro ? num($("#rOtro").value) : rec.importe;
+    try {
+      const regalo = EMM.recargar(s.id, imp, rec.via);
+      $("#dRecarga").close();
+      toast(`Recarga hecha: +${dinero(imp + regalo)} en el monedero de ${s.nombre}`);
+    } catch (e) {
+      toast(e.message || "No se ha podido recargar.", true);
+    }
+  }
+
+  /* ───────── Caja de hoy ───────── */
+  function pintarCaja() {
+    const c = EMM.caja();
+    const lista = c.tickets.slice().sort((a, b) => (a.fecha < b.fecha ? 1 : -1)).map((t) => {
+      const s = EMM.socio(t.socioId);
+      const que = t.lineas.filter((l) => l.tipo !== "canje").map((l) => l.n + (l.cant > 1 ? ` ×${l.cant}` : "")).join(", ");
+      const formas = Object.keys(t.pagos).map((f) => FORMAS[f] || f).join(" + ") || "Canje";
+      return `<div><span class="mut">${esc(EMM.horaDe(t.fecha))}</span><span><b>#${t.num}</b> ${esc(s ? s.nombre : "Sin tarjeta")}${t.origen === "app" ? ' <span class="chip azul" style="padding:1px 7px;font-size:10.5px">App</span>' : ""}<br><span class="mut peq">${esc(que)} · ${esc(formas)}</span></span><b>${dinero(t.total)}</b></div>`;
+    }).join("");
+    $("#cajaIn").innerHTML = `<div class="entre"><h3 style="margin:0">Caja de hoy</h3><span class="mut peq">${esc(EMM.fechaCorta(EMM.hoyISO()))}</span></div>
+      <div class="grande"><small>Total vendido · ${c.tickets.length} ticket${c.tickets.length === 1 ? "" : "s"}</small><b>${dinero(c.total)}</b></div>
+      <div class="cajas">${Object.keys(FORMAS).map((f) => `<div><small>${FORMAS[f]}${f === "saldo" ? " (monedero)" : ""}</small><b>${dinero(c.formas[f] || 0)}</b></div>`).join("")}</div>
+      <div class="lista-caja">${lista || '<div style="display:block" class="vacio">Todavía no hay ventas hoy.</div>'}</div>
+      <div class="botones"><button class="btn btn-ghost" data-cerrar>Cerrar</button></div>`;
+  }
+
+  /* ───────── Leer tarjeta NFC (simulado) ───────── */
+  let tNfc;
+  function abrirNfc() {
+    const onda = $("#nfcOnda");
+    onda.className = "onda"; onda.textContent = "NFC";
+    $("#nfcTexto").textContent = "Acerca la tarjeta al lector…";
+    $("#nfcLista").innerHTML = EMM.estado.socios.map((s) => { const nv = EMM.nivel(s); return `<button class="res card" style="border-radius:12px;padding:10px 12px" data-nfc="${esc(s.id)}"><span class="avatar" style="--c:${nv.color}">${esc(iniciales(s.nombre))}</span><span style="flex:1"><b>${esc(s.tarjeta)}</b><br><span class="mut">${esc(s.nombre)}</span></span><span class="chip" style="border-color:${nv.color};color:${nv.color}">${esc(nv.n)}</span></button>`; }).join("");
+    $("#dNfc").showModal();
+  }
+  function leerNfc(sid) {
+    const s = EMM.socio(sid);
+    if (!s) return;
+    const onda = $("#nfcOnda");
+    onda.className = "onda ok"; onda.textContent = "✓";
+    $("#nfcTexto").textContent = `Tarjeta ${s.tarjeta} leída`;
+    clearTimeout(tNfc);
+    tNfc = setTimeout(() => { $("#dNfc").close(); seleccionarSocio(sid); toast(`Hola, ${s.nombre.split(" ")[0]}`); }, 550);
+  }
+
+  /* ───────── Alta de socio ───────── */
+  function abrirAlta() {
+    const f = $("#formAlta");
+    f.reset();
+    // Si se buscó algo que parece un nombre o un teléfono, se aprovecha
+    const q = $("#q").value.trim();
+    if (q) { if (/\d{6,}/.test(q.replace(/\s/g, ""))) f.tel.value = q; else f.nombre.value = q; }
+    else if (st.modo === "anon" && st.anonNombre) f.nombre.value = st.anonNombre.replace(/\s*\(.*\)\s*$/, "");
+    $("#dAlta").showModal();
+    f.nombre.focus();
+  }
+  function confirmarAlta(ev) {
+    ev.preventDefault();
+    const f = ev.target;
+    try {
+      const s = EMM.altaSocio({
+        nombre: f.nombre.value.trim(), tel: f.tel.value.trim(), email: f.email.value.trim(),
+        modelo: f.modelo.value.trim(), matricula: f.matricula.value.trim().toUpperCase(), plazas: Number(f.plazas.value) || 0,
+      });
+      $("#dAlta").close();
+      seleccionarSocio(s.id);
+      toast(`Bienvenido al club: ${s.tarjeta} · +50 puntos`);
+    } catch (e) {
+      toast(e.message || "No se ha podido dar de alta.", true);
+    }
+  }
+
+  /* ───────── Eventos ───────── */
+  function acciones(acc) {
+    if (acc === "alta") abrirAlta();
+    else if (acc === "cambiar") cambiarCliente();
+    else if (acc === "recarga") abrirRecarga();
+  }
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest("[data-acc]");
+    if (a) { e.preventDefault(); return acciones(a.dataset.acc); }
+    const cerrar = e.target.closest("[data-cerrar]");
+    if (cerrar) { e.preventDefault(); return cerrar.closest("dialog").close(); }
+    // Pulsar fuera de una ventana la cierra (menos el cobro y el recibo)
+    if (e.target.tagName === "DIALOG" && !["dCobro", "dRecibo"].includes(e.target.id)) e.target.close();
+  });
+  $("#q").addEventListener("input", buscar);
+  $("#q").addEventListener("focus", buscar);
+  $("#q").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && resultados[0]) { e.preventDefault(); seleccionarSocio(resultados[0].id); }
+    if (e.key === "Escape") cerrarBusqueda();
+  });
+  $("#q").addEventListener("blur", () => setTimeout(() => { if (document.activeElement !== $("#q")) $("#resultados").hidden = true; }, 180));
+  $("#resultados").addEventListener("mousedown", (e) => e.preventDefault()); // que el clic no cierre la lista antes de tiempo
+  $("#resultados").addEventListener("click", (e) => { const b = e.target.closest("[data-socio]"); if (b) seleccionarSocio(b.dataset.socio); });
+  $("#btnNfc").addEventListener("click", abrirNfc);
+  $("#btnAnon").addEventListener("click", clienteSinTarjeta);
+  $("#btnAlta").addEventListener("click", abrirAlta);
+  $("#nfcLista").addEventListener("click", (e) => { const b = e.target.closest("[data-nfc]"); if (b) leerNfc(b.dataset.nfc); });
+  $("#formAlta").addEventListener("submit", confirmarAlta);
+  $("#ficha").addEventListener("click", (e) => { const c = e.target.closest("[data-coche]"); if (c) { st.cocheId = c.dataset.coche; render(); } });
+  $("#tabs").addEventListener("click", (e) => { const t = e.target.closest("[data-tab]"); if (t) { st.tab = t.dataset.tab; render(); } });
+  $("#catalogo").addEventListener("click", (e) => {
+    const t = e.target.closest("button");
+    if (!t || t.disabled) return;
+    if (t.dataset.serv) { anadirServicio(t.dataset.serv); latido(`[data-serv="${t.dataset.serv}"]`); }
+    else if (t.dataset.prod) { anadirProducto(t.dataset.prod); latido(`[data-prod="${t.dataset.prod}"]`); }
+    else if (t.dataset.plazas) { st.plazas = Number(t.dataset.plazas); render(); }
+    else if (t.dataset.orden) cargarOrden(t.dataset.orden);
+    else if (t.dataset.entregar) { EMM.entregarPedido(t.dataset.entregar); toast("Pedido entregado al socio."); }
+  });
+  function latido(sel) { const el = document.querySelector("#catalogo " + sel); if (el) { el.classList.remove("pum"); void el.offsetWidth; el.classList.add("pum"); } }
+  $("#lineas").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.mas) cambiarCant(Number(b.dataset.mas), 1);
+    else if (b.dataset.menos) cambiarCant(Number(b.dataset.menos), -1);
+    else if (b.dataset.quitar) quitarLinea(Number(b.dataset.quitar));
+  });
+  $("#btnVaciar").addEventListener("click", () => { vaciar(); render(); });
+  $("#formCanje").addEventListener("submit", (e) => { e.preventDefault(); aplicarCanje($("#codigo").value); });
+  $("#btnCobrar").addEventListener("click", abrirCobro);
+  $("#cRapidos").addEventListener("click", (e) => { const b = e.target.closest("[data-todo]"); if (b && !b.disabled) todoCon(b.dataset.todo); });
+  $("#cFilas").addEventListener("click", (e) => { const b = e.target.closest("[data-resto]"); if (b && !b.disabled) rellenarResto(b.dataset.resto); });
+  $("#cFilas").addEventListener("input", actualizarCobro);
+  $("#cConfirmar").addEventListener("click", confirmarCobro);
+  $("#btnNuevo").addEventListener("click", () => $("#dRecibo").close());
+  $("#dRecibo").addEventListener("close", nuevoTicket);
+  $("#rImportes").addEventListener("click", (e) => { const b = e.target.closest("[data-imp]"); if (!b) return; rec.otro = b.dataset.imp === "otro"; if (!rec.otro) rec.importe = Number(b.dataset.imp); pintarRecarga(); if (rec.otro) $("#rOtro").focus(); });
+  $("#rOtro").addEventListener("input", pintarRecarga);
+  $("#rVia").addEventListener("click", (e) => { const b = e.target.closest("[data-via]"); if (b) { rec.via = b.dataset.via; pintarRecarga(); } });
+  $("#rConfirmar").addEventListener("click", confirmarRecarga);
+  $("#btnCaja").addEventListener("click", () => { pintarCaja(); $("#dCaja").showModal(); });
+
+  /* ───────── Arranque ───────── */
+  EMM.alCambiar(render);
+  reloj();
+  setInterval(reloj, 1000);
+  render();
+})();
+</script>
+</body>
+</html>

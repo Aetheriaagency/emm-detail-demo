@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>EMM Detail · Club, TPV y taller</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css">
+<style>
+  body { min-height: 100vh; background: radial-gradient(80% 60% at 20% 0%, rgba(47, 123, 255, 0.16), transparent 60%), var(--bg); }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 24px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  header h1 { font-size: 15px; font-weight: 700; }
+  .escena { display: grid; grid-template-columns: 410px 1fr; gap: 22px; padding: 20px 24px; align-items: start; }
+  .lado { display: grid; gap: 12px; justify-items: center; position: sticky; top: 16px; }
+  .movil { width: 390px; height: min(820px, calc(100vh - 130px)); border-radius: 46px; padding: 44px 12px 14px; background: #0b0d12; border: 1px solid #2a303b; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), inset 0 0 0 2px #151922; position: relative; }
+  .movil::before { content: ""; position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: 92px; height: 24px; border-radius: 20px; background: #000; z-index: 2; }
+  .movil iframe { width: 100%; height: 100%; border: 0; border-radius: 10px 10px 34px 34px; background: var(--bg); }
+  .quien { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--mut); }
+  .quien select { width: auto; padding: 7px 10px; border-radius: 10px; font-size: 13px; }
+  .derecha { display: grid; gap: 12px; min-width: 0; }
+  .pestanas { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .pestana { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 10px 18px; font-weight: 600; font-size: 14px; }
+  .pestana.on { background: var(--blue); border-color: var(--blue); box-shadow: 0 8px 24px var(--glow); }
+  .marco { border: 1px solid var(--line2); border-radius: 18px; overflow: hidden; background: var(--bg); height: calc(100vh - 150px); min-height: 620px; }
+  .marco iframe { width: 100%; height: 100%; border: 0; display: none; }
+  .marco iframe.on { display: block; }
+  .guia { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+  .guia .card { padding: 14px; font-size: 13.5px; }
+  .guia b { display: block; margin-bottom: 4px; font-size: 14px; }
+  .guia .n { font-family: Unbounded; color: var(--blue2); font-size: 12px; }
+  @media (max-width: 1100px) {
+    .escena { grid-template-columns: 1fr; }
+    .lado { position: static; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="fila" style="gap:16px">
+    <span class="logo"><span class="w"><b>EMM</b><i>DETAIL</i></span><small>AUTOMOTIVE DETAILING</small></span>
+    <h1>Club de socios · TPV · Gestión del taller <span class="mut" style="font-weight:500">— todo conectado</span></h1>
+  </div>
+  <div class="fila">
+    <a class="btn btn-ghost btn-sm" href="../" target="_blank" rel="noopener">Ver la web</a>
+    <button class="btn btn-ghost btn-sm" id="reiniciar">Reiniciar demo</button>
+  </div>
+</header>
+
+<div class="escena">
+  <div class="lado">
+    <div class="movil"><iframe id="app" title="App del socio" src="socio.html?socio=s1"></iframe></div>
+    <label class="quien">Móvil de
+      <select id="quien"></select>
+    </label>
+  </div>
+
+  <div class="derecha">
+    <div class="pestanas">
+      <button class="pestana on" data-p="taller">Gestión del taller</button>
+      <button class="pestana" data-p="tpv">TPV · mostrador</button>
+      <span class="mut peq" style="margin-left:auto">Demostración con datos inventados · nada sale de este navegador</span>
+    </div>
+    <div class="guia">
+      <div class="card"><span class="n">1</span><b>Reserva desde el móvil</b>En la app, «Reservar»: la cita aparece al momento en la agenda del taller, marcada como «App».</div>
+      <div class="card"><span class="n">2</span><b>El coche avisa solo</b>En «Taller», pasa el BMW de Lucía a «Listo para recoger»: a ella le llega el aviso al móvil.</div>
+      <div class="card"><span class="n">3</span><b>Cobra con su saldo</b>En el TPV, «Coches listos» → cobra con el monedero: los puntos suben en su app.</div>
+      <div class="card"><span class="n">4</span><b>Canjea puntos</b>En «Premios» saca un código y valídalo en el TPV. Y desde «Club» manda una oferta a todos.</div>
+    </div>
+    <div class="marco">
+      <iframe id="f-taller" class="on" title="Gestión del taller" src="taller.html"></iframe>
+      <iframe id="f-tpv" title="TPV" src="tpv.html"></iframe>
+    </div>
+  </div>
+</div>
+
+<script src="datos.js"></script>
+<script>
+  const sel = document.getElementById("quien");
+  function socios() {
+    const actual = sel.value || "s1";
+    sel.innerHTML = EMM.estado.socios.map((s) => `<option value="${s.id}">${s.nombre} · ${EMM.nivel(s).n}</option>`).join("");
+    sel.value = EMM.socio(actual) ? actual : "s1";
+  }
+  socios();
+  EMM.alCambiar(socios);
+  sel.onchange = () => { document.getElementById("app").src = "socio.html?socio=" + sel.value; };
+  document.querySelector(".pestanas").onclick = (e) => {
+    const b = e.target.closest("[data-p]");
+    if (!b) return;
+    document.querySelectorAll(".pestana").forEach((x) => x.classList.toggle("on", x === b));
+    document.querySelectorAll(".marco iframe").forEach((f) => f.classList.toggle("on", f.id === "f-" + b.dataset.p));
+  };
+  document.getElementById("reiniciar").onclick = () => {
+    if (!confirm("¿Volver a los datos de ejemplo del principio?")) return;
+    EMM.reiniciar();
+    location.reload();
+  };
+</script>
+</body>
+</html>

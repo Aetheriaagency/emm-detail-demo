@@ -1,0 +1,1149 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EMM Detail · Gestión del taller</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css">
+<style>
+/* ───────── Estructura: barra lateral + zona principal ───────── */
+:root { color-scheme: dark; --hh: 46px; }
+body { min-height: 100vh; background: radial-gradient(1200px 600px at 85% -10%, rgba(47,123,255,.07), transparent 60%), var(--bg); }
+.marco { display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: 100vh; }
+.side { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: 20px; padding: 24px 14px 18px; background: linear-gradient(180deg, #0c0e12, #08090c); border-right: 1px solid var(--line); z-index: 5; }
+.marca { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 6px 0 20px; border-bottom: 1px solid var(--line); }
+.marca .logo .w { font-size: 25px; }
+.marca .logo small { font-size: 6.5px; }
+.marca-t { font-size: 10.5px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--mut); }
+.nav { display: grid; gap: 3px; }
+.nav a { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; color: var(--mut); font-weight: 600; font-size: 14px; transition: .15s; position: relative; }
+.nav a svg { width: 19px; height: 19px; flex: none; }
+.nav a:hover { color: var(--ink); background: rgba(255,255,255,.03); }
+.nav a.on { color: #fff; background: linear-gradient(90deg, rgba(47,123,255,.2), rgba(47,123,255,.04)); }
+.nav a.on::before { content: ""; position: absolute; left: -14px; top: 9px; bottom: 9px; width: 3px; border-radius: 0 3px 3px 0; background: var(--blue); box-shadow: 0 0 12px var(--glow); }
+.nav .num { margin-left: auto; min-width: 22px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--card2); border: 1px solid var(--line2); font-size: 11.5px; display: grid; place-items: center; color: #c3c9d3; }
+.nav .num.warn { border-color: rgba(245,180,69,.5); color: #ffd28a; background: rgba(245,180,69,.1); }
+.side-pie { margin-top: auto; display: grid; gap: 10px; padding: 14px 8px 0; border-top: 1px solid var(--line); }
+.reloj { font-size: 12px; color: var(--mut); }
+.reloj b { display: block; color: var(--ink); font-family: Unbounded; font-size: 19px; font-weight: 700; }
+.lnk { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; color: var(--mut); font-size: 12.5px; padding: 0; }
+.lnk svg { width: 14px; height: 14px; }
+.lnk:hover { color: var(--bad); }
+.main { padding: 26px 32px 48px; min-width: 0; }
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 22px; }
+.top h1 { font-size: 26px; font-weight: 700; margin: 6px 0 4px; }
+.top p { font-size: 14px; max-width: 640px; }
+.top-acc { flex: none; }
+.vivo { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--mut); font-weight: 500; white-space: nowrap; }
+.vivo i { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); animation: latido 2s infinite; }
+@keyframes latido { 0% { box-shadow: 0 0 0 0 rgba(52,199,123,.6); } 70%, 100% { box-shadow: 0 0 0 8px rgba(52,199,123,0); } }
+
+/* ───────── Piezas comunes ───────── */
+.f { display: grid; gap: 5px; font-size: 12.5px; color: var(--mut); font-weight: 600; }
+.card-c { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; }
+.card-c h2 { font-size: 15px; font-weight: 700; }
+.card-c a, .card-c .enl { font-size: 12.5px; color: var(--blue2); font-weight: 600; }
+.card.sin-p { padding: 0; overflow: hidden; }
+.card.sin-p .card-c { padding: 18px 18px 0; }
+.chip.nivel { color: var(--c); border-color: color-mix(in srgb, var(--c) 55%, transparent); background: color-mix(in srgb, var(--c) 10%, transparent); }
+.chip.org.app { border-color: rgba(47,123,255,.6); color: #a9c9ff; background: rgba(47,123,255,.14); }
+.chip.org.tel { border-color: rgba(167,139,250,.5); color: #cdbfff; background: rgba(167,139,250,.08); }
+.chip.org.most { border-color: rgba(154,163,178,.45); color: #c3c9d3; background: rgba(154,163,178,.06); }
+.est-recibido { --e: #9aa3b2; } .est-proceso { --e: #69a3ff; } .est-calidad { --e: #f5b445; } .est-listo { --e: #34c77b; }
+.chip.est { color: var(--e); border-color: color-mix(in srgb, var(--e) 50%, transparent); background: color-mix(in srgb, var(--e) 10%, transparent); }
+.placa { display: inline-flex; align-items: center; gap: 6px; height: 20px; padding-right: 7px; border-radius: 5px; overflow: hidden; background: #f3f5f8; color: #0b0d11; font-weight: 700; font-size: 11.5px; letter-spacing: .06em; border: 1px solid #c9ced8; white-space: nowrap; flex: none; }
+.placa i { align-self: stretch; display: grid; place-items: end center; padding: 0 4px 2px; background: #1f4fc2; color: #fff; font-style: normal; font-size: 8px; }
+.ic { width: 15px; height: 15px; vertical-align: -3px; flex: none; }
+.btn-rojo { background: var(--bad); color: #fff; }
+.btn-rojo-g { background: transparent; border: 1px solid rgba(255,93,93,.5); color: #ffaaaa; }
+.btn-rojo-g:hover { background: rgba(255,93,93,.1); }
+.seg { display: inline-flex; background: var(--bg2); border: 1px solid var(--line2); border-radius: 999px; padding: 3px; gap: 2px; }
+.seg button { border: 0; background: none; white-space: nowrap; padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--mut); }
+.seg button.on { background: var(--blue); color: #fff; }
+.tabla { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.tabla th { text-align: left; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--mut); font-weight: 600; padding: 12px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.tabla td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.tabla tr:last-child td { border-bottom: 0; }
+.tabla tr.clic { cursor: pointer; transition: .12s; }
+.tabla tr.clic:hover { background: rgba(47,123,255,.05); }
+.der { text-align: right !important; font-variant-numeric: tabular-nums; }
+.tabla .sub { display: block; font-size: 12px; color: var(--mut); }
+.mini-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+.mk { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+.mk span { font-size: 12px; color: var(--mut); font-weight: 600; display: flex; align-items: center; gap: 7px; }
+.mk b { display: block; font-family: Unbounded; font-size: 21px; font-weight: 700; margin-top: 4px; }
+.punto { width: 8px; height: 8px; border-radius: 50%; background: var(--c); display: inline-block; flex: none; }
+
+/* ───────── Hoy ───────── */
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 16px; }
+.kpi { display: flex; flex-direction: column; gap: 6px; position: relative; overflow: hidden; transition: .15s; }
+.kpi:hover { border-color: var(--line2); transform: translateY(-1px); }
+.kpi::after { content: ""; position: absolute; right: -36px; top: -36px; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, rgba(47,123,255,.18), transparent 70%); }
+.kpi-e { font-size: 12.5px; color: var(--mut); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.kpi-e svg { width: 16px; height: 16px; color: var(--blue2); }
+.kpi-v { font-family: Unbounded; font-size: 28px; font-weight: 700; letter-spacing: -.02em; }
+.kpi-s { font-size: 12.5px; color: var(--mut); }
+.dos { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.pila { display: grid; gap: 16px; }
+.alerta { display: flex; align-items: center; gap: 10px; padding: 11px 16px; margin-bottom: 16px; border-radius: 14px; border: 1px solid rgba(245,180,69,.35); background: rgba(245,180,69,.07); color: #ffd28a; font-size: 13.5px; font-weight: 500; }
+.alerta b { color: #ffe2b0; }
+.alerta .enl { margin-left: auto; font-weight: 600; white-space: nowrap; }
+.cf { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 4px; border-top: 1px solid var(--line); }
+.cf:first-child { border-top: 0; padding-top: 2px; }
+.cf-h { font-family: Unbounded; font-weight: 700; font-size: 15px; }
+.cf-i { cursor: pointer; min-width: 0; }
+.cf-i .fila { flex-wrap: wrap; gap: 6px; }
+.cf-i .mut { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.cf.hecha { opacity: .55; }
+.mo { display: grid; gap: 6px; padding: 12px; border-radius: 12px; background: var(--bg2); border: 1px solid var(--line); transition: .15s; }
+.mo + .mo { margin-top: 8px; }
+.mo:hover { border-color: var(--line2); }
+.mo .fila b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pasos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.pasos i { height: 4px; border-radius: 4px; background: var(--line2); }
+.pasos i.on { background: var(--e); box-shadow: 0 0 8px color-mix(in srgb, var(--e) 50%, transparent); }
+.av { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13px; }
+.av:first-child { border-top: 0; padding-top: 0; }
+.av-i { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: rgba(47,123,255,.12); color: var(--blue2); }
+.av-i svg { width: 15px; height: 15px; }
+.av-i.listo { background: rgba(52,199,123,.12); color: var(--ok); }
+.av-i.oferta { background: rgba(167,139,250,.12); color: #c9b8ff; }
+.av p { color: #c9cfd9; }
+
+/* ───────── Taller (tablero) ───────── */
+.kanban { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: stretch; }
+.col { background: var(--bg2); border: 1px solid var(--line); border-radius: 18px; padding: 12px; min-height: calc(100vh - 175px); display: flex; flex-direction: column; }
+.col-c { display: flex; align-items: center; gap: 8px; padding: 4px 4px 12px; font-size: 13.5px; }
+.col-c i { width: 9px; height: 9px; border-radius: 50%; background: var(--e); box-shadow: 0 0 10px var(--e); flex: none; }
+.col-c .num { margin-left: auto; min-width: 24px; height: 22px; padding: 0 7px; border-radius: 999px; background: var(--card2); border: 1px solid var(--line2); font-size: 12px; display: grid; place-items: center; }
+.col-b { display: flex; flex-direction: column; gap: 10px; flex: 1; border-radius: 12px; transition: .15s; padding: 2px; }
+.col-b.sobre { background: rgba(47,123,255,.07); outline: 1px dashed var(--blue); outline-offset: 2px; }
+.col-vacio { flex: 1; min-height: 120px; display: grid; place-items: center; border: 1px dashed var(--line2); border-radius: 12px; color: var(--mut); font-size: 12.5px; }
+.col, .ot { min-width: 0; }
+.ot { background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--e); border-radius: 14px; padding: 12px; cursor: grab; display: grid; gap: 7px; transition: border-color .15s, opacity .15s; }
+.ot:hover { border-color: var(--line2); border-left-color: var(--e); }
+.ot.arrastrando { opacity: .35; }
+.ot .entre { flex-wrap: wrap; gap: 6px; }
+.ot h4 { font-family: Inter; font-size: 14.5px; font-weight: 700; line-height: 1.25; }
+.ot-cli { font-size: 13px; color: #c9cfd9; margin-top: -4px; }
+.ot-srv { font-size: 12.5px; font-weight: 600; color: var(--blue2); }
+.ot-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--mut); }
+.ot-meta span { display: inline-flex; align-items: center; gap: 5px; }
+.ot-nota { font-size: 12px; color: #d9c79f; background: rgba(245,180,69,.07); border: 1px solid rgba(245,180,69,.2); border-radius: 9px; padding: 6px 9px; }
+.ot-acc { display: flex; gap: 6px; justify-content: flex-end; margin-top: 2px; }
+.ot-acc .btn-sm { padding: 6px 12px; font-size: 12.5px; }
+.ot-acc .btn-blue { box-shadow: none; }
+.ot-acc .chip { margin-right: auto; white-space: nowrap; font-size: 11.5px; padding: 4px 9px; }
+
+/* ───────── Agenda ───────── */
+.ag-barra { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.ag-nav { display: flex; align-items: center; gap: 8px; }
+.ag-nav h2 { font-size: 17px; margin-left: 6px; }
+.ic-btn { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--card); border: 1px solid var(--line2); }
+.ic-btn:hover { border-color: var(--blue2); }
+.leyenda { display: flex; gap: 14px; font-size: 12.5px; color: var(--mut); flex-wrap: wrap; }
+.leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.leyenda i { width: 10px; height: 10px; border-radius: 3px; background: var(--o); }
+.app-aviso { display: flex; align-items: center; gap: 12px; padding: 10px 14px; margin-bottom: 12px; border-radius: 14px; background: linear-gradient(90deg, rgba(47,123,255,.16), rgba(47,123,255,.03)); border: 1px solid rgba(47,123,255,.35); font-size: 13.5px; }
+.app-aviso svg { width: 20px; height: 20px; color: var(--blue2); flex: none; }
+.app-aviso b { color: #fff; }
+.o-app { --o: #2f7bff; } .o-telefono { --o: #a78bfa; } .o-mostrador { --o: #9aa3b2; }
+.ag { background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+.ag-fila { display: grid; grid-template-columns: 58px repeat(6, minmax(0, 1fr)); }
+.ag-cab { padding: 10px 6px 9px; text-align: center; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.ag-cab span { font-size: 10.5px; text-transform: uppercase; letter-spacing: .14em; color: var(--mut); font-weight: 600; }
+.ag-cab b { display: block; font-family: Unbounded; font-size: 18px; margin: 2px 0; }
+.ag-cab small { font-size: 11px; color: var(--mut); }
+.ag-cab.hoy { background: rgba(47,123,255,.08); }
+.ag-cab.hoy b { color: var(--blue2); }
+.ag-gut { border-bottom: 1px solid var(--line); font-size: 10px; color: var(--mut); padding: 8px 6px; text-align: right; line-height: 1.2; }
+.ag-banda { grid-column: 2 / -1; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+.ev-l { --o: #9aa3b2; display: flex; align-items: center; gap: 8px; min-width: 0; text-align: left; border: 0; border-left: 3px solid var(--o); border-radius: 8px; padding: 6px 10px; font-size: 12px; color: var(--ink); background: color-mix(in srgb, var(--o) 20%, transparent); }
+.ev-l b { white-space: nowrap; font-weight: 600; }
+.ev-l span { color: #b7bfcc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ev-l:hover, .ev:hover { filter: brightness(1.18); }
+.ag-horas { position: relative; height: calc(var(--hh) * 10); }
+.ag-horas span { position: absolute; right: 8px; font-size: 11px; color: var(--mut); margin-top: 4px; font-variant-numeric: tabular-nums; }
+.ag-dia { position: relative; height: calc(var(--hh) * 10); border-left: 1px solid var(--line); background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--hh) - 1px), var(--line) calc(var(--hh) - 1px), var(--line) var(--hh)); }
+.ag-dia.hoy { background-color: rgba(47,123,255,.035); }
+.ag-cerrado { position: absolute; left: 0; right: 0; background: repeating-linear-gradient(135deg, rgba(255,255,255,.03) 0 8px, transparent 8px 16px); display: grid; place-items: center; font-size: 11.5px; color: var(--mut); }
+.ev { --o: #9aa3b2; position: absolute; text-align: left; border: 0; border-left: 3px solid var(--o); border-radius: 9px; padding: 5px 8px; overflow: hidden; display: flex; flex-direction: column; gap: 1px; font-size: 12px; line-height: 1.25; color: var(--ink); background: color-mix(in srgb, var(--o) 20%, #12151b); z-index: 1; box-shadow: 0 0 0 1.5px var(--card), 0 6px 14px rgba(0,0,0,.35); }
+.ev b, .ev .ev-c { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.ev.app, .ev-l.app { --o: #2f7bff; background: linear-gradient(180deg, #1f3a72, #172c55); }
+.ev.telefono, .ev-l.telefono { --o: #a78bfa; }
+.ev.mostrador, .ev-l.mostrador { --o: #9aa3b2; }
+.ev.hecha, .ev-l.hecha { opacity: .45; }
+.ev b { font-weight: 600; overflow: hidden; }
+.ev-h { font-size: 11px; color: #d5dbe5; display: flex; align-items: center; gap: 5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ev em, .ev-l em { font-style: normal; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; background: var(--blue); color: #fff; border-radius: 4px; padding: 1px 5px; }
+.ev-l em { margin-left: auto; flex: none; }
+.ev-ok { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 6px var(--ok); }
+.ev-c { color: #b7bfcc; overflow: hidden; }
+.ag-ahora { position: absolute; left: 0; right: 0; height: 2px; background: var(--bad); z-index: 10; pointer-events: none; }
+.ag-ahora::before { content: ""; position: absolute; left: -5px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--bad); }
+
+/* ───────── Socios ───────── */
+.buscador { position: relative; max-width: 360px; flex: 1; }
+.buscador svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--mut); }
+.buscador input { padding-left: 38px; border-radius: 999px; }
+.saldo-pos { color: #7ee2ad; font-weight: 600; }
+.avatar { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-family: Unbounded; font-weight: 700; font-size: 17px; color: #0b0d11; background: linear-gradient(135deg, #fff, var(--c)); flex: none; }
+.so-cab { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.so-cab h3 { margin: 0 0 3px; font-size: 19px; }
+.so-cab .chip { margin-left: auto; align-self: flex-start; }
+.so-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.so-kpis div { background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; padding: 11px 14px; }
+.so-kpis span { font-size: 11.5px; color: var(--mut); font-weight: 600; }
+.so-kpis b { display: block; font-family: Unbounded; font-size: 19px; margin-top: 2px; }
+.prog { height: 7px; border-radius: 7px; background: var(--line2); overflow: hidden; margin: 14px 0 6px; }
+.prog i { display: block; height: 100%; border-radius: 7px; background: linear-gradient(90deg, var(--blue), var(--c)); }
+.so-dos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 20px; margin-top: 18px; }
+.so-dos h4 { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--mut); margin: 0 0 8px; font-family: Inter; }
+.so-dos h4:not(:first-child) { margin-top: 18px; }
+.coche-f { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--bg2); border: 1px solid var(--line); border-radius: 11px; font-size: 13.5px; }
+.coche-f + .coche-f { margin-top: 6px; }
+.ajuste { display: grid; grid-template-columns: 90px 1fr; gap: 8px; }
+.ajuste input { padding: 9px 11px; }
+.rapidos { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.rapidos .chip { background: var(--bg2); cursor: pointer; }
+.rapidos .chip:hover { border-color: var(--blue2); color: #fff; }
+.movs { max-height: 340px; overflow: auto; padding-right: 4px; }
+.mv { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; }
+.mv:first-child { border-top: 0; padding-top: 0; }
+.mv-i { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; font-size: 11px; font-weight: 700; background: var(--card2); color: var(--mut); }
+.mv-i.compra { background: rgba(47,123,255,.12); color: var(--blue2); }
+.mv-i.recarga { background: rgba(52,199,123,.12); color: var(--ok); }
+.mv-i.canje { background: rgba(245,180,69,.12); color: var(--warn); }
+.mv-i.ajuste { background: rgba(167,139,250,.12); color: #c9b8ff; }
+.mv small { display: block; color: var(--mut); font-size: 11.5px; }
+.mv-v { text-align: right; font-size: 12.5px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.mv-v .pos { color: #7ee2ad; } .mv-v .neg { color: #ffaaaa; }
+.mv-v span { display: block; }
+
+/* ───────── Productos ───────── */
+.num-in { display: inline-flex; align-items: center; gap: 4px; }
+.num-in input { width: 74px; padding: 7px 9px; text-align: right; border-radius: 10px; font-variant-numeric: tabular-nums; }
+.num-in .mas { width: 30px; height: 30px; border-radius: 9px; border: 1px solid var(--line2); background: var(--bg2); display: grid; place-items: center; font-weight: 700; }
+.num-in .mas:hover { border-color: var(--blue2); }
+tr.bajo td { background: rgba(245,180,69,.05); }
+tr.bajo td:first-child { box-shadow: inset 3px 0 0 var(--warn); }
+.ped { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+.ped:first-child { border-top: 0; padding-top: 0; }
+.ped > div { flex: 1; min-width: 0; }
+
+/* ───────── Club y ofertas ───────── */
+.reglas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.regla { background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.regla b { display: block; font-family: Unbounded; font-size: 15px; white-space: nowrap; }
+.regla span { font-size: 12px; color: var(--mut); }
+.niveles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 10px; }
+.nivel-c { border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); background: linear-gradient(160deg, color-mix(in srgb, var(--c) 12%, transparent), transparent 70%); border-radius: 14px; padding: 14px; }
+.nivel-n { font-family: Unbounded; color: var(--c); font-size: 16px; }
+.nivel-r { font-size: 12px; color: var(--mut); margin-top: 2px; }
+.nivel-d { font-family: Unbounded; font-size: 24px; font-weight: 700; margin: 10px 0 8px; }
+.nivel-d small { display: block; font-family: Inter; font-size: 12px; color: var(--mut); font-weight: 500; margin-top: 2px; }
+.nivel-c .entre .peq { white-space: nowrap; }
+.dos.club { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
+.nivel-c ul { list-style: none; display: grid; gap: 4px; font-size: 12.5px; color: #c9cfd9; }
+.nivel-c li::before { content: "✓"; color: var(--c); margin-right: 7px; font-weight: 700; }
+.bono { flex-wrap: wrap; }
+.pct { position: relative; width: 96px; }
+.pct input { padding-right: 30px; text-align: right; font-weight: 700; }
+.pct span { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--mut); font-weight: 600; }
+.rec { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+.rec:first-of-type { border-top: 0; }
+.rec > div { flex: 1; }
+.plantillas { display: flex; gap: 6px; flex-wrap: wrap; }
+.plantillas .chip { cursor: pointer; background: var(--bg2); }
+.plantillas .chip:hover { border-color: var(--blue2); color: #fff; }
+.noti { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 16px; background: rgba(255,255,255,.06); border: 1px solid var(--line2); margin: 14px 0; backdrop-filter: blur(8px); }
+.noti-i { width: 34px; height: 34px; border-radius: 9px; background: #000; display: grid; place-items: center; flex: none; border: 1px solid var(--line2); }
+.noti-i b { font-family: Unbounded; font-weight: 900; font-size: 9px; letter-spacing: -.02em; color: var(--blue2); font-style: italic; }
+.tabla.compacta td, .tabla.compacta th { padding: 10px 12px; }
+.noti b { font-size: 12.5px; } .noti small { color: var(--mut); font-weight: 500; margin-left: 6px; }
+.noti p { font-size: 13px; color: #d9dee6; margin-top: 2px; white-space: pre-wrap; word-break: break-word; }
+.of { padding: 12px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+.of:first-of-type { border-top: 0; padding-top: 0; }
+.of small { color: var(--mut); font-size: 12px; }
+
+/* ───────── Caja e informes ───────── */
+.caja-total { font-family: Unbounded; font-size: 34px; font-weight: 700; letter-spacing: -.02em; }
+.forma { display: grid; grid-template-columns: 90px minmax(0, 1fr) 90px; gap: 10px; align-items: center; font-size: 13px; margin-top: 10px; }
+.forma .barra { height: 8px; border-radius: 8px; background: var(--line); overflow: hidden; }
+.forma .barra i { display: block; height: 100%; background: var(--blue); border-radius: 8px; }
+.graf { position: relative; height: 200px; display: flex; align-items: flex-end; gap: 4px; margin-left: 52px; }
+.gl { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--line2); }
+.gl span { position: absolute; right: calc(100% + 8px); top: -8px; font-size: 10.5px; color: var(--mut); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.b { flex: 1; background: linear-gradient(180deg, var(--blue2), var(--blue)); border-radius: 4px 4px 1px 1px; position: relative; min-height: 2px; opacity: .85; transition: opacity .12s; z-index: 1; }
+.b.cero { background: var(--line2); }
+.b.hoy { background: linear-gradient(180deg, #7ee2ad, var(--ok)); }
+.b:hover { opacity: 1; }
+.b:hover::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #fff; color: #0b0d11; font-size: 11.5px; font-weight: 600; padding: 4px 8px; border-radius: 6px; white-space: nowrap; z-index: 2; }
+.graf-x { display: flex; gap: 4px; margin: 6px 0 0 52px; }
+.graf-x span { flex: 1; text-align: center; font-size: 10.5px; color: var(--mut); white-space: nowrap; }
+.anillo { width: 54px; height: 54px; border-radius: 50%; background: conic-gradient(var(--blue) calc(var(--p) * 1%), var(--line2) 0); display: grid; place-items: center; flex: none; }
+.anillo::before { content: ""; width: 40px; height: 40px; border-radius: 50%; background: var(--card); grid-area: 1 / 1; }
+.top-s { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; font-size: 13px; padding: 7px 0; }
+.top-s .barra { grid-column: 1 / -1; height: 6px; border-radius: 6px; background: var(--line); overflow: hidden; }
+.top-s .barra i { display: block; height: 100%; background: linear-gradient(90deg, var(--blue), var(--blue2)); border-radius: 6px; }
+
+/* ───────── Ventanas ───────── */
+#dlg { padding: 0; width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 40px); overflow: auto; }
+#dlg.ancho { width: min(800px, calc(100vw - 32px)); }
+.dlg-in { padding: 24px; display: grid; gap: 14px; }
+.dlg-in h3 { margin: 0; font-size: 18px; }
+.dlg-acc { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
+.dlg-acc .izq { margin-right: auto; }
+.rejilla2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+label.f.chk { display: flex; align-items: center; gap: 9px; align-self: end; padding-bottom: 13px; cursor: pointer; color: var(--ink); font-weight: 500; font-size: 13.5px; }
+.chk input { width: 18px; height: 18px; padding: 0; margin: 0; accent-color: var(--blue); flex: none; }
+.huecos { display: grid; grid-template-columns: repeat(auto-fill, minmax(66px, 1fr)); gap: 6px; }
+.hueco { background: var(--bg2); border: 1px solid var(--line2); border-radius: 10px; padding: 8px 4px; font-weight: 600; font-size: 13px; display: flex; flex-direction: column; align-items: center; line-height: 1.1; color: var(--ink); }
+.hueco small { font-size: 9.5px; color: var(--warn); font-weight: 600; margin-top: 3px; }
+.hueco:hover:not(:disabled) { border-color: var(--blue2); }
+.hueco.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+.hueco.on small { color: #fff; }
+.hueco:disabled { opacity: .35; cursor: not-allowed; background: transparent; border-style: dashed; text-decoration: line-through; }
+.precio-prev { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 12px; background: var(--bg2); border: 1px solid var(--line); font-size: 13px; }
+.precio-prev b { font-family: Unbounded; font-size: 17px; }
+.ficha { display: grid; grid-template-columns: 110px 1fr; gap: 9px 14px; font-size: 14px; }
+.ficha dt { color: var(--mut); font-size: 12.5px; font-weight: 600; padding-top: 1px; }
+.ficha dd { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.resumen { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--bg2); border: 1px solid var(--line); }
+.rapidas { display: flex; gap: 6px; flex-wrap: wrap; margin-top: -4px; }
+.rapidas .chip { background: var(--bg2); cursor: pointer; }
+.rapidas .chip:hover { border-color: var(--blue2); color: #fff; }
+
+/* ───────── Pantallas más estrechas ───────── */
+@media (max-width: 1150px) {
+  .marco { grid-template-columns: 74px minmax(0, 1fr); }
+  .side { padding: 20px 10px 16px; }
+  .marca .logo .w { font-size: 15px; }
+  .marca .logo i, .marca .logo small, .marca-t, .nav .t, .reloj span, .lnk span { display: none; }
+  .nav a { justify-content: center; padding: 11px; }
+  .nav a.on::before { left: -10px; }
+  .nav .num { position: absolute; top: 1px; right: 1px; min-width: 18px; height: 17px; font-size: 10px; padding: 0 4px; }
+  .reloj b { font-size: 14px; text-align: center; }
+  .lnk { justify-content: center; }
+  .main { padding: 22px 20px 40px; }
+  .kpi-v { font-size: 24px; }
+  .top h1 { font-size: 23px; }
+  .ot-acc .chip { white-space: normal; text-align: center; line-height: 1.2; }
+}
+@media (max-width: 900px) {
+  .dos, .so-dos { grid-template-columns: 1fr; }
+  .kpis, .mini-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kanban { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .top { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+<div class="marco">
+  <aside class="side">
+    <a href="#hoy" class="marca">
+      <span class="logo"><span class="w"><b>EMM</b><i>DETAIL</i></span><small>AUTOMOTIVE DETAILING</small></span>
+      <span class="marca-t">Gestión del taller</span>
+    </a>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-pie">
+      <div class="reloj" id="reloj"></div>
+      <button class="lnk" data-acc="reiniciar" title="Reiniciar demo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span>Reiniciar demo</span></button>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="top">
+      <div>
+        <div class="eyebrow" id="topFecha"></div>
+        <h1 id="topTitulo"></h1>
+        <p class="mut" id="topSub"></p>
+      </div>
+      <div class="fila top-acc">
+        <span class="vivo"><i></i>En directo con la app y el TPV</span>
+        <button class="btn btn-blue btn-sm" data-acc="nuevaCita">+ Nueva cita</button>
+      </div>
+    </header>
+    <section id="vista"></section>
+  </main>
+</div>
+<dialog id="dlg"><div class="dlg-in" id="dlgIn"></div></dialog>
+<div class="toast" id="toast"></div>
+
+<script src="datos.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ───────── Utilidades ───────── */
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const esc = (t) => String(t == null ? "" : t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const st = () => EMM.estado; // siempre leer de nuevo: otra pantalla puede haber cambiado los datos
+  const hoy = () => EMM.hoyISO();
+  const eur = EMM.eur;
+  const norm = (t) => String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const primerNombre = (n) => String(n || "").split(" ")[0];
+  const plural = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
+  const mayus = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+  const fechaLarga = (iso) => mayus(new Date(iso + "T12:00:00").toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" }));
+  const fechaHora = (x) => `${EMM.fechaCorta(EMM.fechaISO(new Date(x)))} · ${EMM.horaDe(x)}`;
+  const horaNum = (h) => { const [a, b] = h.split(":").map(Number); return a + b / 60; };
+  const porHora = (a, b) => a.hora.localeCompare(b.hora);
+  const fmtH = (h) => String(h).replace(".", ",");
+  const fmtKm = (k) => Number(k).toLocaleString("es-ES");
+  const PASOS = ["recibido", "proceso", "calidad", "listo"];
+  const SIGUIENTE = { recibido: "Empezar", proceso: "A control", calidad: "Marcar listo" };
+  const ORIGEN = { app: { n: "App", c: "app" }, telefono: { n: "Teléfono", c: "tel" }, mostrador: { n: "Mostrador", c: "most" } };
+  const FORMAS = { efectivo: "Efectivo", tarjeta: "Tarjeta", bizum: "Bizum", saldo: "Monedero" };
+  const HH = 46, H0 = 9, H1 = 19; // alto de una hora en la agenda y franja visible
+
+  // Iconos (trazo fino, heredan el color)
+  const svg = (d, cl = "") => `<svg class="${cl}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const IC = {
+    hoy: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-5h4v5"/>',
+    taller: '<path d="M3.5 13 5.6 7.4A2 2 0 0 1 7.5 6h9a2 2 0 0 1 1.9 1.4l2.1 5.6"/><rect x="2.5" y="13" width="19" height="5" rx="1.5"/><path d="M5.5 18v2M18.5 18v2"/><circle cx="7" cy="15.5" r=".6"/><circle cx="17" cy="15.5" r=".6"/>',
+    agenda: '<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+    socios: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.8c1.8.7 3 2.4 3.5 5.2"/>',
+    productos: '<path d="M3 7.5 12 3l9 4.5-9 4.5z"/><path d="M3 7.5v9L12 21l9-4.5v-9"/><path d="M12 12v9"/>',
+    club: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
+    caja: '<path d="M4 20V11M10 20V5M16 20v-7M21 20H3"/>',
+    reloj: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+    km: '<path d="M4 18a8 8 0 1 1 16 0"/><path d="M12 18l4-5"/>',
+    movil: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
+    campana: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+    check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+    buscar: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>',
+    izq: '<path d="m15 5-7 7 7 7"/>',
+    der: '<path d="m9 5 7 7-7 7"/>',
+    alerta: '<path d="M12 4 2.5 20h19z"/><path d="M12 10v4M12 17v.5"/>',
+    regalo: '<rect x="3.5" y="8" width="17" height="4" rx="1"/><path d="M5 12v8h14v-8M12 8v12M12 8c-2-4-6-3.5-5-1s5 1 5 1zm0 0c2-4 6-3.5 5-1s-5 1-5 1z"/>',
+  };
+
+  const SECCIONES = [
+    { k: "hoy", n: "Hoy" },
+    { k: "taller", n: "Taller", t: "Taller", s: "Arrastra las tarjetas o usa los botones. Al marcar «Listo», el socio recibe el aviso en su app." },
+    { k: "agenda", n: "Agenda", t: "Agenda", s: "Las reservas de la app entran solas. Las de teléfono y mostrador, con «Nueva cita»." },
+    { k: "socios", n: "Socios", t: "Socios del club", s: "Puntos, nivel, saldo del monedero e historial de cada socio." },
+    { k: "productos", n: "Productos y stock", t: "Productos y stock", s: "Cambia el precio o el stock directamente en la tabla; se guarda solo." },
+    { k: "club", n: "Club y ofertas", t: "Club y ofertas", s: "Las reglas del club y los mensajes que llegan a todos los socios." },
+    { k: "caja", n: "Caja e informes", t: "Caja e informes", s: "Lo cobrado hoy en el TPV y el resumen de los últimos 30 días." },
+  ];
+
+  /* ───────── Estado de la pantalla ───────── */
+  const leerSeccion = () => { const h = location.hash.slice(1); return SECCIONES.some((s) => s.k === h) ? h : "hoy"; };
+  let seccion = leerSeccion();
+  let semana = 0;             // semanas desde la actual en la agenda
+  let busqueda = "";          // filtro de socios
+  let arrastrando = null;     // orden que se está arrastrando en el taller
+  let pendiente = false;      // hay cambios por pintar cuando se suelte el campo activo
+  let dlgEstado = null;       // qué muestra la ventana (para refrescarla en directo)
+  const pedidosProveedor = new Set();
+  const dlg = $("#dlg"), dlgIn = $("#dlgIn");
+
+  /* ───────── Ayudas de datos ───────── */
+  const ordenesActivas = () => st().ordenes.filter((o) => o.estado !== "entregado");
+  const bajoMinimo = (p) => p.minimo > 0 && p.stock <= p.minimo;
+  const nombreCita = (c) => { const s = EMM.socio(c.socioId); return s ? s.nombre : c.cliente || "Cliente"; };
+  function cocheCita(c) {
+    const s = EMM.socio(c.socioId), ch = EMM.coche(s, c.cocheId);
+    return ch ? { modelo: ch.modelo, matricula: ch.matricula, plazas: ch.plazas } : { modelo: c.coche || "Coche", matricula: "", plazas: c.plazas || 0 };
+  }
+  function datosOrden(o) {
+    const c = st().citas.find((x) => x.id === o.citaId) || {};
+    const s = EMM.socio(o.socioId), ch = EMM.coche(s, o.cocheId);
+    return { cita: c, socio: s, cliente: s ? s.nombre : c.cliente || "Cliente", modelo: EMM.cocheDeOrden(o), matricula: ch ? ch.matricula : "", servicio: EMM.servicio(o.servicio) };
+  }
+  function duracion(desde) {
+    const min = Math.floor((Date.now() - new Date(desde).getTime()) / 60000);
+    if (!(min >= 1)) return "menos de 1 min";
+    const d = Math.floor(min / 1440), h = Math.floor((min % 1440) / 60), m = min % 60;
+    return d ? `${d} d ${h} h` : h ? `${h} h ${m} min` : `${m} min`;
+  }
+  const chipNivel = (s) => { if (!s) return '<span class="chip">Sin cuenta</span>'; const n = EMM.nivel(s); return `<span class="chip nivel" style="--c:${n.color}">${n.n}</span>`; };
+  const chipOrigen = (o) => { const x = ORIGEN[o] || ORIGEN.mostrador; return `<span class="chip org ${x.c}">${x.n}</span>`; };
+  const placa = (m) => (m ? `<span class="placa"><i>E</i>${esc(m)}</span>` : "");
+  function ultimaVisita(sid) {
+    let u = "";
+    for (const t of st().tickets) if (t.socioId === sid && t.fecha > u) u = t.fecha;
+    return u;
+  }
+  function lunesDe(iso) { const dow = new Date(iso + "T12:00:00").getDay(); return EMM.sumarDias(iso, dow === 0 ? -6 : 1 - dow); }
+  const diasEntre = (a, b) => Math.round((new Date(b + "T12:00:00") - new Date(a + "T12:00:00")) / 864e5);
+
+  /* ───────── Avisos emergentes ───────── */
+  let tt;
+  function toast(msg, error) {
+    const t = $("#toast");
+    const host = dlg.open ? dlg : document.body; // dentro de la ventana para que se vea por encima
+    if (t.parentNode !== host) host.appendChild(t);
+    t.textContent = msg;
+    t.className = "toast" + (error ? " error" : "");
+    void t.offsetWidth;
+    t.classList.add("on");
+    clearTimeout(tt);
+    tt = setTimeout(() => t.classList.remove("on"), 3400);
+  }
+
+  /* ───────── Pintado general ───────── */
+  function pintarNav() {
+    const E = st(), h = hoy();
+    const cuenta = {
+      taller: [ordenesActivas().length, ""],
+      agenda: [E.citas.filter((c) => c.fecha === h && c.estado === "pendiente").length, ""],
+      productos: [E.productos.filter(bajoMinimo).length, "warn"],
+    };
+    $("#nav").innerHTML = SECCIONES.map((s) => {
+      const [n, cl] = cuenta[s.k] || [0, ""];
+      return `<a href="#${s.k}" class="${s.k === seccion ? "on" : ""}" title="${esc(s.n)}">${svg(IC[s.k])}<span class="t">${esc(s.n)}</span>${n ? `<span class="num ${cl}">${n}</span>` : ""}</a>`;
+    }).join("");
+  }
+  function pintarCabecera() {
+    const s = SECCIONES.find((x) => x.k === seccion);
+    const h = new Date().getHours();
+    $("#topFecha").textContent = fechaLarga(hoy());
+    $("#topTitulo").textContent = s.k === "hoy" ? (h < 14 ? "Buenos días" : h < 21 ? "Buenas tardes" : "Buenas noches") : s.t;
+    $("#topSub").textContent = s.k === "hoy" ? "Así va el taller hoy: citas, coches dentro y lo que llega desde la app." : s.s;
+    document.title = `${s.k === "hoy" ? "Hoy" : s.t} · EMM Detail`;
+  }
+  function pintarReloj() {
+    const d = new Date();
+    $("#reloj").innerHTML = `<b>${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}</b><span>${esc(EMM.fechaCorta(hoy()))}</span>`;
+  }
+  const VISTAS = { hoy: vistaHoy, taller: vistaTaller, agenda: vistaAgenda, socios: vistaSocios, productos: vistaProductos, club: vistaClub, caja: vistaCaja };
+  function render() {
+    pendiente = false;
+    pintarNav();
+    pintarCabecera();
+    pintarReloj();
+    $("#vista").innerHTML = VISTAS[seccion]();
+    if (seccion === "socios") pintarTablaSocios();
+    if (seccion === "club") previaOferta();
+  }
+  // No pisar lo que se está escribiendo: si hay un campo activo, se pinta al soltarlo
+  function pintar() {
+    const a = document.activeElement;
+    if (arrastrando || (a && $("#vista").contains(a) && a.matches("input, textarea, select"))) { pendiente = true; return; }
+    render();
+  }
+  document.addEventListener("focusout", () => setTimeout(() => { if (pendiente) pintar(); }, 0));
+
+  /* ───────── 1. Hoy ───────── */
+  function kpi(ic, et, val, sub, ir) {
+    return `<a class="card kpi" href="#${ir}"><span class="kpi-e">${svg(IC[ic])}${esc(et)}</span><b class="kpi-v">${esc(val)}</b><span class="kpi-s">${esc(sub)}</span></a>`;
+  }
+  function filaCita(c) {
+    const s = EMM.socio(c.socioId), ch = cocheCita(c), sv = EMM.servicio(c.servicio);
+    const acc = c.estado === "pendiente" ? `<button class="btn btn-blue btn-sm" data-acc="recibir" data-id="${c.id}">Recibir coche</button>`
+      : c.estado === "en_taller" ? `<span class="chip ok">En el taller</span>` : `<span class="chip">Entregado</span>`;
+    return `<div class="cf ${c.estado}"><div class="cf-h">${esc(c.hora)}</div>
+      <div class="cf-i" data-acc="verCita" data-id="${c.id}"><div class="fila"><b>${esc(nombreCita(c))}</b>${s ? chipNivel(s) : ""}${chipOrigen(c.origen)}</div>
+      <div class="mut peq">${esc(ch.modelo)}${ch.matricula ? " · " + esc(ch.matricula) : ""} · ${esc(sv.n)}</div></div>${acc}</div>`;
+  }
+  function miniOrden(o) {
+    const d = datosOrden(o), i = PASOS.indexOf(o.estado);
+    return `<a class="mo est-${o.estado}" href="#taller"><div class="entre"><div class="fila" style="min-width:0">${placa(d.matricula)}<b>${esc(d.modelo)}</b></div><span class="chip est">${EMM.NOMBRE_ESTADO[o.estado]}</span></div>
+      <div class="mut peq">${esc(d.cliente)} · ${esc(d.servicio.n)} · ${duracion(o.entrada)}</div>
+      <div class="pasos">${PASOS.map((p, j) => `<i class="${j <= i ? "on" : ""}"></i>`).join("")}</div></a>`;
+  }
+  function feedAvisos() {
+    const E = st();
+    const lista = E.avisos.slice().sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+    const grupos = []; // una oferta llega a todos: se agrupa en una línea
+    for (const a of lista) {
+      const g = grupos[grupos.length - 1];
+      if (g && a.tipo === "oferta" && g.tipo === "oferta" && g.texto === a.texto) g.n++;
+      else if (grupos.length < 6) grupos.push({ ...a, n: 1 });
+      else break;
+    }
+    if (!grupos.length) return `<div class="vacio">Aquí verás lo que les llega a los socios en la app: coche recibido, coche listo, ofertas…</div>`;
+    return grupos.map((a) => {
+      const quien = a.tipo === "oferta" ? `Todos los socios (${a.n})` : (EMM.socio(a.socioId) || {}).nombre || "Socio";
+      const cl = a.tipo === "listo" ? "listo" : a.tipo === "oferta" ? "oferta" : "";
+      const cuando = EMM.fechaISO(new Date(a.fecha)) === hoy() ? EMM.horaDe(a.fecha) : EMM.fechaCorta(EMM.fechaISO(new Date(a.fecha)));
+      return `<div class="av"><span class="av-i ${cl}">${svg(a.tipo === "listo" ? IC.check : a.tipo === "oferta" ? IC.regalo : IC.campana)}</span><div><b>${esc(quien)}</b><p>${esc(a.texto)}</p></div><span class="mut peq">${esc(cuando)}</span></div>`;
+    }).join("");
+  }
+  function vistaHoy() {
+    const E = st(), h = hoy();
+    const cj = EMM.caja(h), ay = EMM.caja(EMM.sumarDias(h, -1));
+    const activas = ordenesActivas().sort((a, b) => PASOS.indexOf(b.estado) - PASOS.indexOf(a.estado));
+    const listos = activas.filter((o) => o.estado === "listo").length;
+    const citas = E.citas.filter((c) => c.fecha === h && c.estado !== "cancelada").sort(porHora);
+    const pend = citas.filter((c) => c.estado === "pendiente").length;
+    const deApp = citas.filter((c) => c.origen === "app").length;
+    const nMes = E.socios.filter((s) => s.alta >= h.slice(0, 8) + "01").length;
+    const n30 = E.socios.filter((s) => s.alta >= EMM.sumarDias(h, -30)).length;
+    const bajos = E.productos.filter(bajoMinimo);
+    return `
+      <div class="kpis">
+        ${kpi("caja", "Facturado hoy", eur(cj.total), `${plural(cj.tickets.length, "cobro", "cobros")} · ayer ${eur(ay.total)}`, "caja")}
+        ${kpi("taller", "Coches en el taller", activas.length, listos ? `${listos} ${listos === 1 ? "listo" : "listos"} para recoger` : "Ninguno listo todavía", "taller")}
+        ${kpi("agenda", "Citas de hoy", citas.length, `${pend} por llegar · ${deApp} desde la app`, "agenda")}
+        ${kpi("socios", "Socios del club", E.socios.length, nMes ? `+${nMes} este mes` : `+${n30} en los últimos 30 días`, "socios")}
+      </div>
+      ${bajos.length ? `<a class="alerta" href="#productos">${svg(IC.alerta, "ic")}<span>Stock bajo: ${bajos.map((p) => `<b>${esc(p.n)}</b> (quedan ${p.stock})`).join(", ")}</span><span class="enl">Ver productos →</span></a>` : ""}
+      <div class="dos">
+        <div class="card"><div class="card-c"><h2>Citas de hoy</h2><a href="#agenda">Ver agenda →</a></div>
+          ${citas.length ? citas.map(filaCita).join("") : `<div class="vacio">Hoy no hay citas.</div>`}</div>
+        <div class="pila">
+          <div class="card"><div class="card-c"><h2>En el taller ahora</h2><a href="#taller">Abrir tablero →</a></div>
+            ${activas.length ? activas.map(miniOrden).join("") : `<div class="vacio">No hay coches en el taller.</div>`}</div>
+          <div class="card"><div class="card-c"><h2>Avisos enviados a la app</h2><span class="chip azul">${svg(IC.movil, "ic")} En directo</span></div>${feedAvisos()}</div>
+        </div>
+      </div>`;
+  }
+
+  /* ───────── 2. Taller ───────── */
+  function tarjetaOT(o) {
+    const d = datosOrden(o), i = PASOS.indexOf(o.estado), ult = o.historia[o.historia.length - 1];
+    const prev = i > 0 ? `<button class="btn btn-ghost btn-sm" data-acc="mover" data-id="${o.id}" data-a="${PASOS[i - 1]}" title="Volver a «${EMM.NOMBRE_ESTADO[PASOS[i - 1]]}»">${svg(IC.izq, "ic")}</button>` : "";
+    const next = i < 3 ? `<button class="btn btn-blue btn-sm" data-acc="mover" data-id="${o.id}" data-a="${PASOS[i + 1]}">${SIGUIENTE[o.estado]} ${svg(IC.der, "ic")}</button>` : `<span class="chip ok">Se cobra en el TPV</span>`;
+    const tiempo = o.estado === "listo" ? `Listo hace ${duracion(ult.en)}` : `${duracion(o.entrada)} en el taller`;
+    return `<article class="ot" draggable="true" data-ot="${o.id}">
+      <div class="entre">${d.matricula ? placa(d.matricula) : '<span class="mut peq">Sin matrícula</span>'}${chipNivel(d.socio)}</div>
+      <h4>${esc(d.modelo)}</h4><div class="ot-cli">${esc(d.cliente)}</div>
+      <div class="ot-srv">${esc(d.servicio.n)}</div>
+      <div class="ot-meta"><span>${svg(IC.reloj, "ic")}${tiempo}</span>${o.km !== "" && o.km != null ? `<span>${svg(IC.km, "ic")}${fmtKm(o.km)} km</span>` : ""}</div>
+      ${o.notas ? `<div class="ot-nota">${esc(o.notas)}</div>` : ""}
+      <div class="ot-acc">${prev}${next}</div></article>`;
+  }
+  function vistaTaller() {
+    const act = ordenesActivas();
+    return `<div class="kanban">${PASOS.map((p) => {
+      const os = act.filter((o) => o.estado === p).sort((a, b) => new Date(a.entrada) - new Date(b.entrada));
+      return `<div class="col est-${p}"><div class="col-c"><i></i><b>${EMM.NOMBRE_ESTADO[p]}</b><span class="num">${os.length}</span></div>
+        <div class="col-b" data-estado="${p}">${os.map(tarjetaOT).join("") || `<div class="col-vacio">Arrastra aquí</div>`}</div></div>`;
+    }).join("")}</div>`;
+  }
+  function mover(oid, estado) {
+    const o = st().ordenes.find((x) => x.id === oid);
+    if (!o || o.estado === estado || !PASOS.includes(estado)) return;
+    const d = datosOrden(o);
+    EMM.moverOrden(oid, estado);
+    if (estado === "listo") toast(d.socio ? `Avisado por la app: ${primerNombre(d.socio.nombre)} ya sabe que su coche está listo` : `Listo para recoger. Llama a ${primerNombre(d.cliente)} para avisarle.`);
+    else toast(`${d.modelo}: ${EMM.NOMBRE_ESTADO[estado].toLowerCase()}`);
+  }
+  // Arrastrar y soltar entre columnas
+  document.addEventListener("dragstart", (e) => {
+    const t = e.target.closest && e.target.closest(".ot");
+    if (!t) return;
+    arrastrando = t.dataset.ot;
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", arrastrando);
+    requestAnimationFrame(() => t.classList.add("arrastrando"));
+  });
+  document.addEventListener("dragover", (e) => {
+    const c = e.target.closest && e.target.closest(".col-b");
+    if (!c || !arrastrando) return;
+    e.preventDefault();
+    $$(".col-b.sobre").forEach((x) => x !== c && x.classList.remove("sobre"));
+    c.classList.add("sobre");
+  });
+  document.addEventListener("drop", (e) => {
+    const c = e.target.closest && e.target.closest(".col-b");
+    if (!c || !arrastrando) return;
+    e.preventDefault();
+    const id = arrastrando;
+    arrastrando = null;
+    mover(id, c.dataset.estado);
+    pintar();
+  });
+  document.addEventListener("dragend", () => {
+    if (!arrastrando && !$(".ot.arrastrando")) return;
+    arrastrando = null;
+    pintar();
+  });
+
+  /* ───────── 3. Agenda ───────── */
+  // Las citas que se solapan se escalonan (como en un calendario): cada una deja ver su hora y nombre
+  function evento({ c, s, ini, f, l }) {
+    const top = (ini - H0) * HH, alto = Math.max((f - ini) * HH - 3, 26);
+    return `<button class="ev ${c.origen} ${c.estado}" style="top:${top + 1}px;height:${alto}px;left:calc(${l} * 24% + 3px);width:calc(100% - ${l} * 24% - 6px);z-index:${l + 1}" data-acc="verCita" data-id="${c.id}" title="${esc(c.hora + " · " + s.n + " · " + nombreCita(c))}">
+      <span class="ev-h">${esc(c.hora)}${c.origen === "app" ? "<em>App</em>" : ""}${c.estado === "en_taller" ? '<i class="ev-ok" title="En el taller"></i>' : ""}</span>
+      <b>${esc(s.n)}</b><span class="ev-c">${esc(nombreCita(c))} · ${esc(cocheCita(c).modelo)}</span></button>`;
+  }
+  function vistaAgenda() {
+    const E = st(), h = hoy();
+    const lunes = EMM.sumarDias(lunesDe(h), semana * 7);
+    const dias = [0, 1, 2, 3, 4, 5].map((i) => EMM.sumarDias(lunes, i));
+    const sab = dias[5];
+    const vivas = E.citas.filter((c) => c.estado !== "cancelada");
+    const deSemana = vivas.filter((c) => c.fecha >= lunes && c.fecha <= sab);
+    const nApp = deSemana.filter((c) => c.origen === "app").length;
+    const largas = vivas.filter((c) => { const s = EMM.servicio(c.servicio); return s.dias && c.fecha <= sab && EMM.sumarDias(c.fecha, s.dias - 1) >= lunes; });
+    const fmt = (iso, o) => new Date(iso + "T12:00:00").toLocaleDateString("es-ES", o);
+    const rango = `${fmt(lunes, { day: "numeric", month: "short" })} – ${fmt(sab, { day: "numeric", month: "short", year: "numeric" })}`;
+    const ahora = new Date(), ahoraH = ahora.getHours() + ahora.getMinutes() / 60;
+
+    const cabs = dias.map((d) => {
+      const n = deSemana.filter((c) => c.fecha === d).length;
+      return `<div class="ag-cab ${d === h ? "hoy" : ""}"><span>${fmt(d, { weekday: "short" }).replace(".", "")}</span><b>${new Date(d + "T12:00:00").getDate()}</b><small>${n ? plural(n, "cita", "citas") : "Libre"}</small></div>`;
+    }).join("");
+    const banda = largas.length ? `<div class="ag-gut">Varios<br>días</div><div class="ag-banda">${largas.map((c, i) => {
+      const s = EMM.servicio(c.servicio);
+      const a = Math.max(0, diasEntre(lunes, c.fecha)), b = Math.min(5, diasEntre(lunes, EMM.sumarDias(c.fecha, s.dias - 1)));
+      return `<button class="ev-l ${c.origen} ${c.estado}" style="grid-column:${a + 1} / ${b + 2};grid-row:${i + 1}" data-acc="verCita" data-id="${c.id}"><b>${esc(s.n)}</b><span>${esc(nombreCita(c))} · ${esc(cocheCita(c).modelo)} · ${s.dias} días</span>${c.origen === "app" ? "<em>App</em>" : ""}</button>`;
+    }).join("")}</div>` : "";
+    const horas = `<div class="ag-horas">${Array.from({ length: H1 - H0 }, (_, i) => `<span style="top:${i * HH}px">${String(H0 + i).padStart(2, "0")}:00</span>`).join("")}</div>`;
+    const cols = dias.map((d) => {
+      const hor = EMM.HORARIO[new Date(d + "T12:00:00").getDay()];
+      const cierre = hor ? hor[1] : H1;
+      const evs = vivas.filter((c) => c.fecha === d && !EMM.servicio(c.servicio).dias).sort(porHora);
+      const fin = []; // carriles: dos puestos de trabajo a la vez
+      const pos = evs.map((c) => {
+        const s = EMM.servicio(c.servicio), ini = horaNum(c.hora), f = Math.min(ini + s.h, cierre);
+        let l = fin.findIndex((x) => x <= ini + 0.001);
+        if (l < 0) { l = fin.length; fin.push(f); } else fin[l] = f;
+        return { c, s, ini, f, l };
+      });
+      const cerrado = cierre < H1 ? `<div class="ag-cerrado" style="top:${(cierre - H0) * HH}px;height:${(H1 - cierre) * HH}px">Cerrado</div>` : "";
+      const linea = d === h && ahoraH >= H0 && ahoraH <= cierre ? `<div class="ag-ahora" style="top:${(ahoraH - H0) * HH}px"></div>` : "";
+      return `<div class="ag-dia ${d === h ? "hoy" : ""}">${cerrado}${pos.map(evento).join("")}${linea}</div>`;
+    }).join("");
+
+    return `
+      <div class="ag-barra">
+        <div class="ag-nav">
+          <button class="ic-btn" data-acc="semana" data-v="-1" title="Semana anterior">${svg(IC.izq, "ic")}</button>
+          <button class="btn btn-ghost btn-sm" data-acc="semana" data-v="0" ${semana === 0 ? "disabled" : ""}>Esta semana</button>
+          <button class="ic-btn" data-acc="semana" data-v="1" title="Semana siguiente">${svg(IC.der, "ic")}</button>
+          <h2>${esc(rango)}</h2>
+        </div>
+        <div class="leyenda"><span class="o-app"><i></i>App del socio</span><span class="o-telefono"><i></i>Teléfono</span><span class="o-mostrador"><i></i>Mostrador</span></div>
+      </div>
+      <div class="app-aviso">${svg(IC.movil)}<span><b>${plural(nApp, "reserva", "reservas")} desde la app esta semana.</b> Entran solas en la agenda, sin llamadas ni mensajes: el socio elige día y hora libre y le llega la confirmación.</span></div>
+      <div class="ag">
+        <div class="ag-fila"><div class="ag-gut" style="border-left:0"></div>${cabs}${banda}</div>
+        <div class="ag-fila">${horas}${cols}</div>
+      </div>`;
+  }
+
+  /* ───────── Ventanas: cita, recibir y nueva cita ───────── */
+  function abrirDlg(html, estado = {}) {
+    dlgIn.innerHTML = html;
+    dlgEstado = estado;
+    $("#toast").classList.remove("on"); // el aviso anterior quedaría detrás del fondo
+    dlg.classList.toggle("ancho", !!estado.ancho);
+    if (!dlg.open) dlg.showModal();
+  }
+  dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+  dlg.addEventListener("close", () => { dlgEstado = null; nc = null; const t = $("#toast"); if (t.parentNode !== document.body) document.body.appendChild(t); if (pendiente) pintar(); });
+  function refrescarDlg() {
+    if (!dlg.open || !dlgEstado) return;
+    const a = document.activeElement;
+    if (a && dlg.contains(a) && a.matches("input, textarea, select")) return;
+    if (dlgEstado.tipo === "socio") abrirSocio(dlgEstado.id);
+    if (dlgEstado.tipo === "cita" && !dlgEstado.confirmando) abrirCita(dlgEstado.id);
+  }
+
+  function abrirCita(id) {
+    const c = st().citas.find((x) => x.id === id);
+    if (!c) return dlg.close();
+    const s = EMM.socio(c.socioId), ch = cocheCita(c), sv = EMM.servicio(c.servicio);
+    const precio = EMM.precioSocio(c.servicio, ch.plazas, s), dto = s ? EMM.nivel(s).dto : 0;
+    const tel = s ? s.tel : c.tel || "—";
+    const ESTADO = { pendiente: '<span class="chip warn">Pendiente</span>', en_taller: '<span class="chip ok">En el taller</span>', hecha: '<span class="chip">Entregado</span>', cancelada: '<span class="chip bad">Cancelada</span>' };
+    const puedeRecibir = c.estado === "pendiente" && c.fecha <= hoy();
+    abrirDlg(`<div class="entre"><h3>${esc(sv.n)}</h3><div class="fila">${chipOrigen(c.origen)}${ESTADO[c.estado] || ""}</div></div>
+      ${c.origen === "app" ? `<div class="app-aviso" style="margin:0">${svg(IC.movil)}<span>Reservada por el socio desde la app. Entró sola en la agenda.</span></div>` : ""}
+      <dl class="ficha">
+        <dt>Cliente</dt><dd><b>${esc(nombreCita(c))}</b>${chipNivel(s)}</dd>
+        <dt>Teléfono</dt><dd>${esc(tel)}</dd>
+        <dt>Coche</dt><dd>${placa(ch.matricula)}${esc(ch.modelo)}</dd>
+        <dt>Día y hora</dt><dd>${esc(fechaLarga(c.fecha))} · ${esc(c.hora)}</dd>
+        <dt>Duración</dt><dd>${sv.dias ? `${sv.dias} días` : `${fmtH(sv.h)} h`}</dd>
+        <dt>Precio</dt><dd><b>${eur(precio)}</b>${dto ? `<span class="mut peq">precio de socio (−${dto} %)</span>` : ""}</dd>
+      </dl>
+      <div class="dlg-acc">
+        ${c.estado === "pendiente" ? `<button class="btn btn-rojo-g izq" data-acc="cancelarCita" data-id="${c.id}">Cancelar cita</button>` : ""}
+        <button class="btn btn-ghost" data-acc="cerrar">Cerrar</button>
+        ${puedeRecibir ? `<button class="btn btn-blue" data-acc="recibir" data-id="${c.id}">Recibir coche</button>` : ""}
+      </div>`, { tipo: "cita", id });
+  }
+
+  function abrirRecibir(id) {
+    const c = st().citas.find((x) => x.id === id);
+    if (!c || c.estado !== "pendiente") return toast("Esa cita ya no está pendiente.", true);
+    const ch = cocheCita(c), sv = EMM.servicio(c.servicio);
+    const rapidas = ["Arañazos previos", "Llantas con marcas", "Objetos personales dentro", "Olor a tabaco", "Silla de bebé"];
+    abrirDlg(`<h3>Recibir coche</h3>
+      <div class="resumen">${placa(ch.matricula)}<div><b>${esc(ch.modelo)}</b><div class="mut peq">${esc(nombreCita(c))} · ${esc(sv.n)} · ${esc(c.hora)}</div></div></div>
+      <label class="f">Kilómetros<input id="rcKm" type="number" min="0" inputmode="numeric" placeholder="Ej. 48210"></label>
+      <label class="f">Notas de entrada<textarea id="rcNo" rows="3" placeholder="Golpes, arañazos, objetos dentro, peticiones del cliente…"></textarea></label>
+      <div class="rapidas">${rapidas.map((t) => `<button type="button" class="chip" data-nota="${esc(t)}">+ ${esc(t)}</button>`).join("")}</div>
+      <div class="dlg-acc"><button class="btn btn-ghost" data-acc="cerrar">Cancelar</button><button class="btn btn-blue" data-acc="confRecibir" data-id="${c.id}">Recibir y abrir orden</button></div>`, { tipo: "recibir", id });
+    setTimeout(() => { const k = $("#rcKm"); if (k) k.focus(); }, 60);
+  }
+  function confirmarRecibir(id) {
+    const c = st().citas.find((x) => x.id === id);
+    if (!c) return;
+    const s = EMM.socio(c.socioId);
+    const km = $("#rcKm").value.trim(), notas = $("#rcNo").value.trim();
+    if (km && !(Number(km) >= 0)) return toast("Los kilómetros no son válidos.", true);
+    dlg.close();
+    const o = EMM.recibirCoche(id, { km: km ? Math.round(Number(km)) : "", notas });
+    if (!o) return toast("Esa cita ya no está pendiente.", true);
+    toast(s ? `Coche recibido. ${primerNombre(s.nombre)} ya lo ve en su app.` : "Coche recibido: orden abierta en el taller.");
+  }
+
+  // Nueva cita (teléfono o mostrador)
+  let nc = null;
+  function primerDiaLibre(k, esSocio) {
+    let d = hoy();
+    for (let i = 0; i < 10; i++, d = EMM.sumarDias(d, 1)) if (EMM.huecos(d, k, esSocio).some((x) => x.libre)) return d;
+    return EMM.sumarDias(hoy(), 1);
+  }
+  function abrirNuevaCita() {
+    const E = st();
+    const socios = E.socios.slice().sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+    nc = { tipo: socios.length ? "socio" : "cliente", socioId: socios[0] ? socios[0].id : null, servicio: "mant", hora: null, origen: "telefono" };
+    nc.fecha = primerDiaLibre(nc.servicio, nc.tipo === "socio");
+    const grupos = {};
+    for (const s of EMM.SERVICIOS) (grupos[s.c] = grupos[s.c] || []).push(s);
+    const opServ = Object.entries(grupos).map(([g, ss]) => `<optgroup label="${esc(g)}">${ss.map((s) => `<option value="${s.k}">${esc(s.n)} · desde ${eur(s.p[0])}</option>`).join("")}</optgroup>`).join("");
+    abrirDlg(`<h3>Nueva cita</h3>
+      <p class="mut peq" style="margin-top:-6px">Para reservas por teléfono o en el mostrador. Si es socio, le llega la confirmación a la app.</p>
+      <div class="entre"><div class="seg" id="ncTipo"><button type="button" data-v="socio">Socio del club</button><button type="button" data-v="cliente">Cliente sin cuenta</button></div>
+        <div class="seg" id="ncOrigen"><button type="button" data-v="telefono">Teléfono</button><button type="button" data-v="mostrador">Mostrador</button></div></div>
+      <div class="rejilla2" id="ncSocio"><label class="f">Socio<select id="ncS">${socios.map((s) => `<option value="${s.id}">${esc(s.nombre)} · ${esc(s.tarjeta)}</option>`).join("")}</select></label><label class="f">Coche<select id="ncC"></select></label></div>
+      <div class="rejilla2" id="ncCli"><label class="f">Nombre<input id="ncN" placeholder="Nombre y apellido" maxlength="60"></label><label class="f">Teléfono<input id="ncT" placeholder="600 000 000" inputmode="tel" maxlength="20"></label>
+        <label class="f">Coche<input id="ncCo" placeholder="Modelo y color" maxlength="60"></label><label class="f chk"><input type="checkbox" id="ncP"> Más de 5 plazas</label></div>
+      <div class="rejilla2"><label class="f">Servicio<select id="ncSv">${opServ}</select></label><label class="f">Día<input type="date" id="ncF" min="${hoy()}" value="${nc.fecha}"></label></div>
+      <div class="f">Hora de entrada<div class="huecos" id="ncH"></div></div>
+      <div class="precio-prev" id="ncPr"></div>
+      <div class="dlg-acc"><button class="btn btn-ghost" data-acc="cerrar">Cancelar</button><button class="btn btn-blue" data-acc="guardarCita">Guardar cita</button></div>`, { tipo: "nueva", ancho: false });
+    pintarNueva();
+  }
+  function pintarNueva() {
+    if (!nc) return;
+    $$("#ncTipo button").forEach((b) => b.classList.toggle("on", b.dataset.v === nc.tipo));
+    $$("#ncOrigen button").forEach((b) => b.classList.toggle("on", b.dataset.v === nc.origen));
+    $("#ncSocio").hidden = nc.tipo !== "socio";
+    $("#ncCli").hidden = nc.tipo === "socio";
+    $("#ncSocio").style.display = nc.tipo === "socio" ? "" : "none";
+    $("#ncCli").style.display = nc.tipo === "socio" ? "none" : "";
+    const s = nc.tipo === "socio" ? EMM.socio(nc.socioId) : null;
+    if (s) {
+      const sel = $("#ncC");
+      if (sel.dataset.socio !== s.id) {
+        sel.innerHTML = s.coches.length ? s.coches.map((c) => `<option value="${c.id}">${esc(c.modelo)} · ${esc(c.matricula)}</option>`).join("") : `<option value="">Sin coche registrado</option>`;
+        sel.dataset.socio = s.id;
+      }
+    }
+    $("#ncSv").value = nc.servicio;
+    // Horas libres
+    const caja = $("#ncH");
+    const hs = nc.fecha ? EMM.huecos(nc.fecha, nc.servicio, !!s) : [];
+    if (!nc.fecha) caja.innerHTML = `<span class="mut peq">Elige un día.</span>`;
+    else if (!hs.length) caja.innerHTML = `<span class="mut peq">${new Date(nc.fecha + "T12:00:00").getDay() === 0 ? "Los domingos está cerrado." : "No quedan horas este día."}</span>`;
+    else {
+      if (nc.hora && !hs.some((x) => x.hora === nc.hora && x.libre)) nc.hora = null;
+      caja.innerHTML = hs.map((x) => `<button type="button" class="hueco ${x.hora === nc.hora ? "on" : ""}" data-h="${x.hora}" ${x.libre ? "" : "disabled"} title="${x.libre ? "" : x.soloSocio && !s ? "Hora reservada para socios" : "Completo"}">${x.hora}${x.soloSocio ? "<small>socios</small>" : ""}</button>`).join("");
+      if (!hs.some((x) => x.libre)) caja.insertAdjacentHTML("beforeend", `<span class="mut peq" style="grid-column:1/-1">Este día está completo.</span>`);
+    }
+    // Precio
+    const sv = EMM.servicio(nc.servicio);
+    const ch = s ? EMM.coche(s, $("#ncC").value) : null;
+    const plazas = s ? (ch ? ch.plazas : 0) : $("#ncP").checked ? 1 : 0;
+    const precio = EMM.precioSocio(nc.servicio, plazas, s), dto = s ? EMM.nivel(s).dto : 0;
+    $("#ncPr").innerHTML = `<span class="mut">${sv.dias ? `Trabajo de ${sv.dias} días` : `Duración: ${fmtH(sv.h)} h`}${dto ? ` · precio de socio (−${dto} %)` : ""}</span><b>${eur(precio)}</b>`;
+  }
+  function guardarCita() {
+    if (!nc) return;
+    const s = nc.tipo === "socio" ? EMM.socio(nc.socioId) : null;
+    if (nc.tipo === "socio" && !s) return toast("Elige un socio.", true);
+    const nombre = ($("#ncN").value || "").trim(), tel = ($("#ncT").value || "").trim(), cocheTexto = ($("#ncCo").value || "").trim();
+    if (!s && !nombre) return toast("Escribe el nombre del cliente.", true);
+    if (!s && !cocheTexto) return toast("Escribe el coche (modelo y color).", true);
+    if (!nc.fecha || !nc.hora) return toast("Elige un día y una hora libre.", true);
+    EMM.reservar({
+      socioId: s ? s.id : null, cocheId: s ? $("#ncC").value || null : null, servicio: nc.servicio, fecha: nc.fecha, hora: nc.hora, origen: nc.origen,
+      cliente: s ? undefined : nombre, cocheTexto: s ? undefined : cocheTexto, plazas: s ? 0 : $("#ncP").checked ? 1 : 0, tel: s ? undefined : tel || undefined,
+    });
+    const fecha = nc.fecha, hora = nc.hora;
+    nc = null;
+    dlg.close();
+    semana = diasEntre(lunesDe(hoy()), lunesDe(fecha)) / 7;
+    if (seccion !== "agenda") location.hash = "#agenda"; else render();
+    toast(`Cita guardada: ${EMM.fechaCorta(fecha)} a las ${hora}${s ? ". Le llega la confirmación a la app." : "."}`);
+  }
+  dlg.addEventListener("click", (e) => {
+    if (!nc) return;
+    const b = e.target.closest("#ncTipo button, #ncOrigen button, .hueco");
+    if (!b || b.disabled) return;
+    if (b.classList.contains("hueco")) nc.hora = b.dataset.h;
+    else if (b.closest("#ncTipo")) nc.tipo = b.dataset.v;
+    else nc.origen = b.dataset.v;
+    pintarNueva();
+  });
+  dlg.addEventListener("change", (e) => {
+    if (!nc) return;
+    const t = e.target;
+    if (t.id === "ncS") nc.socioId = t.value;
+    if (t.id === "ncSv") nc.servicio = t.value;
+    if (t.id === "ncF") nc.fecha = t.value;
+    if (["ncS", "ncSv", "ncF", "ncC", "ncP"].includes(t.id)) pintarNueva();
+  });
+
+  /* ───────── 4. Socios ───────── */
+  function vistaSocios() {
+    const E = st();
+    const por = EMM.NIVELES.map((n) => ({ n, c: E.socios.filter((s) => EMM.nivel(s) === n).length }));
+    const saldo = EMM.r2(E.socios.reduce((a, s) => a + s.saldo, 0));
+    return `
+      <div class="mini-kpis">
+        <div class="mk"><span>Socios del club</span><b>${E.socios.length}</b></div>
+        <div class="mk"><span>Por nivel</span><b style="display:flex;gap:14px;font-size:18px">${por.map((x) => `<span title="${x.n.n}" style="display:inline-flex;align-items:center;gap:6px;color:var(--ink)"><i class="punto" style="--c:${x.n.color}"></i>${x.c}</span>`).join("")}</b></div>
+        <div class="mk"><span>Saldo de monederos</span><b>${eur(saldo)}</b></div>
+        <div class="mk"><span>Puntos sin canjear</span><b>${E.socios.reduce((a, s) => a + s.puntos, 0).toLocaleString("es-ES")}</b></div>
+      </div>
+      <div class="card sin-p">
+        <div class="card-c"><div class="buscador">${svg(IC.buscar)}<input id="buscaSocio" type="search" placeholder="Buscar por nombre, tarjeta, teléfono o matrícula" value="${esc(busqueda)}" autocomplete="off"></div><span class="mut peq" id="cuentaSocios"></span></div>
+        <div style="overflow-x:auto;margin-top:8px"><table class="tabla"><thead><tr><th>Socio</th><th>Tarjeta</th><th>Nivel</th><th class="der">Puntos</th><th class="der">Acumulados</th><th class="der">Saldo</th><th>Coches</th><th>Última visita</th></tr></thead><tbody id="tbSocios"></tbody></table></div>
+      </div>`;
+  }
+  function pintarTablaSocios() {
+    const tb = $("#tbSocios");
+    if (!tb) return;
+    const q = norm(busqueda);
+    const lista = st().socios.filter((s) => !q || norm([s.nombre, s.tarjeta, s.tel, s.email, ...s.coches.map((c) => c.modelo + " " + c.matricula)].join(" ")).includes(q) || norm(s.tel).replace(/\s/g, "").includes(q.replace(/\s/g, "")))
+      .sort((a, b) => b.acumulados - a.acumulados);
+    $("#cuentaSocios").textContent = plural(lista.length, "socio", "socios");
+    tb.innerHTML = lista.length ? lista.map((s) => {
+      const u = ultimaVisita(s.id);
+      return `<tr class="clic" data-acc="verSocio" data-id="${s.id}"><td><b>${esc(s.nombre)}</b><span class="sub">${esc(s.tel)}</span></td><td class="mut">${esc(s.tarjeta)}</td><td>${chipNivel(s)}</td>
+        <td class="der"><b>${s.puntos}</b></td><td class="der mut">${s.acumulados}</td><td class="der ${s.saldo > 0 ? "saldo-pos" : "mut"}">${eur(s.saldo)}</td>
+        <td>${s.coches.map((c) => `<span class="sub" style="color:var(--ink)">${esc(c.modelo)}</span>`).join("") || '<span class="mut">—</span>'}</td>
+        <td class="mut">${u ? esc(EMM.fechaCorta(EMM.fechaISO(new Date(u)))) : "—"}</td></tr>`;
+    }).join("") : `<tr><td colspan="8"><div class="vacio">Ningún socio coincide con «${esc(busqueda)}».</div></td></tr>`;
+  }
+  document.addEventListener("input", (e) => {
+    if (e.target.id === "buscaSocio") { busqueda = e.target.value; pintarTablaSocios(); }
+    if (e.target.id === "ofTexto") previaOferta();
+    if (e.target.id === "bono") { const b = Number(e.target.value) || 0; const ej = $("#bonoEj"); if (ej) ej.textContent = `Si recarga 50 €, recibe ${eur((50 * b) / 100)} de regalo.`; }
+  });
+
+  function abrirSocio(id) {
+    const E = st(), s = EMM.socio(id);
+    if (!s) return dlg.close();
+    const nv = EMM.nivel(s), sig = EMM.siguienteNivel(s);
+    const prog = sig ? Math.min(100, ((s.acumulados - nv.desde) / (sig.desde - nv.desde)) * 100) : 100;
+    const movs = E.movimientos.filter((m) => m.socioId === id).sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+    const prox = E.citas.filter((c) => c.socioId === id && c.estado === "pendiente" && c.fecha >= hoy()).sort((a, b) => (a.fecha + a.hora).localeCompare(b.fecha + b.hora));
+    const ini = s.nombre.split(" ").map((x) => x[0]).slice(0, 2).join("");
+    const LETRA = { compra: "€", recarga: "+", canje: "★", ajuste: "±", alta: "✓", cita: "◷" };
+    abrirDlg(`
+      <div class="so-cab"><div class="avatar" style="--c:${nv.color}">${esc(ini)}</div><div><h3>${esc(s.nombre)}</h3>
+        <div class="mut peq">${esc(s.tarjeta)} · socio desde ${esc(EMM.fechaCorta(s.alta))} · ${esc(s.tel)}${s.email ? " · " + esc(s.email) : ""}</div></div>${chipNivel(s)}</div>
+      <div class="so-kpis"><div><span>Puntos</span><b>${s.puntos}</b></div><div><span>Acumulados</span><b>${s.acumulados}</b></div><div><span>Saldo del monedero</span><b>${eur(s.saldo)}</b></div></div>
+      <div style="--c:${sig ? sig.color : nv.color}"><div class="prog"><i style="width:${prog}%"></i></div>
+        <div class="mut peq">${sig ? `Le faltan <b style="color:var(--ink)">${sig.desde - s.acumulados} puntos</b> para ${sig.n} (${sig.dto} % en todo).` : `Nivel máximo: ${nv.dto} % en todos los servicios.`}</div></div>
+      <div class="so-dos">
+        <div>
+          <h4>Coches</h4>${s.coches.map((c) => `<div class="coche-f">${placa(c.matricula)}<span>${esc(c.modelo)}${c.plazas ? ' <span class="mut peq">· más de 5 plazas</span>' : ""}</span></div>`).join("") || '<div class="mut peq">Sin coches registrados.</div>'}
+          <h4>Próximas citas</h4>${prox.length ? prox.map((c) => `<div class="coche-f"><b>${esc(EMM.fechaCorta(c.fecha))} · ${esc(c.hora)}</b><span class="mut">${esc(EMM.servicio(c.servicio).n)}</span></div>`).join("") : '<div class="mut peq">Ninguna.</div>'}
+          <h4>Ajustar puntos</h4>
+          <div class="ajuste"><input id="ajN" type="number" step="1" placeholder="+50"><input id="ajM" placeholder="Motivo (p. ej. compensación)" maxlength="60"></div>
+          <div class="rapidos">${[25, 50, 100, -50].map((n) => `<button type="button" class="chip" data-aj="${n}">${n > 0 ? "+" : "−"}${Math.abs(n)}</button>`).join("")}<button class="btn btn-blue btn-sm" style="margin-left:auto" data-acc="ajustar" data-id="${s.id}">Aplicar</button></div>
+        </div>
+        <div><h4>Movimientos</h4><div class="movs">${movs.length ? movs.map((m) => `<div class="mv"><span class="mv-i ${esc(m.tipo)}">${LETRA[m.tipo] || "·"}</span><div>${esc(m.texto)}<small>${esc(fechaHora(m.fecha))}</small></div>
+          <div class="mv-v">${m.puntos ? `<span class="${m.puntos > 0 ? "pos" : "neg"}">${m.puntos > 0 ? "+" : "−"}${Math.abs(m.puntos)} pts</span>` : ""}${m.saldo ? `<span class="${m.saldo > 0 ? "pos" : "neg"}">${m.saldo > 0 ? "+" : "−"}${eur(Math.abs(m.saldo))}</span>` : ""}</div></div>`).join("") : '<div class="vacio">Sin movimientos todavía.</div>'}</div></div>
+      </div>
+      <div class="dlg-acc"><button class="btn btn-ghost" data-acc="cerrar">Cerrar</button></div>`, { tipo: "socio", id, ancho: true });
+  }
+
+  /* ───────── 5. Productos y stock ───────── */
+  function vistaProductos() {
+    const E = st();
+    const bajos = E.productos.filter(bajoMinimo).length;
+    const pedidos = E.pedidos.filter((p) => p.estado !== "entregado");
+    const filas = E.productos.map((p) => {
+      const bajo = bajoMinimo(p), pedido = pedidosProveedor.has(p.id);
+      return `<tr class="${bajo ? "bajo" : ""}"><td><b>${esc(p.n)}</b></td>
+        <td><span class="num-in"><input type="number" min="0" step="0.01" value="${p.precio.toFixed(2)}" data-campo="precio" data-id="${p.id}" aria-label="Precio"><span class="mut">€</span></span></td>
+        <td><span class="num-in"><button class="mas" data-acc="stock" data-id="${p.id}" data-v="-1" aria-label="Quitar uno">−</button><input type="number" min="0" step="1" value="${p.stock}" data-campo="stock" data-id="${p.id}" aria-label="Stock"><button class="mas" data-acc="stock" data-id="${p.id}" data-v="1" aria-label="Añadir uno">+</button></span></td>
+        <td class="der mut">${p.minimo || "—"}</td>
+        <td>${bajo ? (pedido ? '<span class="chip azul">Pedido al proveedor</span>' : `<span class="fila"><span class="chip warn">Bajo mínimo</span><button class="btn btn-ghost btn-sm" data-acc="pedir" data-id="${p.id}">Pedir</button></span>`) : '<span class="chip ok">Bien</span>'}</td></tr>`;
+    }).join("");
+    return `
+      <div class="mini-kpis">
+        <div class="mk"><span>Productos</span><b>${E.productos.length}</b></div>
+        <div class="mk"><span>Bajo mínimo</span><b style="color:${bajos ? "var(--warn)" : "inherit"}">${bajos}</b></div>
+        <div class="mk"><span>Pedidos de la app por entregar</span><b>${pedidos.length}</b></div>
+        <div class="mk"><span>Vendidos en 30 días</span><b>${E.tickets.filter((t) => t.fecha.slice(0, 10) >= EMM.sumarDias(hoy(), -29)).reduce((a, t) => a + t.lineas.filter((l) => l.tipo === "producto").reduce((x, l) => x + l.cant, 0), 0)}</b></div>
+      </div>
+      ${pedidos.length ? `<div class="card" style="margin-bottom:16px"><div class="card-c"><h2>Pedidos de la app para recoger</h2><span class="chip azul">${svg(IC.movil, "ic")} Pagados con el monedero</span></div>
+        ${pedidos.map((p) => { const s = EMM.socio(p.socioId), pr = EMM.producto(p.productoId); return `<div class="ped"><div><b>${esc(pr ? pr.n : "Producto")} ×${p.cant}</b><div class="mut peq">${esc(s ? s.nombre : "Socio")} · ${esc(fechaHora(p.fecha))} · ${eur(p.total)}</div></div><button class="btn btn-ok btn-sm" data-acc="entregarPedido" data-id="${p.id}">Entregado</button></div>`; }).join("")}</div>` : ""}
+      <div class="card sin-p"><div style="overflow-x:auto"><table class="tabla"><thead><tr><th>Producto</th><th>Precio de venta</th><th>Stock</th><th class="der">Mínimo</th><th>Estado</th></tr></thead><tbody>${filas}</tbody></table></div></div>`;
+  }
+  document.addEventListener("change", (e) => {
+    const i = e.target.closest && e.target.closest("[data-campo]");
+    if (!i) return;
+    const p = EMM.producto(i.dataset.id);
+    const v = parseFloat(String(i.value).replace(",", "."));
+    if (!p || !(v >= 0)) { toast("Escribe un número válido.", true); render(); return; }
+    if (i.dataset.campo === "precio") { EMM.guardarProducto(p.id, { precio: EMM.r2(v) }); toast(`${p.n}: ahora a ${eur(v)}`); }
+    else { EMM.guardarProducto(p.id, { stock: Math.round(v) }); toast(`${p.n}: ${Math.round(v)} en stock`); }
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.matches && e.target.matches("[data-campo]")) e.target.blur(); });
+
+  /* ───────── 6. Club y ofertas ───────── */
+  const PLANTILLAS = [
+    { n: "Premium −15 %", t: "Solo esta semana: Lavado Premium con un 15 % de descuento para socios. Reserva tu hora desde la app." },
+    { n: "Doble de puntos", t: "Este mes, doble de puntos en todos los pulidos. ¡Deja tu coche como el primer día!" },
+    { n: "Invierno", t: "Llega el invierno a Lugo: cerámico de cristales a 79 € para socios hasta fin de mes." },
+  ];
+  function vistaClub() {
+    const E = st(), cfg = E.config;
+    const niveles = EMM.NIVELES.map((n, i) => {
+      const cuantos = E.socios.filter((s) => EMM.nivel(s) === n).length, sig = EMM.NIVELES[i + 1];
+      return `<div class="nivel-c" style="--c:${n.color}"><div class="entre"><b class="nivel-n">${n.n}</b><span class="peq mut">${plural(cuantos, "socio", "socios")}</span></div>
+        <div class="nivel-r">${sig ? `De ${n.desde} a ${sig.desde - 1} puntos` : `Desde ${n.desde} puntos`}</div>
+        <div class="nivel-d">${n.dto ? `${n.dto} %` : "0 %"}<small>${n.dto ? "de descuento" : "sin descuento"}</small></div>
+        <ul>${n.ventajas.map((v) => `<li>${esc(v)}</li>`).join("")}</ul></div>`;
+    }).join("");
+    return `<div class="dos club">
+      <div class="pila">
+        <div class="card"><div class="card-c"><h2>Cómo funciona el club</h2></div>
+          <div class="reglas">
+            <div class="regla"><b>${cfg.puntosPorEuro} punto</b><span>por cada euro gastado</span></div>
+            <div class="regla"><b>${esc(cfg.horasSocio.join(" y "))}</b><span>horas reservadas a socios</span></div>
+            <div class="regla"><b>15 min</b><span>dura el código de canje</span></div>
+          </div>
+          <div class="niveles">${niveles}</div>
+          <p class="peq mut">El nivel va por puntos acumulados: canjear puntos no hace bajar de nivel.</p></div>
+        <div class="card"><div class="card-c"><h2>Monedero y bono de recarga</h2></div>
+          <p class="mut peq" style="margin-bottom:12px">El socio recarga saldo y le regalamos un porcentaje. El saldo se gasta en el taller y no se devuelve en efectivo.</p>
+          <div class="fila bono"><div class="pct"><input type="number" id="bono" min="0" max="50" step="1" value="${cfg.bonoRecarga}" aria-label="Bono de recarga"><span>%</span></div>
+            <button class="btn btn-blue btn-sm" data-acc="guardarBono">Guardar</button><span class="mut peq" id="bonoEj">Si recarga 50 €, recibe ${eur((50 * cfg.bonoRecarga) / 100)} de regalo.</span></div></div>
+        <div class="card"><div class="card-c"><h2>Recompensas</h2><span class="mut peq">Se canjean desde la app</span></div>
+          ${E.recompensas.map((r) => `<div class="rec"><span class="av-i oferta">${svg(IC.regalo)}</span><div><b>${esc(r.n)}</b><div class="mut peq">Vale ${eur(r.valor)}</div></div><span class="chip azul">${r.puntos} puntos</span></div>`).join("")}</div>
+      </div>
+      <div class="pila">
+        <div class="card"><div class="card-c"><h2>Enviar oferta a los socios</h2><span class="chip azul">${plural(E.socios.length, "socio", "socios")}</span></div>
+          <textarea id="ofTexto" rows="4" maxlength="240" placeholder="Escribe la oferta o elige una plantilla…"></textarea>
+          <div class="entre" style="margin-top:10px"><div class="plantillas">${PLANTILLAS.map((p, i) => `<button type="button" class="chip" data-acc="plantilla" data-i="${i}">${esc(p.n)}</button>`).join("")}</div><span class="peq mut" id="ofCont">0/240</span></div>
+          <div class="noti"><span class="noti-i"><b>EMM</b></span><div style="min-width:0"><b>EMM Detail</b><small>ahora</small><p id="ofPrev"></p></div></div>
+          <button class="btn btn-blue" style="width:100%" data-acc="enviarOferta">${svg(IC.movil, "ic")} Enviar a ${plural(E.socios.length, "socio", "socios")}</button></div>
+        <div class="card"><div class="card-c"><h2>Ofertas enviadas</h2><span class="mut peq">${E.ofertas.length}</span></div>
+          ${E.ofertas.length ? E.ofertas.map((o) => `<div class="of"><small>${esc(fechaHora(o.fecha))}</small><div>${esc(o.texto)}</div></div>`).join("") : '<div class="vacio">Todavía no has enviado ninguna.</div>'}</div>
+      </div></div>`;
+  }
+  function previaOferta() {
+    const t = $("#ofTexto"), p = $("#ofPrev");
+    if (!t || !p) return;
+    p.textContent = t.value.trim() || "Así les llegará el aviso en el móvil.";
+    p.style.color = t.value.trim() ? "" : "var(--mut)";
+    $("#ofCont").textContent = `${t.value.length}/240`;
+  }
+
+  /* ───────── 7. Caja e informes ───────── */
+  function vistaCaja() {
+    const E = st(), cj = EMM.caja(), inf = EMM.informe(30);
+    const formas = Object.entries(cj.formas);
+    const maxF = Math.max(1, ...formas.map((f) => f[1]));
+    const tickets = cj.tickets.slice().sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+    const dias = Object.entries(inf.porDia);
+    const max = Math.max(1, ...dias.map((d) => d[1]));
+    const tope = Math.ceil(max / 100) * 100;
+    const servicios = Object.entries(inf.porServicio).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const maxS = Math.max(1, ...servicios.map((s) => s[1]));
+    const concepto = (t) => t.lineas.map((l) => l.n + (l.cant > 1 ? ` ×${l.cant}` : "")).join(", ");
+    return `
+      <div class="dos" style="margin-bottom:16px">
+        <div class="card"><div class="card-c"><h2>Caja de hoy</h2><span class="mut peq">${plural(cj.tickets.length, "cobro", "cobros")}</span></div>
+          <div class="caja-total">${eur(cj.total)}</div>
+          ${formas.map(([f, v]) => `<div class="forma"><span>${esc(FORMAS[f] || mayus(f))}</span><span class="barra"><i style="width:${(v / maxF) * 100}%"></i></span><b class="der">${eur(v)}</b></div>`).join("")}</div>
+        <div class="card sin-p"><div class="card-c"><h2>Cobros de hoy</h2><a href="#caja" class="enl" style="pointer-events:none">En directo desde el TPV</a></div>
+          ${tickets.length ? `<div style="overflow-x:auto;max-height:260px;margin-top:6px"><table class="tabla compacta"><thead><tr><th>Hora</th><th>Cliente y concepto</th><th class="der">Total</th></tr></thead><tbody>
+            ${tickets.map((t) => `<tr><td><b>${esc(EMM.horaDe(t.fecha))}</b><span class="sub">Nº ${t.num}</span></td><td style="max-width:240px"><b>${esc(t.socioId ? (EMM.socio(t.socioId) || {}).nombre || "Socio" : "Cliente sin cuenta")}</b><span class="sub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(concepto(t))}</span></td><td class="der"><b>${eur(t.total)}</b><span class="sub">${Object.keys(t.pagos).map((f) => esc(FORMAS[f] || f)).join(" + ")}</span></td></tr>`).join("")}</tbody></table></div>`
+            : `<div class="vacio">Aún no hay cobros hoy. Lo que se cobre en el TPV aparece aquí al momento.</div>`}</div>
+      </div>
+      <div class="mini-kpis">
+        <div class="mk"><span>Facturado en 30 días</span><b>${eur(inf.total)}</b></div>
+        <div class="mk"><span>Tickets</span><b>${inf.tickets}</b></div>
+        <div class="mk"><span>Ticket medio</span><b>${eur(inf.medio)}</b></div>
+        <div class="mk" style="display:flex;align-items:center;gap:14px"><div class="anillo" style="--p:${inf.pctSocios}"></div><div><span>Ventas de socios</span><b>${inf.pctSocios} %</b></div></div>
+      </div>
+      <div class="dos">
+        <div class="card"><div class="card-c"><h2>Ventas por día</h2><span class="mut peq">Últimos 30 días</span></div>
+          <div class="graf">${[0, 0.5, 1].map((g) => `<div class="gl" style="bottom:${g * 100}%"><span>${(tope * g).toLocaleString("es-ES")} €</span></div>`).join("")}
+            ${dias.map(([f, v]) => `<div class="b ${f === hoy() ? "hoy" : ""} ${v ? "" : "cero"}" style="height:${(v / tope) * 100}%" data-tip="${esc(EMM.fechaCorta(f))} · ${esc(eur(v))}"></div>`).join("")}</div>
+          <div class="graf-x">${dias.map(([f], i) => `<span>${f === hoy() ? "hoy" : i % 5 === 0 ? new Date(f + "T12:00:00").getDate() : ""}</span>`).join("")}</div></div>
+        <div class="card"><div class="card-c"><h2>Servicios más vendidos</h2><span class="mut peq">30 días</span></div>
+          ${servicios.length ? servicios.map(([n, c]) => `<div class="top-s"><span>${esc(n)}</span><b>${c}</b><span class="barra"><i style="width:${(c / maxS) * 100}%"></i></span></div>`).join("") : '<div class="vacio">Sin ventas de servicios.</div>'}</div>
+      </div>`;
+  }
+
+  /* ───────── Acciones (un solo escuchador para toda la página) ───────── */
+  const ACC = {
+    cerrar: () => dlg.close(),
+    nuevaCita: () => abrirNuevaCita(),
+    guardarCita: () => guardarCita(),
+    recibir: (d) => abrirRecibir(d.id),
+    confRecibir: (d) => confirmarRecibir(d.id),
+    verCita: (d) => abrirCita(d.id),
+    cancelarCita: (d, el) => {
+      if (!el.dataset.seguro) { el.dataset.seguro = "1"; el.textContent = "Sí, cancelar la cita"; el.className = "btn btn-rojo izq"; if (dlgEstado) dlgEstado.confirmando = true; return; }
+      const c = st().citas.find((x) => x.id === d.id);
+      dlg.close();
+      EMM.cancelarCita(d.id);
+      toast(c && c.socioId ? "Cita cancelada. El socio recibe el aviso en la app." : "Cita cancelada.");
+    },
+    mover: (d) => mover(d.id, d.a),
+    semana: (d) => { semana = d.v === "0" ? 0 : semana + Number(d.v); render(); },
+    verSocio: (d) => abrirSocio(d.id),
+    ajustar: (d) => {
+      const n = parseInt($("#ajN").value, 10), motivo = $("#ajM").value.trim();
+      if (!n) return toast("Escribe los puntos a sumar o restar (p. ej. 50 o −50).", true);
+      const s = EMM.socio(d.id);
+      EMM.ajustarPuntos(d.id, n, motivo || "ajuste manual");
+      toast(`${n > 0 ? "+" : "−"}${Math.abs(n)} puntos para ${primerNombre(s.nombre)}`);
+    },
+    stock: (d) => { const p = EMM.producto(d.id); if (p) EMM.guardarProducto(p.id, { stock: Math.max(0, p.stock + Number(d.v)) }); },
+    pedir: (d) => { const p = EMM.producto(d.id); pedidosProveedor.add(d.id); render(); toast(`Añadido al pedido del proveedor: ${p ? p.n : ""}`); },
+    entregarPedido: (d) => { EMM.entregarPedido(d.id); toast("Pedido entregado al socio."); },
+    guardarBono: () => {
+      const b = Number($("#bono").value);
+      if (!(b >= 0 && b <= 50)) return toast("El bono tiene que estar entre 0 y 50 %.", true);
+      EMM.guardarConfig({ bonoRecarga: Math.round(b) });
+      toast(`Bono de recarga: ahora un ${Math.round(b)} % de regalo`);
+    },
+    plantilla: (d) => { const t = $("#ofTexto"); t.value = PLANTILLAS[Number(d.i)].t; previaOferta(); t.focus(); },
+    enviarOferta: () => {
+      const t = $("#ofTexto"), texto = t.value.trim();
+      if (!texto) return toast("Escribe la oferta antes de enviarla.", true);
+      const n = st().socios.length;
+      t.value = "";
+      EMM.enviarOferta(texto);
+      toast(`Enviada a ${n} socios: les llega a la app`);
+    },
+    reiniciar: () => abrirDlg(`<h3>Reiniciar la demo</h3><p class="mut">Se borran los cambios (citas, cobros, puntos, ofertas…) y vuelven los datos de ejemplo en la app, el TPV y esta pantalla.</p>
+      <div class="dlg-acc"><button class="btn btn-ghost" data-acc="cerrar">Cancelar</button><button class="btn btn-rojo" data-acc="confReiniciar">Reiniciar</button></div>`, { tipo: "reiniciar" }),
+    confReiniciar: () => { dlg.close(); semana = 0; busqueda = ""; pedidosProveedor.clear(); EMM.reiniciar(); toast("Demo reiniciada con los datos de ejemplo."); },
+  };
+  document.addEventListener("click", (e) => {
+    const nota = e.target.closest("[data-nota]");
+    if (nota) { const t = $("#rcNo"); t.value = (t.value.trim() ? t.value.trim() + ". " : "") + nota.dataset.nota; return; }
+    const aj = e.target.closest("[data-aj]");
+    if (aj) { $("#ajN").value = aj.dataset.aj; return; }
+    const el = e.target.closest("[data-acc]");
+    if (!el || el.disabled) return;
+    const f = ACC[el.dataset.acc];
+    if (!f) return;
+    e.preventDefault();
+    f(el.dataset, el, e);
+  });
+
+  /* ───────── Arranque ───────── */
+  window.addEventListener("hashchange", () => { seccion = leerSeccion(); render(); window.scrollTo(0, 0); });
+  EMM.alCambiar(() => { pintar(); refrescarDlg(); });
+  setInterval(() => { pintarReloj(); pintar(); }, 60000); // tiempos en taller y línea de «ahora»
+  render();
+})();
+</script>
+</body>
+</html>

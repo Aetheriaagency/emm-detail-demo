@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#07080a">
+<title>Club EMM · App del socio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css">
+<style>
+  body { max-width: 440px; margin: 0 auto; min-height: 100vh; padding-bottom: 86px; }
+  .barra { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: rgba(7, 8, 10, 0.88); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .campana { position: relative; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line2); background: var(--card); display: grid; place-items: center; }
+  .campana b[hidden] { display: none; }
+  .campana b { position: absolute; top: -4px; right: -4px; min-width: 19px; height: 19px; border-radius: 10px; background: var(--blue); font-size: 11px; display: grid; place-items: center; padding: 0 5px; }
+  main { padding: 16px 16px 10px; display: grid; gap: 14px; }
+  .hola { font-size: 22px; }
+  /* La tarjeta del socio */
+  .tarjeta { position: relative; overflow: hidden; border-radius: 22px; padding: 20px; min-height: 196px; background: radial-gradient(120% 140% at 100% 0%, rgba(47, 123, 255, 0.55), transparent 55%), linear-gradient(135deg, #10141c, #05070a); border: 1px solid #263044; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5); }
+  .tarjeta::after { content: ""; position: absolute; inset: auto -40px -60px auto; width: 200px; height: 200px; border-radius: 50%; border: 30px solid rgba(255, 255, 255, 0.03); }
+  .tarjeta .nivel { font-family: Unbounded; font-weight: 800; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .tarjeta .pts { font-family: Unbounded; font-weight: 800; font-size: 40px; margin-top: 18px; line-height: 1; }
+  .tarjeta .pts small { font-family: Inter; font-size: 14px; font-weight: 600; color: var(--mut); margin-left: 6px; }
+  .tarjeta .pie { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 22px; position: relative; z-index: 1; }
+  .tarjeta .num { font-size: 12px; letter-spacing: 0.18em; color: #aeb6c4; }
+  .qr-btn { background: #fff; color: #0b0d11; border: 0; border-radius: 12px; padding: 9px 12px; font-weight: 700; font-size: 13px; display: flex; gap: 8px; align-items: center; }
+  .progreso { height: 8px; border-radius: 99px; background: #1c2230; overflow: hidden; margin: 10px 0 6px; }
+  .progreso i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--blue), var(--blue2)); }
+  .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .mini { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+  .mini b { display: block; font-family: Unbounded; font-size: 20px; margin-top: 4px; }
+  /* El coche en el taller */
+  .coche-ahora { border-color: #2d3d5c; background: linear-gradient(180deg, rgba(47, 123, 255, 0.1), var(--card)); }
+  .pasos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 14px; }
+  .paso { text-align: center; font-size: 10.5px; color: var(--mut); }
+  .paso i { display: block; height: 6px; border-radius: 99px; background: #1f2633; margin-bottom: 6px; }
+  .paso.hecho i { background: var(--blue); }
+  .paso.ahora { color: var(--ink); font-weight: 700; }
+  .paso.ahora i { background: var(--blue2); box-shadow: 0 0 12px var(--glow); }
+  .listo { border-color: rgba(52, 199, 123, 0.55) !important; background: linear-gradient(180deg, rgba(52, 199, 123, 0.14), var(--card)) !important; }
+  .oferta { background: linear-gradient(120deg, #1a4fc4, #2f7bff); border: 0; }
+  .oferta p { font-weight: 600; margin-top: 6px; }
+  .lista > div { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .lista > div:first-child { border-top: 0; }
+  .mas { color: #7ee2ad; font-weight: 700; white-space: nowrap; }
+  .menos { color: #ffaaaa; font-weight: 700; white-space: nowrap; }
+  h2.sec { font-size: 18px; margin: 4px 0 2px; }
+  /* Reservar */
+  .opciones { display: grid; gap: 8px; }
+  .opcion { display: flex; justify-content: space-between; align-items: center; gap: 10px; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 13px 14px; }
+  .opcion.on { border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue) inset; }
+  .opcion s { color: var(--mut); font-size: 12px; margin-right: 6px; }
+  .dias { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+  .dia { flex: 0 0 auto; width: 62px; text-align: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 9px 0; font-size: 12px; }
+  .dia b { display: block; font-size: 18px; font-family: Unbounded; }
+  .dia.on { border-color: var(--blue); background: rgba(47, 123, 255, 0.12); }
+  .horas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .hora { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 0; font-weight: 600; position: relative; }
+  .hora.socio { border-color: rgba(231, 195, 90, 0.6); }
+  .hora.socio::after { content: "socio"; position: absolute; top: -8px; right: 6px; font-size: 9px; background: #e7c35a; color: #1b1405; border-radius: 6px; padding: 1px 5px; font-weight: 800; text-transform: uppercase; }
+  .hora.on { background: var(--blue); border-color: var(--blue); }
+  .hora:disabled { opacity: 0.3; text-decoration: line-through; }
+  /* Tienda y premios */
+  .premios-cabeza { text-align: center; padding: 22px 16px 18px; border-radius: 22px; background: radial-gradient(90% 120% at 50% 0%, rgba(231, 195, 90, 0.18), transparent 60%), var(--card); border: 1px solid #2b2a22; }
+  .pts-grande { font-family: Unbounded; font-weight: 900; font-size: 46px; line-height: 1.05; margin: 6px 0; background: linear-gradient(180deg, #fff3c4, #e7c35a 60%, #b8902d); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .cuadricula { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .premio, .producto { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 16px 12px 14px; border-radius: 20px; background: linear-gradient(180deg, var(--card2), var(--card)); border: 1px solid var(--line); overflow: hidden; }
+  .premio h3, .producto h3 { font-family: Inter; font-size: 13.5px; font-weight: 700; line-height: 1.25; min-height: 34px; display: flex; align-items: center; }
+  .premio .btn { width: 100%; margin-top: 4px; }
+  .premio.puede { border-color: rgba(47, 123, 255, 0.55); box-shadow: 0 10px 30px rgba(47, 123, 255, 0.15); }
+  /* El premio flota dentro de un anillo que se llena según los puntos que tienes */
+  .anillo { width: 112px; height: 112px; border-radius: 50%; padding: 5px; margin-top: 4px; background: conic-gradient(#e7c35a calc(var(--pct) * 1%), #1f2633 0); animation: flotar 4.2s ease-in-out infinite; animation-delay: var(--retraso); }
+  .premio.puede .anillo { background: conic-gradient(var(--blue2), var(--blue), #9cc3ff, var(--blue2)); box-shadow: 0 0 24px var(--glow); }
+  .burbuja { width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #1d2533, #0b0e14 70%); display: grid; place-items: center; overflow: hidden; border: 3px solid var(--bg2); }
+  .burbuja svg { width: 70%; height: auto; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.55)); }
+  .burbuja.foto img { width: 100%; height: 100%; object-fit: cover; }
+  .pts-chip { position: absolute; top: 10px; right: 10px; font-size: 10.5px; font-weight: 800; padding: 3px 8px; border-radius: 99px; background: rgba(231, 195, 90, 0.16); color: #ffd98a; border: 1px solid rgba(231, 195, 90, 0.35); }
+  .pts-chip.aviso { background: rgba(255, 93, 93, 0.14); color: #ffb3b3; border-color: rgba(255, 93, 93, 0.35); }
+  .escaparate { width: 100%; height: 118px; border-radius: 16px; display: grid; place-items: center; background: radial-gradient(60% 70% at 50% 60%, rgba(47, 123, 255, 0.28), transparent 70%); }
+  .escaparate svg { width: 74px; height: auto; filter: drop-shadow(0 14px 12px rgba(0, 0, 0, 0.6)); animation: flotar 3.6s ease-in-out infinite; animation-delay: var(--retraso); }
+  .producto .entre { width: 100%; }
+  .precio { font-family: Unbounded; font-size: 15px; }
+  .mas-btn { width: 34px; height: 34px; border-radius: 50%; border: 0; background: var(--blue); color: #fff; font-size: 20px; font-weight: 700; line-height: 1; box-shadow: 0 6px 18px var(--glow); }
+  .mas-btn:disabled { background: #232a36; box-shadow: none; color: var(--mut); }
+  .producto.agotado .escaparate svg { opacity: 0.35; filter: grayscale(1); }
+  @keyframes flotar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  @media (prefers-reduced-motion: reduce) { .anillo, .escaparate svg { animation: none; } }
+  .codigo { font-family: Unbounded; font-size: 34px; letter-spacing: 0.18em; text-align: center; margin: 10px 0; }
+  .qr { background: #fff; border-radius: 14px; padding: 14px; width: 210px; margin: 8px auto; }
+  .qr svg { display: block; width: 100%; height: auto; }
+  .saldo-grande { font-family: Unbounded; font-weight: 800; font-size: 42px; line-height: 1; margin: 6px 0; }
+  .importes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  /* Barra de abajo */
+  nav.abajo { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 440px; display: grid; grid-template-columns: repeat(4, 1fr); background: rgba(10, 12, 16, 0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--line); padding: 8px 6px calc(10px + env(safe-area-inset-bottom)); z-index: 30; }
+  nav.abajo button { background: none; border: 0; color: var(--mut); font-size: 11px; font-weight: 600; display: grid; justify-items: center; gap: 3px; padding: 4px 0; }
+  nav.abajo button svg { width: 22px; height: 22px; }
+  nav.abajo button.on { color: var(--blue2); }
+  /* Aviso tipo notificación del móvil */
+  .noti { position: fixed; top: 10px; left: 50%; transform: translate(-50%, -140%); width: min(410px, calc(100vw - 20px)); background: rgba(28, 32, 42, 0.97); border: 1px solid #2f3646; border-radius: 18px; padding: 12px 14px; display: flex; gap: 12px; align-items: center; z-index: 50; transition: transform 0.35s cubic-bezier(.2, .9, .3, 1.2); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5); }
+  .noti.on { transform: translate(-50%, 0); }
+  .noti .ico { width: 38px; height: 38px; border-radius: 10px; background: var(--blue); display: grid; place-items: center; font-family: Unbounded; font-weight: 900; font-size: 11px; flex: 0 0 auto; }
+  .noti p { font-size: 13.5px; line-height: 1.35; }
+  .noti small { color: var(--mut); font-size: 11px; }
+  .avisos > div { padding: 12px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .avisos > div.nuevo { color: #fff; }
+  .avisos > div.nuevo::before { content: "● "; color: var(--blue2); }
+</style>
+</head>
+<body>
+<header class="barra">
+  <span class="logo"><span class="w"><b>EMM</b><i>DETAIL</i></span><small>CLUB DE SOCIOS</small></span>
+  <button class="campana" id="campana" aria-label="Avisos">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+    <b id="sinLeer" hidden>0</b>
+  </button>
+</header>
+
+<main id="vista"></main>
+
+<nav class="abajo" id="abajo">
+  <button data-v="inicio" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>Mi tarjeta</button>
+  <button data-v="reservar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Reservar</button>
+  <button data-v="tienda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>Premios</button>
+  <button data-v="monedero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H5a2 2 0 0 1 0-4h13v4M3 5v14a2 2 0 0 0 2 2h15V7"/><circle cx="16" cy="14" r="1.5"/></svg>Monedero</button>
+</nav>
+
+<div class="noti" id="noti" role="status"><div class="ico">EMM</div><div><small>Club EMM · ahora</small><p id="notiTxt"></p></div></div>
+<div class="toast" id="toast"></div>
+<dialog id="dlg"></dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="datos.js"></script>
+<script>
+/* App del socio: lo que el cliente de EMM lleva en el móvil. */
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const params = new URLSearchParams(location.search);
+let SID = params.get("socio") || localStorage.getItem("emm-demo-socio") || "s1";
+let vista = "inicio";
+const reserva = { coche: null, servicio: null, fecha: null, hora: null };
+let avisosVistos = null;
+
+function yo() { return EMM.socio(SID) || EMM.estado.socios[0]; }
+function toast(t, error) {
+  const el = $("#toast");
+  el.textContent = t;
+  el.className = "toast on" + (error ? " error" : "");
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => (el.className = "toast"), 2600);
+}
+function qrSvg(texto) {
+  if (!window.qrcode) return `<div class="codigo" style="font-size:20px;color:#000">${esc(texto)}</div>`;
+  const q = qrcode(0, "M");
+  q.addData(texto);
+  q.make();
+  return q.createSvgTag({ cellSize: 6, margin: 0, scalable: true });
+}
+
+/* ───── Avisos: llegan como una notificación del móvil ───── */
+function revisarAvisos() {
+  const mios = EMM.estado.avisos.filter((a) => a.socioId === yo().id);
+  const sinLeer = mios.filter((a) => !a.leido).length;
+  $("#sinLeer").hidden = !sinLeer;
+  $("#sinLeer").textContent = sinLeer;
+  if (avisosVistos !== null) {
+    const nuevos = mios.filter((a) => !avisosVistos.has(a.id));
+    if (nuevos.length) notificar(nuevos[nuevos.length - 1].texto);
+  }
+  avisosVistos = new Set(mios.map((a) => a.id));
+}
+function notificar(texto) {
+  $("#notiTxt").textContent = texto;
+  $("#noti").classList.add("on");
+  clearTimeout(notificar.t);
+  notificar.t = setTimeout(() => $("#noti").classList.remove("on"), 5200);
+}
+$("#noti").onclick = () => $("#noti").classList.remove("on");
+$("#campana").onclick = () => {
+  const mios = EMM.estado.avisos.filter((a) => a.socioId === yo().id).slice().reverse();
+  abrir(`<h3>Avisos</h3><div class="avisos">${mios.length ? mios.map((a) => `<div class="${a.leido ? "" : "nuevo"}">${esc(a.texto)}<br><small class="mut">${EMM.fechaCorta(a.fecha.slice(0, 10))} · ${EMM.horaDe(a.fecha)}</small></div>`).join("") : '<p class="vacio">Aún no tienes avisos.</p>'}</div>
+    <div class="fila" style="margin-top:14px"><button class="btn btn-ghost" style="flex:1" data-cerrar>Cerrar</button></div>`);
+  EMM.marcarLeidos(yo().id);
+};
+
+/* ───── Ventanas ───── */
+function abrir(html) {
+  const d = $("#dlg");
+  d.innerHTML = html;
+  d.querySelectorAll("[data-cerrar]").forEach((b) => (b.onclick = () => d.close()));
+  if (!d.open) d.showModal();
+  return d;
+}
+
+/* ───── Mi tarjeta ───── */
+function vistaInicio() {
+  const s = yo();
+  const nv = EMM.nivel(s);
+  const sig = EMM.siguienteNivel(s);
+  const orden = EMM.estado.ordenes.filter((o) => o.socioId === s.id && o.estado !== "entregado").slice(-1)[0];
+  const cita = EMM.estado.citas.filter((c) => c.socioId === s.id && c.estado === "pendiente").sort((a, b) => (a.fecha + a.hora).localeCompare(b.fecha + b.hora))[0];
+  const oferta = EMM.estado.ofertas[0];
+  const movs = EMM.estado.movimientos.filter((m) => m.socioId === s.id).slice().reverse().slice(0, 4);
+  const pct = sig ? Math.min(100, Math.round(((s.acumulados - nv.desde) / (sig.desde - nv.desde)) * 100)) : 100;
+  let cocheHtml = "";
+  if (orden) {
+    const pasos = ["recibido", "proceso", "calidad", "listo"];
+    const i = pasos.indexOf(orden.estado);
+    const listo = orden.estado === "listo";
+    cocheHtml = `<section class="card coche-ahora ${listo ? "listo" : ""}">
+      <div class="entre"><span class="eyebrow" style="${listo ? "color:#7ee2ad" : ""}">${listo ? "Listo para recoger" : "Tu coche en el taller"}</span><span class="chip ${listo ? "ok" : "azul"}">${esc(EMM.NOMBRE_ESTADO[orden.estado])}</span></div>
+      <h3 style="font-size:17px;margin-top:8px">${esc(EMM.cocheDeOrden(orden))}</h3>
+      <p class="mut peq">${esc(EMM.servicio(orden.servicio).n)}</p>
+      <div class="pasos">${["Recibido", "En proceso", "Calidad", "Listo"].map((t, j) => `<div class="paso ${j < i ? "hecho" : j === i ? "ahora" : ""}"><i></i>${t}</div>`).join("")}</div>
+      ${listo ? `<p style="margin-top:12px;font-size:14px">Pásate cuando quieras hasta las 19:00. Puedes pagar con tu saldo.</p>` : ""}
+    </section>`;
+  }
+  return `
+    <div><p class="mut peq">Hola de nuevo</p><h1 class="hola">${esc(s.nombre.split(" ")[0])}</h1></div>
+    <section class="tarjeta">
+      <div class="entre" style="position:relative;z-index:1"><span class="nivel" style="color:${nv.color}">Socio ${nv.n}</span><span class="logo"><span class="w" style="font-size:15px"><b>EMM</b><i>DETAIL</i></span></span></div>
+      <div class="pts" style="position:relative;z-index:1">${s.puntos.toLocaleString("es-ES")}<small>puntos</small></div>
+      <div class="pie"><div><div class="num">${esc(s.tarjeta)}</div><div class="peq mut" style="margin-top:2px">${esc(s.nombre)}</div></div>
+        <button class="qr-btn" id="verQr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 17h4v4h-4"/></svg>Enseñar</button></div>
+    </section>
+    ${cocheHtml}
+    <div class="dos">
+      <div class="mini"><span class="mut peq">Saldo del monedero</span><b>${EMM.eur(s.saldo)}</b></div>
+      <div class="mini"><span class="mut peq">Tu descuento</span><b>${nv.dto ? nv.dto + " %" : "—"}</b><span class="mut peq">${nv.dto ? "en todos los servicios" : "llega con Plata"}</span></div>
+    </div>
+    <section class="card">
+      ${sig ? `<div class="entre"><b>Te faltan ${(sig.desde - s.acumulados).toLocaleString("es-ES")} puntos para ${sig.n}</b><span class="mut peq">${pct} %</span></div>
+        <div class="progreso"><i style="width:${pct}%"></i></div><p class="mut peq">Con ${sig.n}: ${esc(sig.ventajas[0].toLowerCase())}.</p>`
+        : `<b>Estás en el nivel más alto</b><p class="mut peq" style="margin-top:4px">${nv.ventajas.map(esc).join(" · ")}</p>`}
+    </section>
+    ${cita ? `<section class="card"><div class="entre"><span class="eyebrow">Tu próxima cita</span><button class="btn btn-ghost btn-sm" data-anular="${cita.id}">Anular</button></div>
+      <h3 style="font-size:16px;margin-top:8px">${esc(EMM.servicio(cita.servicio).n)}</h3><p class="mut">${EMM.fechaCorta(cita.fecha)} · ${cita.hora} · ${esc(EMM.coche(s, cita.cocheId)?.modelo || "")}</p></section>` : ""}
+    ${oferta ? `<section class="card oferta"><span class="eyebrow" style="color:#d6e6ff">Solo para socios</span><p>${esc(oferta.texto)}</p></section>` : ""}
+    <section class="card"><div class="entre"><h2 class="sec">Movimientos</h2><button class="btn btn-ghost btn-sm" id="verTodo">Ver todo</button></div>
+      <div class="lista" style="margin-top:6px">${movs.map(filaMov).join("") || '<p class="vacio">Aún no hay movimientos.</p>'}</div></section>`;
+}
+function filaMov(m) {
+  const extra = [];
+  if (m.puntos) extra.push(`<span class="${m.puntos > 0 ? "mas" : "menos"}">${m.puntos > 0 ? "+" : ""}${m.puntos} pts</span>`);
+  if (m.saldo) extra.push(`<span class="${m.saldo > 0 ? "mas" : "menos"}">${m.saldo > 0 ? "+" : ""}${EMM.eur(m.saldo)}</span>`);
+  return `<div><span>${esc(m.texto)}<br><small class="mut">${EMM.fechaCorta(m.fecha.slice(0, 10))}</small></span><span style="text-align:right">${extra.join("<br>")}</span></div>`;
+}
+
+/* ───── Reservar ───── */
+function vistaReservar() {
+  const s = yo();
+  if (!reserva.coche) reserva.coche = s.coches[0]?.id || null;
+  const ch = EMM.coche(s, reserva.coche);
+  const plazas = ch ? ch.plazas : 0;
+  const dias = [];
+  let d = EMM.hoyISO();
+  while (dias.length < 10) { if (new Date(d + "T12:00:00").getDay() !== 0) dias.push(d); d = EMM.sumarDias(d, 1); }
+  if (!reserva.fecha) reserva.fecha = dias[0];
+  const huecos = reserva.servicio ? EMM.huecos(reserva.fecha, reserva.servicio, true) : [];
+  const grupos = {};
+  for (const sv of EMM.SERVICIOS) (grupos[sv.c] = grupos[sv.c] || []).push(sv);
+  const listo = reserva.servicio && reserva.fecha && reserva.hora && ch;
+  return `
+    <div><span class="eyebrow">Reservar cita</span><h1 class="hola" style="margin-top:6px">¿Qué le hacemos a tu coche?</h1></div>
+    <section class="card"><span class="mut peq">Coche</span><div class="opciones" style="margin-top:8px">
+      ${s.coches.map((c) => `<button class="opcion ${c.id === reserva.coche ? "on" : ""}" data-coche="${c.id}"><span><b>${esc(c.modelo)}</b><br><small class="mut">${esc(c.matricula)} · ${c.plazas ? "más de 5 plazas" : "hasta 5 plazas"}</small></span></button>`).join("")}
+    </div></section>
+    ${Object.entries(grupos).map(([g, lista]) => `<section><h2 class="sec" style="margin-bottom:8px">${g}</h2><div class="opciones">${lista.map((sv) => {
+      const base = EMM.precioBase(sv.k, plazas);
+      const mio = EMM.precioSocio(sv.k, plazas, s);
+      return `<button class="opcion ${sv.k === reserva.servicio ? "on" : ""}" data-serv="${sv.k}"><span><b>${esc(sv.n)}</b><br><small class="mut">${sv.dias ? sv.dias + " días" : sv.h + " h"}</small></span><span style="text-align:right;white-space:nowrap">${mio < base ? `<s>${EMM.eur(base)}</s>` : ""}<b>${EMM.eur(mio)}</b></span></button>`;
+    }).join("")}</div></section>`).join("")}
+    ${reserva.servicio ? `<section class="card" id="cuando" style="scroll-margin-top:80px"><span class="mut peq">Día</span><div class="dias" style="margin-top:8px">${dias.map((x) => {
+      const f = new Date(x + "T12:00:00");
+      return `<button class="dia ${x === reserva.fecha ? "on" : ""}" data-fecha="${x}">${["dom", "lun", "mar", "mié", "jue", "vie", "sáb"][f.getDay()]}<b>${f.getDate()}</b></button>`;
+    }).join("")}</div>
+      <div class="entre" style="margin:14px 0 8px"><span class="mut peq">Hora</span><span class="chip warn">Horas reservadas para socios</span></div>
+      <div class="horas">${huecos.length ? huecos.map((h) => `<button class="hora ${h.soloSocio ? "socio" : ""} ${h.hora === reserva.hora ? "on" : ""}" data-hora="${h.hora}" ${h.libre ? "" : "disabled"}>${h.hora}</button>`).join("") : '<p class="vacio" style="grid-column:1/-1">Ese día no quedan huecos.</p>'}</div>
+      ${EMM.servicio(reserva.servicio).dias ? `<p class="mut peq" style="margin-top:10px">Los pulidos llevan ${EMM.servicio(reserva.servicio).dias} días: el coche se deja por la mañana.</p>` : ""}
+    </section>` : ""}
+    <button class="btn btn-blue" id="confirmar" ${listo ? "" : "disabled"} style="width:100%;padding:15px">${listo ? `Reservar · ${EMM.fechaCorta(reserva.fecha)} a las ${reserva.hora}` : "Elige servicio, día y hora"}</button>`;
+}
+
+/* ───── Premios y tienda ───── */
+/* Ilustraciones de los productos (SVG con los colores de EMM): botella, spray, lata, paños, ambientador y vale. */
+function ilustracion(tipo, color = "#2f7bff") {
+  const brillo = `<linearGradient id="g${tipo}" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".0"/><stop offset=".35" stop-color="#fff" stop-opacity=".22"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient>`;
+  const etiqueta = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="#0b0e14"/><text x="${x + w / 2}" y="${y + h / 2 + 3}" text-anchor="middle" font-family="Unbounded,sans-serif" font-weight="900" font-size="8.5" fill="${color}" font-style="italic">EMM</text>`;
+  const f = {
+    botella: `<rect x="34" y="8" width="16" height="12" rx="3" fill="#cfd6e2"/><path d="M28 20h28l6 14v52a8 8 0 0 1-8 8H30a8 8 0 0 1-8-8V34z" fill="${color}"/>${etiqueta(28, 46, 28, 18)}<path d="M28 20h28l6 14v52a8 8 0 0 1-8 8H30a8 8 0 0 1-8-8V34z" fill="url(#g${tipo})"/>`,
+    spray: `<path d="M30 6h20v8H30z" fill="#e8ecf2"/><path d="M50 8h12l4 4-4 3H50z" fill="#e8ecf2"/><rect x="34" y="14" width="12" height="10" fill="#9aa4b4"/><path d="M26 24h28l4 10v50a8 8 0 0 1-8 8H30a8 8 0 0 1-8-8V34z" fill="${color}"/>${etiqueta(27, 46, 26, 18)}<path d="M26 24h28l4 10v50a8 8 0 0 1-8 8H30a8 8 0 0 1-8-8V34z" fill="url(#g${tipo})"/>`,
+    lata: `<ellipse cx="42" cy="24" rx="20" ry="6" fill="#cfd6e2"/><path d="M22 24v54c0 4 9 8 20 8s20-4 20-8V24c0 4-9 8-20 8s-20-4-20-8z" fill="${color}"/>${etiqueta(28, 46, 28, 16)}<path d="M22 24v54c0 4 9 8 20 8s20-4 20-8V24" fill="url(#g${tipo})"/>`,
+    panos: `<rect x="14" y="56" width="58" height="16" rx="6" fill="#1a4fc4"/><rect x="18" y="42" width="54" height="16" rx="6" fill="#2f7bff"/><rect x="12" y="28" width="56" height="16" rx="6" fill="#69a3ff"/><path d="M14 36h52" stroke="#fff" stroke-opacity=".25" stroke-dasharray="3 4"/>`,
+    ambientador: `<path d="M42 4v14" stroke="#cfd6e2" stroke-width="2"/><circle cx="42" cy="4" r="3" fill="none" stroke="#cfd6e2" stroke-width="2"/><path d="M42 18l16 18h-8l12 16h-9l13 18H18l13-18h-9l12-16h-8z" fill="#11151d" stroke="${color}" stroke-width="2"/><text x="42" y="62" text-anchor="middle" font-family="Unbounded,sans-serif" font-weight="900" font-size="9" fill="${color}" font-style="italic">EMM</text>`,
+    vale: `<rect x="8" y="26" width="68" height="42" rx="8" fill="${color}"/><circle cx="8" cy="47" r="6" fill="#0d0f13"/><circle cx="76" cy="47" r="6" fill="#0d0f13"/><path d="M26 30v34" stroke="#0b0e14" stroke-opacity=".35" stroke-dasharray="3 3"/><text x="52" y="53" text-anchor="middle" font-family="Unbounded,sans-serif" font-weight="900" font-size="15" fill="#0b0e14">20€</text>`,
+  }[tipo];
+  return `<svg viewBox="0 0 84 92" aria-hidden="true"><defs>${brillo}</defs>${f}</svg>`;
+}
+const IMAGEN_PREMIO = { r1: { svg: "ambientador" }, r2: { svg: "vale", color: "#e7c35a" }, r3: { foto: "img/lavado.jpg" }, r4: { foto: "img/cristales.jpg" } };
+const IMAGEN_PRODUCTO = { p1: ["botella", "#2f7bff"], p2: ["spray", "#69a3ff"], p3: ["spray", "#e7c35a"], p4: ["lata", "#8b93a1"], p5: ["panos"], p6: ["ambientador", "#69a3ff"] };
+
+function vistaTienda() {
+  const s = yo();
+  const premios = EMM.estado.recompensas.slice().sort((a, b) => a.puntos - b.puntos);
+  const siguiente = premios.find((r) => r.puntos > s.puntos);
+  return `
+    <section class="premios-cabeza">
+      <span class="eyebrow">Tus puntos</span>
+      <div class="pts-grande">${s.puntos.toLocaleString("es-ES")}</div>
+      <p class="mut peq">${siguiente ? `Te faltan <b style="color:var(--ink)">${siguiente.puntos - s.puntos}</b> para «${esc(siguiente.n)}»` : "Puedes canjear cualquier premio"} · 1 punto por cada euro</p>
+    </section>
+    <div class="entre"><h2 class="sec">Premios</h2><span class="mut peq">Se validan en el mostrador</span></div>
+    <section class="cuadricula">${premios.map((r, i) => {
+      const pct = Math.min(100, Math.round((s.puntos / r.puntos) * 100));
+      const puede = s.puntos >= r.puntos;
+      const img = IMAGEN_PREMIO[r.id] || {};
+      const dentro = img.foto ? `<img src="${img.foto}" alt="">` : ilustracion(img.svg || "vale", img.color);
+      return `<article class="premio ${puede ? "puede" : ""}" style="--pct:${pct};--retraso:${i * 0.35}s">
+        <div class="anillo"><div class="burbuja ${img.foto ? "foto" : ""}">${dentro}</div></div>
+        <span class="pts-chip">${r.puntos.toLocaleString("es-ES")} pts</span>
+        <h3>${esc(r.n)}</h3>
+        <p class="mut peq">Vale ${EMM.eur(r.valor)}</p>
+        <button class="btn ${puede ? "btn-blue" : "btn-ghost"} btn-sm" data-canje="${r.id}" ${puede ? "" : "disabled"}>${puede ? "Canjear" : `Faltan ${r.puntos - s.puntos}`}</button>
+      </article>`;
+    }).join("")}</section>
+    <div class="entre" style="margin-top:6px"><h2 class="sec">Tienda EMM</h2><span class="mut peq">Paga con tu saldo</span></div>
+    <p class="mut peq" style="margin-top:-8px">Los productos que usamos en el taller. Te los dejamos en el mostrador y también suman puntos.</p>
+    <section class="cuadricula">${EMM.estado.productos.filter((p) => IMAGEN_PRODUCTO[p.id]).map((p, i) => {
+      const [tipo, color] = IMAGEN_PRODUCTO[p.id];
+      const agotado = p.stock <= 0;
+      return `<article class="producto ${agotado ? "agotado" : ""}" style="--retraso:${i * 0.3}s">
+        <div class="escaparate">${ilustracion(tipo, color)}</div>
+        ${p.stock > 0 && p.stock <= 3 ? `<span class="pts-chip aviso">Últimas ${p.stock}</span>` : agotado ? `<span class="pts-chip aviso">Agotado</span>` : ""}
+        <h3>${esc(p.n)}</h3>
+        <div class="entre"><b class="precio">${EMM.eur(p.precio)}</b><button class="mas-btn" data-comprar="${p.id}" ${agotado ? "disabled" : ""} aria-label="Comprar ${esc(p.n)}">+</button></div>
+      </article>`;
+    }).join("")}</section>`;
+}
+
+/* ───── Monedero ───── */
+function vistaMonedero() {
+  const s = yo();
+  const bono = EMM.estado.config.bonoRecarga;
+  const movs = EMM.estado.movimientos.filter((m) => m.socioId === s.id && m.saldo).slice().reverse();
+  return `
+    <section class="tarjeta" style="min-height:0">
+      <span class="eyebrow" style="position:relative;z-index:1">Monedero EMM</span>
+      <div class="saldo-grande" style="position:relative;z-index:1">${EMM.eur(s.saldo)}</div>
+      <p class="mut peq" style="position:relative;z-index:1">Paga en el taller o en la tienda sin sacar la cartera.</p>
+    </section>
+    <section class="card"><b>Recarga y te regalamos un ${bono} %</b><p class="mut peq" style="margin:4px 0 12px">Recargas 50 € y tienes ${EMM.eur(50 * (1 + bono / 100))} para gastar.</p>
+      <div class="importes">${[20, 50, 100].map((n) => `<button class="btn btn-ghost" data-recargar="${n}">${n} €</button>`).join("")}</div>
+      <p class="mut peq" style="margin-top:10px">El saldo no caduca. No se devuelve en efectivo.</p></section>
+    <section class="card"><h2 class="sec">Movimientos del monedero</h2><div class="lista" style="margin-top:6px">${movs.map(filaMov).join("") || '<p class="vacio">Aún no has usado el monedero.</p>'}</div></section>`;
+}
+
+/* ───── Pintar y eventos ───── */
+function pintar() {
+  const v = { inicio: vistaInicio, reservar: vistaReservar, tienda: vistaTienda, monedero: vistaMonedero }[vista];
+  $("#vista").innerHTML = v();
+  document.querySelectorAll("#abajo button").forEach((b) => b.classList.toggle("on", b.dataset.v === vista));
+  revisarAvisos();
+}
+$("#abajo").onclick = (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  vista = b.dataset.v;
+  pintar();
+  scrollTo({ top: 0 });
+};
+$("#vista").onclick = (e) => {
+  const t = e.target.closest("button");
+  if (!t) return;
+  const s = yo();
+  if (t.id === "verQr") {
+    abrir(`<h3 style="text-align:center">Tu tarjeta de socio</h3><p class="mut peq" style="text-align:center">Enséñala en el mostrador o acerca la tarjeta física.</p>
+      <div class="qr">${qrSvg(s.tarjeta)}</div><div class="codigo" style="font-size:20px">${esc(s.tarjeta)}</div>
+      <button class="btn btn-ghost" style="width:100%" data-cerrar>Cerrar</button>`);
+  } else if (t.id === "verTodo") {
+    const movs = EMM.estado.movimientos.filter((m) => m.socioId === s.id).slice().reverse();
+    abrir(`<h3>Todos tus movimientos</h3><div class="lista" style="max-height:60vh;overflow:auto">${movs.map(filaMov).join("")}</div><button class="btn btn-ghost" style="width:100%;margin-top:12px" data-cerrar>Cerrar</button>`);
+  } else if (t.dataset.anular) {
+    EMM.cancelarCita(t.dataset.anular);
+    toast("Cita anulada");
+  } else if (t.dataset.coche) {
+    reserva.coche = t.dataset.coche; reserva.hora = null; pintar();
+  } else if (t.dataset.serv) {
+    reserva.servicio = t.dataset.serv; reserva.hora = null; pintar();
+    document.getElementById("cuando")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else if (t.dataset.fecha) {
+    reserva.fecha = t.dataset.fecha; reserva.hora = null; pintar();
+  } else if (t.dataset.hora) {
+    reserva.hora = t.dataset.hora; pintar();
+  } else if (t.id === "confirmar") {
+    const c = EMM.reservar({ socioId: s.id, cocheId: reserva.coche, servicio: reserva.servicio, fecha: reserva.fecha, hora: reserva.hora, origen: "app" });
+    const sv = EMM.servicio(c.servicio);
+    abrir(`<h3>¡Reserva hecha!</h3><p>${esc(sv.n)}<br><b>${EMM.fechaCorta(c.fecha)} a las ${c.hora}</b></p>
+      <p class="mut peq" style="margin:10px 0 16px">Ya está en la agenda del taller. Te avisamos aquí cuando tu coche esté listo.</p>
+      <button class="btn btn-blue" style="width:100%" data-cerrar>Perfecto</button>`);
+    Object.assign(reserva, { servicio: null, hora: null });
+    vista = "inicio"; pintar();
+  } else if (t.dataset.canje) {
+    try {
+      const cj = EMM.generarCanje(s.id, t.dataset.canje);
+      const r = EMM.estado.recompensas.find((x) => x.id === cj.recompensaId);
+      const d = abrir(`<h3 style="text-align:center">${esc(r.n)}</h3><p class="mut peq" style="text-align:center">Enséñalo en el mostrador. Los puntos se descuentan al validarlo.</p>
+        <div class="qr">${qrSvg(cj.codigo)}</div><div class="codigo">${cj.codigo}</div>
+        <p class="mut peq" style="text-align:center" id="cuenta"></p><button class="btn btn-ghost" style="width:100%;margin-top:10px" data-cerrar>Cerrar</button>`);
+      const tick = () => {
+        const q = Math.max(0, cj.caduca - Date.now());
+        const el = d.querySelector("#cuenta");
+        if (!el) return clearInterval(iv);
+        el.textContent = q ? `Caduca en ${Math.floor(q / 60000)}:${String(Math.floor((q % 60000) / 1000)).padStart(2, "0")}` : "Este código ha caducado";
+      };
+      const iv = setInterval(tick, 1000);
+      tick();
+    } catch (err) { toast(err.message, true); }
+  } else if (t.dataset.comprar) {
+    const p = EMM.producto(t.dataset.comprar);
+    abrir(`<h3>${esc(p.n)}</h3><p>Pagas <b>${EMM.eur(p.precio)}</b> con tu saldo (${EMM.eur(s.saldo)}) y sumas ${Math.floor(p.precio)} puntos.</p>
+      <p class="mut peq" style="margin:8px 0 16px">Te lo dejamos preparado en el mostrador.</p>
+      <div class="fila"><button class="btn btn-ghost" style="flex:1" data-cerrar>Cancelar</button><button class="btn btn-blue" style="flex:1" id="pagarProd">Pagar</button></div>`);
+    $("#pagarProd").onclick = () => {
+      try { EMM.pedirProducto(s.id, p.id, 1); $("#dlg").close(); toast("Pedido hecho: recógelo en el taller"); }
+      catch (err) { toast(err.message, true); }
+    };
+  } else if (t.dataset.recargar) {
+    const n = Number(t.dataset.recargar);
+    const regalo = EMM.r2((n * EMM.estado.config.bonoRecarga) / 100);
+    abrir(`<h3>Recargar ${EMM.eur(n)}</h3><p>Te regalamos <b>${EMM.eur(regalo)}</b>: tendrás ${EMM.eur(s.saldo + n + regalo)} de saldo.</p>
+      <label class="f" style="margin-top:14px">Tarjeta<input value="•••• •••• •••• 4242" readonly></label>
+      <p class="mut peq" style="margin:8px 0 16px">Demostración: no se cobra nada. En la versión real paga con el TPV virtual del banco de EMM (tarjeta o Bizum).</p>
+      <div class="fila"><button class="btn btn-ghost" style="flex:1" data-cerrar>Cancelar</button><button class="btn btn-blue" style="flex:1" id="pagarRec">Pagar ${EMM.eur(n)}</button></div>`);
+    $("#pagarRec").onclick = () => {
+      $("#pagarRec").disabled = true;
+      $("#pagarRec").textContent = "Pagando…";
+      setTimeout(() => { EMM.recargar(s.id, n, "tarjeta (app)"); $("#dlg").close(); }, 900);
+    };
+  }
+};
+
+EMM.alCambiar(pintar);
+pintar();
+</script>
+</body>
+</html>
