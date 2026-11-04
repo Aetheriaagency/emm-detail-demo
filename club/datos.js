@@ -12,7 +12,7 @@
  * devuelve en efectivo.
  */
 (function () {
-  const CLAVE = "emm-demo-v2";
+  const CLAVE = "emm-demo-v3";
   const canal = "BroadcastChannel" in window ? new BroadcastChannel("emm-demo") : null;
   const oyentes = [];
 
