@@ -53,7 +53,7 @@ body { min-height: 100vh; background: radial-gradient(1200px 600px at 85% -10%, 
 .chip.org.tel { border-color: rgba(167,139,250,.5); color: #cdbfff; background: rgba(167,139,250,.08); }
 .chip.org.most { border-color: rgba(154,163,178,.45); color: #c3c9d3; background: rgba(154,163,178,.06); }
 .est-recibido { --e: #9aa3b2; } .est-proceso { --e: #69a3ff; } .est-calidad { --e: #f5b445; } .est-listo { --e: #34c77b; }
-.chip.est { color: var(--e); border-color: color-mix(in srgb, var(--e) 50%, transparent); background: color-mix(in srgb, var(--e) 10%, transparent); }
+.chip.est { color: var(--e); border-color: color-mix(in srgb, var(--e) 50%, transparent); background: color-mix(in srgb, var(--e) 10%, transparent); white-space: nowrap; flex: none; }
 .placa { display: inline-flex; align-items: center; gap: 6px; height: 20px; padding-right: 7px; border-radius: 5px; overflow: hidden; background: #f3f5f8; color: #0b0d11; font-weight: 700; font-size: 11.5px; letter-spacing: .06em; border: 1px solid #c9ced8; white-space: nowrap; flex: none; }
 .placa i { align-self: stretch; display: grid; place-items: end center; padding: 0 4px 2px; background: #1f4fc2; color: #fff; font-style: normal; font-size: 8px; }
 .ic { width: 15px; height: 15px; vertical-align: -3px; flex: none; }
@@ -87,7 +87,7 @@ body { min-height: 100vh; background: radial-gradient(1200px 600px at 85% -10%, 
 .kpi-v { font-family: Unbounded; font-size: 28px; font-weight: 700; letter-spacing: -.02em; }
 .kpi-s { font-size: 12.5px; color: var(--mut); }
 .dos { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; align-items: start; }
-.pila { display: grid; gap: 16px; }
+.pila { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); } /* que el contenido no ensanche la columna */
 .alerta { display: flex; align-items: center; gap: 10px; padding: 11px 16px; margin-bottom: 16px; border-radius: 14px; border: 1px solid rgba(245,180,69,.35); background: rgba(245,180,69,.07); color: #ffd28a; font-size: 13.5px; font-weight: 500; }
 .alerta b { color: #ffe2b0; }
 .alerta .enl { margin-left: auto; font-weight: 600; white-space: nowrap; }
@@ -98,7 +98,7 @@ body { min-height: 100vh; background: radial-gradient(1200px 600px at 85% -10%, 
 .cf-i .fila { flex-wrap: wrap; gap: 6px; }
 .cf-i .mut { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
 .cf.hecha { opacity: .55; }
-.mo { display: grid; gap: 6px; padding: 12px; border-radius: 12px; background: var(--bg2); border: 1px solid var(--line); transition: .15s; }
+.mo { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; padding: 12px; border-radius: 12px; background: var(--bg2); border: 1px solid var(--line); transition: .15s; }
 .mo + .mo { margin-top: 8px; }
 .mo:hover { border-color: var(--line2); }
 .mo .fila b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -134,9 +134,16 @@ body { min-height: 100vh; background: radial-gradient(1200px 600px at 85% -10%, 
 .ot-meta span { display: inline-flex; align-items: center; gap: 5px; }
 .ot-nota { font-size: 12px; color: #d9c79f; background: rgba(245,180,69,.07); border: 1px solid rgba(245,180,69,.2); border-radius: 9px; padding: 6px 9px; }
 .ot-acc { display: flex; gap: 6px; justify-content: flex-end; margin-top: 2px; }
-.ot-acc .btn-sm { padding: 6px 12px; font-size: 12.5px; }
+.ot-acc .btn-sm { padding: 6px 12px; font-size: 12.5px; white-space: nowrap; }
 .ot-acc .btn-blue { box-shadow: none; }
 .ot-acc .chip { margin-right: auto; white-space: nowrap; font-size: 11.5px; padding: 4px 9px; }
+/* En columnas estrechas (portada, ~1000 px) los botones encogen un poco en vez de partirse o salirse */
+.ot { container-type: inline-size; }
+@container (max-width: 190px) {
+  .ot-acc { gap: 4px; }
+  .ot-acc .btn-sm { padding: 6px 9px; }
+  .ot-acc .chip { font-size: 10.5px; padding: 4px 7px; }
+}
 
 /* ───────── Agenda ───────── */
 .ag-barra { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
@@ -162,8 +169,12 @@ body { min-height: 100vh; background: radial-gradient(1200px 600px at 85% -10%, 
 .ag-gut { border-bottom: 1px solid var(--line); font-size: 10px; color: var(--mut); padding: 8px 6px; text-align: right; line-height: 1.2; }
 .ag-banda { grid-column: 2 / -1; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; padding: 6px 4px; border-bottom: 1px solid var(--line); }
 .ev-l { --o: #9aa3b2; display: flex; align-items: center; gap: 8px; min-width: 0; text-align: left; border: 0; border-left: 3px solid var(--o); border-radius: 8px; padding: 6px 10px; font-size: 12px; color: var(--ink); background: color-mix(in srgb, var(--o) 20%, transparent); }
-.ev-l b { white-space: nowrap; font-weight: 600; }
-.ev-l span { color: #b7bfcc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ev-l b { white-space: nowrap; font-weight: 600; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
+.ev-l span { color: #b7bfcc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1 1 0; }
+/* Banda que sigue en otra semana: el lado cortado va recto y con una flecha, para que se lea como «continúa» */
+.ev-l.viene { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.ev-l.sigue { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.ev-l .flecha { flex: none; color: #d5dbe5; font-weight: 700; }
 .ev-l:hover, .ev:hover { filter: brightness(1.18); }
 .ag-horas { position: relative; height: calc(var(--hh) * 10); }
 .ag-horas span { position: absolute; right: 8px; font-size: 11px; color: var(--mut); margin-top: 4px; font-variant-numeric: tabular-nums; }
@@ -182,6 +193,18 @@ body { min-height: 100vh; background: radial-gradient(1200px 600px at 85% -10%, 
 .ev-l em { margin-left: auto; flex: none; }
 .ev-ok { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 6px var(--ok); }
 .ev-c { color: #b7bfcc; overflow: hidden; }
+/* Cada tarjeta mide lo que le toca de la columna; si se queda estrecha, se esconde el chip y los textos van en una línea con «…» */
+.ev { container-type: inline-size; }
+.ev-h { min-width: 0; white-space: nowrap; overflow: hidden; }
+.ev.estrecha { padding: 4px 5px; border-left-width: 2px; }
+.ev.estrecha.n3 { padding: 4px 4px; }
+@container (max-width: 92px) {
+  .ev-h em { display: none; }
+  .ev b, .ev .ev-c { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+@container (max-width: 44px) {
+  .ev-h { display: block; text-overflow: ellipsis; font-size: 10px; letter-spacing: -.02em; }
+}
 .ag-ahora { position: absolute; left: 0; right: 0; height: 2px; background: var(--bad); z-index: 10; pointer-events: none; }
 .ag-ahora::before { content: ""; position: absolute; left: -5px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--bad); }
 
@@ -190,6 +213,7 @@ body { min-height: 100vh; background: radial-gradient(1200px 600px at 85% -10%, 
 .buscador svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--mut); }
 .buscador input { padding-left: 38px; border-radius: 999px; }
 .saldo-pos { color: #7ee2ad; font-weight: 600; }
+#tbSocios td.mut, #tbSocios td.der { white-space: nowrap; } /* tarjeta, cifras y saldo en una sola línea */
 .avatar { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-family: Unbounded; font-weight: 700; font-size: 17px; color: #0b0d11; background: linear-gradient(135deg, #fff, var(--c)); flex: none; }
 .so-cab { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
 .so-cab h3 { margin: 0 0 3px; font-size: 19px; }
@@ -331,7 +355,6 @@ label.f.chk { display: flex; align-items: center; gap: 9px; align-self: end; pad
   .main { padding: 22px 20px 40px; }
   .kpi-v { font-size: 24px; }
   .top h1 { font-size: 23px; }
-  .ot-acc .chip { white-space: normal; text-align: center; line-height: 1.2; }
 }
 @media (max-width: 900px) {
   .dos, .so-dos { grid-template-columns: 1fr; }
@@ -658,10 +681,11 @@ label.f.chk { display: flex; align-items: center; gap: 9px; align-self: end; pad
   });
 
   /* ───────── 3. Agenda ───────── */
-  // Las citas que se solapan se escalonan (como en un calendario): cada una deja ver su hora y nombre
-  function evento({ c, s, ini, f, l }) {
+  // Las citas que coinciden en el tiempo se reparten el ancho de la columna (un carril por puesto ocupado)
+  function evento({ c, s, ini, f, l, n }) {
     const top = (ini - H0) * HH, alto = Math.max((f - ini) * HH - 3, 26);
-    return `<button class="ev ${c.origen} ${c.estado}" style="top:${top + 1}px;height:${alto}px;left:calc(${l} * 24% + 3px);width:calc(100% - ${l} * 24% - 6px);z-index:${l + 1}" data-acc="verCita" data-id="${c.id}" title="${esc(c.hora + " · " + s.n + " · " + nombreCita(c))}">
+    const pos = `left:calc((100% - 4px) * ${l} / ${n} + 2px);width:calc((100% - 4px) / ${n} - 3px)`;
+    return `<button class="ev ${c.origen} ${c.estado}${n > 1 ? " estrecha n" + Math.min(n, 3) : ""}" style="top:${top + 1}px;height:${alto}px;${pos};z-index:${l + 1}" data-acc="verCita" data-id="${c.id}" title="${esc(c.hora + " · " + s.n + " · " + nombreCita(c))}">
       <span class="ev-h">${esc(c.hora)}${c.origen === "app" ? "<em>App</em>" : ""}${c.estado === "en_taller" ? '<i class="ev-ok" title="En el taller"></i>' : ""}</span>
       <b>${esc(s.n)}</b><span class="ev-c">${esc(nombreCita(c))} · ${esc(cocheCita(c).modelo)}</span></button>`;
   }
@@ -673,7 +697,11 @@ label.f.chk { display: flex; align-items: center; gap: 9px; align-self: end; pad
     const vivas = E.citas.filter((c) => c.estado !== "cancelada");
     const deSemana = vivas.filter((c) => c.fecha >= lunes && c.fecha <= sab);
     const nApp = deSemana.filter((c) => c.origen === "app").length;
-    const largas = vivas.filter((c) => { const s = EMM.servicio(c.servicio); return s.dias && c.fecha <= sab && EMM.sumarDias(c.fecha, s.dias - 1) >= lunes; });
+    // Trabajos de varios días: solo los días laborables reales (el domingo no cuenta y sigue la semana siguiente)
+    const largas = vivas.map((c) => {
+      const s = EMM.servicio(c.servicio);
+      return s.dias ? { c, s, todos: EMM.diasTrabajo(c.fecha, s.dias) } : null;
+    }).filter((x) => x && x.todos.some((d) => d >= lunes && d <= sab));
     const fmt = (iso, o) => new Date(iso + "T12:00:00").toLocaleDateString("es-ES", o);
     const rango = `${fmt(lunes, { day: "numeric", month: "short" })} – ${fmt(sab, { day: "numeric", month: "short", year: "numeric" })}`;
     const ahora = new Date(), ahoraH = ahora.getHours() + ahora.getMinutes() / 60;
@@ -682,23 +710,36 @@ label.f.chk { display: flex; align-items: center; gap: 9px; align-self: end; pad
       const n = deSemana.filter((c) => c.fecha === d).length;
       return `<div class="ag-cab ${d === h ? "hoy" : ""}"><span>${fmt(d, { weekday: "short" }).replace(".", "")}</span><b>${new Date(d + "T12:00:00").getDate()}</b><small>${n ? plural(n, "cita", "citas") : "Libre"}</small></div>`;
     }).join("");
-    const banda = largas.length ? `<div class="ag-gut">Varios<br>días</div><div class="ag-banda">${largas.map((c, i) => {
-      const s = EMM.servicio(c.servicio);
-      const a = Math.max(0, diasEntre(lunes, c.fecha)), b = Math.min(5, diasEntre(lunes, EMM.sumarDias(c.fecha, s.dias - 1)));
-      return `<button class="ev-l ${c.origen} ${c.estado}" style="grid-column:${a + 1} / ${b + 2};grid-row:${i + 1}" data-acc="verCita" data-id="${c.id}"><b>${esc(s.n)}</b><span>${esc(nombreCita(c))} · ${esc(cocheCita(c).modelo)} · ${s.dias} días</span>${c.origen === "app" ? "<em>App</em>" : ""}</button>`;
+    const corto = (iso) => fmt(iso, { weekday: "short", day: "numeric" }).replace(".", "");
+    const banda = largas.length ? `<div class="ag-gut">Varios<br>días</div><div class="ag-banda">${largas.map(({ c, s, todos }, i) => {
+      const enSemana = todos.filter((d) => d >= lunes && d <= sab); // de lunes a sábado, seguidos
+      const a = diasEntre(lunes, enSemana[0]), b = diasEntre(lunes, enSemana[enSemana.length - 1]);
+      const viene = todos[0] < lunes, sigue = todos[todos.length - 1] > sab;
+      const extra = sigue ? ` · sigue el ${corto(todos.find((d) => d > sab))}` : viene ? ` · desde el ${corto(todos[0])}` : "";
+      const titulo = `${s.n} · ${nombreCita(c)} · ${todos.map(corto).join(", ")}`;
+      return `<button class="ev-l ${c.origen} ${c.estado}${viene ? " viene" : ""}${sigue ? " sigue" : ""}" style="grid-column:${a + 1} / ${b + 2};grid-row:${i + 1}" data-acc="verCita" data-id="${c.id}" title="${esc(titulo)}">${viene ? '<span class="flecha">←</span>' : ""}<b>${esc(s.n)}</b><span>${esc(nombreCita(c))} · ${esc(cocheCita(c).modelo)} · ${s.dias} días${esc(extra)}</span>${c.origen === "app" ? "<em>App</em>" : ""}${sigue ? '<span class="flecha">→</span>' : ""}</button>`;
     }).join("")}</div>` : "";
     const horas = `<div class="ag-horas">${Array.from({ length: H1 - H0 }, (_, i) => `<span style="top:${i * HH}px">${String(H0 + i).padStart(2, "0")}:00</span>`).join("")}</div>`;
     const cols = dias.map((d) => {
       const hor = EMM.HORARIO[new Date(d + "T12:00:00").getDay()];
       const cierre = hor ? hor[1] : H1;
       const evs = vivas.filter((c) => c.fecha === d && !EMM.servicio(c.servicio).dias).sort(porHora);
-      const fin = []; // carriles: dos puestos de trabajo a la vez
-      const pos = evs.map((c) => {
+      // Carriles (un puesto de trabajo cada uno). Las citas que se encadenan por solaparse forman un grupo,
+      // y todas las del grupo se reparten el ancho entre los carriles que ese grupo necesita.
+      const pos = [];
+      let grupo = [], fin = [], finGrupo = -1;
+      const cerrarGrupo = () => { for (const x of grupo) x.n = fin.length; grupo = []; fin = []; };
+      for (const c of evs) {
         const s = EMM.servicio(c.servicio), ini = horaNum(c.hora), f = Math.min(ini + s.h, cierre);
+        if (ini >= finGrupo - 0.001) cerrarGrupo();
         let l = fin.findIndex((x) => x <= ini + 0.001);
         if (l < 0) { l = fin.length; fin.push(f); } else fin[l] = f;
-        return { c, s, ini, f, l };
-      });
+        finGrupo = Math.max(finGrupo, f);
+        const x = { c, s, ini, f, l, n: 1 };
+        grupo.push(x);
+        pos.push(x);
+      }
+      cerrarGrupo();
       const cerrado = cierre < H1 ? `<div class="ag-cerrado" style="top:${(cierre - H0) * HH}px;height:${(H1 - cierre) * HH}px">Cerrado</div>` : "";
       const linea = d === h && ahoraH >= H0 && ahoraH <= cierre ? `<div class="ag-ahora" style="top:${(ahoraH - H0) * HH}px"></div>` : "";
       return `<div class="ag-dia ${d === h ? "hoy" : ""}">${cerrado}${pos.map(evento).join("")}${linea}</div>`;
@@ -1100,8 +1141,16 @@ label.f.chk { display: flex; align-items: center; gap: 9px; align-self: end; pad
       const n = parseInt($("#ajN").value, 10), motivo = $("#ajM").value.trim();
       if (!n) return toast("Escribe los puntos a sumar o restar (p. ej. 50 o −50).", true);
       const s = EMM.socio(d.id);
-      EMM.ajustarPuntos(d.id, n, motivo || "ajuste manual");
-      toast(`${n > 0 ? "+" : "−"}${Math.abs(n)} puntos para ${primerNombre(s.nombre)}`);
+      if (!s) return;
+      const nombre = primerNombre(s.nombre), nivelAntes = EMM.nivel(s).n;
+      // El núcleo devuelve los puntos que de verdad cambiaron (no se baja de 0)
+      const real = EMM.ajustarPuntos(d.id, n, motivo || "ajuste manual");
+      if (!real) return toast(`${nombre} no tiene puntos que quitar`, true);
+      const sx = EMM.socio(d.id), nivelAhora = sx ? EMM.nivel(sx).n : nivelAntes;
+      const txt = `${real > 0 ? "+" : "−"}${Math.abs(real)} puntos para ${nombre}`;
+      if (real !== n) toast(`${txt} (no tenía más)`);
+      else if (nivelAhora !== nivelAntes) toast(`${txt}: sube a ${nivelAhora} y le llega el aviso a la app`);
+      else toast(txt);
     },
     stock: (d) => { const p = EMM.producto(d.id); if (p) EMM.guardarProducto(p.id, { stock: Math.max(0, p.stock + Number(d.v)) }); },
     pedir: (d) => { const p = EMM.producto(d.id); pedidosProveedor.add(d.id); render(); toast(`Añadido al pedido del proveedor: ${p ? p.n : ""}`); },
@@ -1123,7 +1172,14 @@ label.f.chk { display: flex; align-items: center; gap: 9px; align-self: end; pad
     },
     reiniciar: () => abrirDlg(`<h3>Reiniciar la demo</h3><p class="mut">Se borran los cambios (citas, cobros, puntos, ofertas…) y vuelven los datos de ejemplo en la app, el TPV y esta pantalla.</p>
       <div class="dlg-acc"><button class="btn btn-ghost" data-acc="cerrar">Cancelar</button><button class="btn btn-rojo" data-acc="confReiniciar">Reiniciar</button></div>`, { tipo: "reiniciar" }),
-    confReiniciar: () => { dlg.close(); semana = 0; busqueda = ""; pedidosProveedor.clear(); EMM.reiniciar(); toast("Demo reiniciada con los datos de ejemplo."); },
+    confReiniciar: () => {
+      dlg.close();
+      EMM.reiniciar();
+      // Se recarga todo para que ninguna pantalla se quede con algo a medias (p. ej. un ticket del TPV).
+      // Dentro de la portada (iframe) se recarga la página de arriba, igual que su botón «Reiniciar demo».
+      try { if (window.parent !== window) { window.parent.location.reload(); return; } } catch (e) { /* portada de otro origen: recargar solo esta */ }
+      location.reload();
+    },
   };
   document.addEventListener("click", (e) => {
     const nota = e.target.closest("[data-nota]");

@@ -187,7 +187,7 @@
     <div id="buscador" class="buscador">
       <div class="buscar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input id="q" type="search" autocomplete="off" placeholder="Buscar socio: nombre, teléfono, matrícula o tarjeta">
+        <input id="q" type="search" autocomplete="off" placeholder="Nombre, teléfono, matrícula o tarjeta" aria-label="Buscar socio por nombre, teléfono, matrícula o tarjeta">
         <div class="resultados" id="resultados" hidden></div>
       </div>
       <button class="btn btn-blue" id="btnNfc">Leer tarjeta NFC</button>
@@ -301,7 +301,7 @@
     plazas: 0,           // columna de precio cuando no hay coche de socio
     anonNombre: "", anonCoche: "",
     lineas: [],          // {tipo, ref, n, cant, precio (base), dto}
-    canje: null,         // {codigo, socioId, valor, n}
+    canje: null,         // {codigo, socioId, valor, n, refTipo, ref} · ref = servicio o producto que regala (si lo hay)
     ordenId: null,       // orden de taller que se entrega con este ticket
     tab: "servicios",
   };
@@ -347,14 +347,36 @@
     }
     if (st.ordenId) {
       const o = EMM.estado.ordenes.find((x) => x.id === st.ordenId);
-      if (!o || o.estado !== "listo") st.ordenId = null;
+      // La orden solo va en el ticket si es del cliente que está en el mostrador
+      const deEste = o && (o.socioId ? st.modo === "socio" && st.socioId === o.socioId : st.modo === "anon");
+      if (!o || o.estado !== "listo" || !deEste) {
+        st.ordenId = null;
+        if (o && o.estado === "listo") toast(`El ${EMM.cocheDeOrden(o)} ya no va en el ticket: es de otro cliente.`);
+      }
     }
     // El canje nunca deja el total por debajo de cero
     const cl = st.lineas.find((l) => l.tipo === "canje");
     if (cl && st.canje) {
       const resto = EMM.totalTicket(st.lineas.filter((l) => l.tipo !== "canje"));
-      cl.precio = -r2(Math.min(st.canje.valor, Math.max(0, resto)));
+      cl.precio = -r2(Math.min(valorCanje(), Math.max(0, resto)));
     }
+  }
+  // Lo que vale el canje ahora mismo: si regala un servicio o un producto, el precio real de UNA unidad
+  // de esa línea con su descuento de socio (0 si se ha quitado del ticket); si es en euros, su valor.
+  function valorCanje() {
+    if (!st.canje) return 0;
+    if (!st.canje.ref) return st.canje.valor;
+    const l = st.lineas.find((x) => x.tipo === st.canje.refTipo && x.ref === st.canje.ref);
+    return l ? EMM.totalTicket([{ ...l, cant: 1 }]) : 0;
+  }
+  // Se puede cobrar si hay algo que no sea el canje y, con canje, si este descuenta algo de verdad
+  function motivoNoCobrar() {
+    if (!st.lineas.some((l) => l.tipo !== "canje")) return st.canje ? "El canje va con algo en el ticket: añade el servicio o el producto." : "El ticket está vacío.";
+    if (st.canje) {
+      const cl = st.lineas.find((l) => l.tipo === "canje");
+      if (!cl || !(cl.precio < 0)) return st.canje.ref ? `Para usar el canje, añade «${st.canje.n}» al ticket.` : "El canje no descuenta nada en este ticket.";
+    }
+    return "";
   }
 
   /* ───────── Cliente ───────── */
@@ -584,17 +606,26 @@
     const r = EMM.buscarCanje(codigo);
     if (r.error) return toast(r.error, true);
     if (!r.socio || !r.recompensa) return toast("Ese canje no es válido.", true);
+    const rc = r.recompensa;
+    const otroSocio = !(st.modo === "socio" && st.socioId === r.socio.id);
+    const seVacia = otroSocio && st.modo === "socio" && st.lineas.length > 0;
+    // Antes de tocar nada: si regala un producto que no está ya en el ticket, tiene que haber stock
+    if (rc.producto) {
+      const yaEsta = !seVacia && st.lineas.some((l) => l.tipo === "producto" && l.ref === rc.producto);
+      const p = EMM.producto(rc.producto);
+      if (!yaEsta && (!p || p.stock <= 0)) return toast(`No se puede canjear: no queda stock de ${p ? p.n : "ese producto"}.`, true);
+    }
     if (st.canje) quitarCanje();
-    if (!(st.modo === "socio" && st.socioId === r.socio.id)) {
-      if (st.modo === "socio" && st.lineas.length) vaciar();
+    if (otroSocio) {
+      if (seVacia) vaciar();
       st.modo = "socio"; st.socioId = r.socio.id; st.cocheId = r.socio.coches[0] ? r.socio.coches[0].id : null;
       cerrarBusqueda();
     }
     // Si la recompensa es un producto o un servicio concreto, se mete en el ticket
-    const rc = r.recompensa;
     if (rc.producto && !st.lineas.some((l) => l.tipo === "producto" && l.ref === rc.producto)) anadirProducto(rc.producto, true);
     if (rc.servicio && !st.lineas.some((l) => l.tipo === "servicio" && l.ref === rc.servicio)) anadirServicio(rc.servicio, true);
-    st.canje = { codigo: r.canje.codigo, socioId: r.socio.id, valor: rc.valor, n: rc.n };
+    if (rc.producto && !st.lineas.some((l) => l.tipo === "producto" && l.ref === rc.producto)) { render(); return toast(`No se puede canjear: no queda stock de ${rc.n}.`, true); }
+    st.canje = { codigo: r.canje.codigo, socioId: r.socio.id, valor: rc.valor, n: rc.n, refTipo: rc.servicio ? "servicio" : rc.producto ? "producto" : null, ref: rc.servicio || rc.producto || null };
     meterLinea({ tipo: "canje", ref: rc.id, n: "Canje: " + rc.n, cant: 1, precio: -rc.valor, dto: 0 });
     $("#codigo").value = "";
     render();
@@ -623,14 +654,17 @@
     const canjeV = r2(tras - total);
     let h = `<div class="entre"><span class="mut">Subtotal</span><span>${dinero(subtotal)}</span></div>`;
     if (descuento > 0) h += `<div class="entre"><span class="mut">Descuento socio (${s ? EMM.nivel(s).dto : 0} %)</span><span class="verde">−${dinero(descuento)}</span></div>`;
-    if (st.canje) h += `<div class="entre"><span class="mut">Canje de puntos</span><span class="verde">${canjeV > 0 ? "−" + dinero(canjeV) : "añade algo al ticket"}</span></div>`;
+    if (st.canje) h += `<div class="entre"><span class="mut">Canje de puntos</span><span class="verde">${canjeV > 0 ? "−" + dinero(canjeV) : st.canje.ref ? `añade «${esc(st.canje.n)}»` : "añade algo al ticket"}</span></div>`;
     h += `<div class="total"><span>Total</span><b>${dinero(total)}</b></div>`;
     if (s) h += `<div class="puntos">Sumará ${Math.floor(total)} puntos · saldo disponible ${dinero(s.saldo)}</div>`;
     else if (total > 0) h += `<div class="mut peq">Sin tarjeta no suma puntos. <a href="#" data-acc="alta" style="color:var(--blue2);font-weight:600">Hacer socio</a></div>`;
     $("#sumas").innerHTML = h;
     const b = $("#btnCobrar");
-    b.disabled = !st.lineas.length;
-    b.textContent = st.lineas.length ? `Cobrar ${dinero(total)}` : "Cobrar";
+    // Sin nada que no sea el canje (o con un canje que no descuenta nada) no se puede cobrar
+    const motivo = motivoNoCobrar();
+    b.disabled = !!motivo;
+    b.title = motivo;
+    b.textContent = motivo ? "Cobrar" : `Cobrar ${dinero(total)}`;
     $("#formCanje").hidden = !!st.canje;
   }
 
@@ -649,7 +683,16 @@
     vistos = ahora;
   }
 
+  // Si alguien reinicia la demo (desde otra pantalla), el ticket a medias ya no tiene sentido
+  let reinicioVisto = EMM.estado.reinicio;
   function render() {
+    if (EMM.estado.reinicio !== reinicioVisto) {
+      reinicioVisto = EMM.estado.reinicio;
+      vistos = null; // sin avisos de «coche listo» por los datos de ejemplo recién cargados
+      clearTimeout(tNfc);
+      for (const d of document.querySelectorAll("dialog[open]")) if (d.id !== "dCaja") d.close();
+      return nuevoTicket(); // vacía el ticket y vuelve a pintar
+    }
     normalizar();
     pintarFicha();
     pintarTabs();
@@ -663,8 +706,9 @@
   /* ───────── Cobro ───────── */
   const cobro = { pagos: { efectivo: 0, tarjeta: 0, bizum: 0, saldo: 0 }, entregado: 0, total: 0 };
   function abrirCobro() {
-    if (!st.lineas.length) return;
     normalizar();
+    const motivo = motivoNoCobrar();
+    if (motivo) return toast(motivo, true);
     const s = socioActual();
     cobro.total = Math.max(0, EMM.totalTicket(st.lineas));
     cobro.pagos = { efectivo: 0, tarjeta: 0, bizum: 0, saldo: 0 };
@@ -728,8 +772,15 @@
         if (c < 0) { ok = false; msg = "Lo entregado no llega para el efectivo"; }
       } else cam.textContent = "";
     }
-    // Botones rápidos marcados si coinciden con el reparto actual
-    document.querySelectorAll("#cRapidos .rapido").forEach((b) => b.classList.toggle("on", ok && cobro.pagos[b.dataset.todo] > 0));
+    // Solo queda marcado el botón rápido que describe de verdad el reparto actual:
+    // «Todo con X» si todo va por X; «Saldo + resto» si va el saldo disponible y lo que falta, con tarjeta.
+    const usadas = Object.keys(cobro.pagos).filter((f) => cobro.pagos[f] > 0);
+    const saldoMax = Math.min(cobro.total, topeSaldo());
+    const conSaldo = cobro.pagos.saldo > 0 && Math.abs(cobro.pagos.saldo - saldoMax) < 0.005 && usadas.every((f) => f === "saldo" || f === "tarjeta");
+    document.querySelectorAll("#cRapidos .rapido").forEach((b) => {
+      const f = b.dataset.todo;
+      b.classList.toggle("on", ok && (f === "saldo" ? conSaldo : usadas.length === 1 && usadas[0] === f));
+    });
     p.textContent = msg;
     p.className = "pendiente " + (ok ? "ok" : "mal");
     $("#cConfirmar").disabled = !ok;
@@ -740,6 +791,9 @@
     const pagos = {};
     for (const [f, v] of Object.entries(cobro.pagos)) if (v > 0) pagos[f] = r2(v);
     // Comprobaciones previas (para no dejar nada a medias si algo falla)
+    normalizar();
+    const motivo = motivoNoCobrar();
+    if (motivo) return toast(motivo, true);
     if (st.canje) { const r = EMM.buscarCanje(st.canje.codigo); if (r.error) return toast(r.error, true); }
     if (pagos.saldo && (!s || s.saldo + 0.001 < pagos.saldo)) return toast(`El socio solo tiene ${dinero(s ? s.saldo : 0)} de saldo.`, true);
     const extra = { efectivo: pagos.efectivo || 0, entregado: cobro.entregado, canje: st.canje ? st.canje.n : "" };
@@ -832,10 +886,24 @@
       const formas = Object.keys(t.pagos).map((f) => FORMAS[f] || f).join(" + ") || "Canje";
       return `<div><span class="mut">${esc(EMM.horaDe(t.fecha))}</span><span><b>#${t.num}</b> ${esc(s ? s.nombre : "Sin tarjeta")}${t.origen === "app" ? ' <span class="chip azul" style="padding:1px 7px;font-size:10.5px">App</span>' : ""}<br><span class="mut peq">${esc(que)} · ${esc(formas)}</span></span><b>${dinero(t.total)}</b></div>`;
     }).join("");
+    // Recargas del monedero: no son ventas (la venta se cuenta cuando se paga con el saldo), pero el dinero entra hoy en caja
+    const recargas = (c.recargas || []).slice().sort((a, b) => (a.fecha < b.fecha ? 1 : -1)).map((x) => {
+      const s = EMM.socio(x.socioId);
+      return `<div><span class="mut">${esc(EMM.horaDe(x.fecha))}</span><span><b>${esc(s ? s.nombre : "Socio")}</b><br><span class="mut peq">${esc(FORMAS[x.via] || x.via)} · +${dinero(x.regalo || 0)} de regalo del club</span></span><b>${dinero(x.importe)}</b></div>`;
+    }).join("");
+    const entra = c.entra || { efectivo: c.formas.efectivo || 0, tarjeta: c.formas.tarjeta || 0, bizum: c.formas.bizum || 0 };
+    const porVia = c.recargasPorVia || {};
+    const totalEntra = r2(["efectivo", "tarjeta", "bizum"].reduce((a, f) => a + (entra[f] || 0), 0));
+    const caja = (f) => f === "saldo"
+      ? `<div><small>Pagado con saldo</small><b>${dinero(c.formas.saldo || 0)}</b><small>ya entró al recargar</small></div>`
+      : `<div><small>${FORMAS[f]}</small><b>${dinero(entra[f] || 0)}</b>${porVia[f] ? `<small>${dinero(porVia[f])} de recargas</small>` : ""}</div>`;
     $("#cajaIn").innerHTML = `<div class="entre"><h3 style="margin:0">Caja de hoy</h3><span class="mut peq">${esc(EMM.fechaCorta(EMM.hoyISO()))}</span></div>
       <div class="grande"><small>Total vendido · ${c.tickets.length} ticket${c.tickets.length === 1 ? "" : "s"}</small><b>${dinero(c.total)}</b></div>
-      <div class="cajas">${Object.keys(FORMAS).map((f) => `<div><small>${FORMAS[f]}${f === "saldo" ? " (monedero)" : ""}</small><b>${dinero(c.formas[f] || 0)}</b></div>`).join("")}</div>
+      <div class="entre"><p class="eyebrow">Dinero que entra hoy · ventas + recargas</p><b style="white-space:nowrap">${dinero(totalEntra)}</b></div>
+      <div class="cajas">${Object.keys(FORMAS).map(caja).join("")}</div>
       <div class="lista-caja">${lista || '<div style="display:block" class="vacio">Todavía no hay ventas hoy.</div>'}</div>
+      <div class="entre"><p class="eyebrow">Recargas del monedero · ${c.recargas ? c.recargas.length : 0}</p><b style="white-space:nowrap">${dinero(c.totalRecargas || 0)}</b></div>
+      <div class="lista-caja">${recargas || '<div style="display:block" class="vacio">Todavía no hay recargas hoy.</div>'}</div>
       <div class="botones"><button class="btn btn-ghost" data-cerrar>Cerrar</button></div>`;
   }
 

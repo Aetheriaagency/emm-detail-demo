@@ -46,7 +46,7 @@ h1, h2, h3, .disp { font-family: Unbounded, Inter, sans-serif; letter-spacing: -
 
 /* Tarjetas, chips y formularios */
 .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; }
-.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 4px 10px; border: 1px solid var(--line2); color: #c3c9d3; }
+.chip { white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 4px 10px; border: 1px solid var(--line2); color: #c3c9d3; }
 .chip.azul { border-color: rgba(47, 123, 255, 0.5); color: var(--blue2); background: rgba(47, 123, 255, 0.08); }
 .chip.ok { border-color: rgba(52, 199, 123, 0.5); color: #7ee2ad; background: rgba(52, 199, 123, 0.08); }
 .chip.warn { border-color: rgba(245, 180, 69, 0.5); color: #ffd28a; background: rgba(245, 180, 69, 0.08); }
@@ -61,7 +61,7 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
 .vacio { color: var(--mut); text-align: center; padding: 26px 10px; font-size: 14px; }
 
 /* Avisos emergentes */
-.toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%) translateY(20px); background: #fff; color: #0b0d11; padding: 12px 18px; border-radius: 14px; font-weight: 600; font-size: 14px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45); opacity: 0; transition: 0.25s; z-index: 1000; max-width: calc(100vw - 32px); text-align: center; }
+.toast { pointer-events: none; position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%) translateY(20px); background: #fff; color: #0b0d11; padding: 12px 18px; border-radius: 14px; font-weight: 600; font-size: 14px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45); opacity: 0; transition: 0.25s; z-index: 1000; max-width: calc(100vw - 32px); text-align: center; }
 .toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast.error { background: #ffdcdc; color: #5a0b0b; }
 

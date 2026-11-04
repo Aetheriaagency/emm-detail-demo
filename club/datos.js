@@ -56,7 +56,7 @@
     { k: "cuero", c: "Extras", n: "Limpieza y protección de cuero (por plaza)", h: 2, p: [29] },
   ];
   const HORARIO = { 0: null, 1: [9, 19], 2: [9, 19], 3: [9, 19], 4: [9, 19], 5: [9, 19], 6: [9, 14] };
-  const PUESTOS = 2; // coches a la vez en el taller
+  const PUESTOS = 3; // coches a la vez en el taller
   const NIVELES = [
     { n: "Bronce", desde: 0, dto: 0, color: "#c08a5b", ventajas: ["1 punto por cada euro", "Reserva desde la app"] },
     { n: "Plata", desde: 300, dto: 5, color: "#c7ced8", ventajas: ["5 % en todos los servicios", "Horas reservadas para socios"] },
@@ -69,8 +69,6 @@
   function semilla() {
     const hoy = hoyISO();
     const hace = (n) => sumarDias(hoy, -n);
-    // Dentro de n días, saltando el domingo (cerrado)
-    const laborable = (n) => { const d = sumarDias(hoy, n); return new Date(d + "T12:00:00").getDay() === 0 ? sumarDias(d, 1) : d; };
     const socios = [
       { id: "s1", nombre: "Lucía Pérez", tel: "600 123 456", email: "lucia@ejemplo.com", alta: hace(210), puntos: 410, acumulados: 860, saldo: 32.5, tarjeta: "EMM-0001",
         coches: [{ id: "c1", modelo: "BMW Serie 1 negro", matricula: "4821 LKJ", plazas: 0 }] },
@@ -111,16 +109,25 @@
       ordenes.push({ id: id("ot"), citaId: c.id, socioId: c.socioId, cocheId: c.cocheId, servicio: c.servicio, estado, km, notas,
         entrada: `${c.fecha}T${c.hora}:00`, historia: [{ estado: "recibido", en: `${c.fecha}T${c.hora}:00` }].concat(estado !== "recibido" ? [{ estado, en: new Date().toISOString() }] : []) });
     };
+    // Las citas futuras caen siempre en un día en que el trabajo cabe en el horario (sea el día que sea la demo).
+    const diaQueCabe = (n, k, hora) => {
+      let d = sumarDias(hoy, n);
+      for (let i = 0; i < 7 && !cabeEnHorario(d, k, hora); i++) d = sumarDias(d, 1);
+      return d;
+    };
+    // El día laborable anterior a hoy (para el pulido que ya lleva un día dentro).
+    let ayer = sumarDias(hoy, -1);
+    while (!HORARIO[new Date(ayer + "T12:00:00").getDay()]) ayer = sumarDias(ayer, -1);
     // El coche de Lucía (la del móvil de la demo) está en el taller: así se ve el aviso en directo.
     ord(cita(hoy, "09:00", "s1", "c1", "premium", "app"), "proceso", 48210, "Arañazos leves en la puerta trasera derecha");
-    ord(cita(sumarDias(hoy, -1), "09:00", "s4", "c4", "pul2", "app"), "proceso", 61500, "Pulido + cerámico Light, sale mañana");
-    ord(cita(hoy, "10:00", null, null, "mant", "mostrador", { cliente: "Pablo (sin cuenta)", coche: "Renault Clio gris", plazas: 0 }), "calidad", 91300, "");
-    cita(hoy, "12:00", "s2", "c2", "premium", "app");
+    ord(cita(ayer, "09:00", "s4", "c4", "pul2", "app"), "proceso", 61500, "Pulido + cerámico Light, sale mañana");
+    ord(cita(hoy, "10:00", null, null, "mant", "mostrador", { cliente: "Pablo (sin cuenta)", coche: "Renault Clio gris", plazas: 0, tel: "655 010 203" }), "calidad", 91300, "");
+    cita(hoy, "13:00", "s2", "c2", "premium", "app");
     cita(hoy, "16:00", "s5", "c6", "mant", "telefono");
-    cita(sumarDias(hoy, 1), "09:00", "s4", "c5", "tapiceria", "app");
-    cita(laborable(6), "10:00", "s1", "c1", "cristales", "app");
-    cita(sumarDias(hoy, 1), "11:00", "s3", "c3", "cristales", "app");
-    cita(sumarDias(hoy, 2), "09:30", null, null, "detailing", "telefono", { cliente: "Iria Castro", coche: "Mini Cooper verde", plazas: 0 });
+    cita(diaQueCabe(1, "tapiceria", "09:00"), "09:00", "s4", "c5", "tapiceria", "app");
+    cita(diaQueCabe(1, "cristales", "10:00"), "10:00", "s3", "c3", "cristales", "app");
+    cita(diaQueCabe(6, "cristales", "10:00"), "10:00", "s1", "c1", "cristales", "app");
+    cita(diaQueCabe(2, "detailing", "09:00"), "09:00", null, null, "detailing", "telefono", { cliente: "Iria Castro", coche: "Mini Cooper verde", plazas: 0, tel: "677 300 412" });
     // Ventas de los últimos 30 días (para caja e informes)
     const tickets = [];
     const nombres = ["mant", "premium", "tapiceria", "mant", "integral", "pul1", "mant", "premium", "cristales", "detailing", "pul2", "mant"];
@@ -158,6 +165,8 @@
       socios, productos, recompensas, citas, ordenes, tickets, movimientos,
       canjes: [], pedidos: [], avisos: [], ofertas: [{ id: id("of"), fecha: `${hace(3)}T09:00:00`, texto: "Noviembre: cerámico de cristales a 79 € para socios. ¡Prepárate para la lluvia!" }],
       siguienteTicket: n,
+      entradasCaja: [],
+      reinicio: Date.now(), // las pantallas lo miran para vaciar lo que tengan a medias
     };
   }
 
@@ -222,35 +231,58 @@
   }
 
   /* ───────── Agenda ───────── */
-  function ocupacion(fecha, hora) {
-    // Cuántos coches hay a esa hora: citas del día que la cubren + trabajos de varios días empezados antes
-    const [h] = hora.split(":").map(Number);
+  // Declaradas como function: la semilla las usa al arrancar, antes de llegar aquí.
+  function abierto(fecha) { return HORARIO[new Date(fecha + "T12:00:00").getDay()]; }
+  function aHoras(hora) { return Number(hora.split(":")[0]) + Number(hora.split(":")[1] || 0) / 60; }
+  /** Los días de trabajo de un encargo de varios días: se salta los días que el taller cierra (el domingo). */
+  function diasTrabajo(fecha, dias) {
+    const lista = [];
+    let d = fecha;
+    while (lista.length < dias) {
+      if (abierto(d)) lista.push(d);
+      d = sumarDias(d, 1);
+    }
+    return lista;
+  }
+  function finTrabajo(fecha, dias) { return diasTrabajo(fecha, dias).slice(-1)[0]; }
+  /** ¿Cabe ese trabajo ese día a esa hora, dentro del horario? (los de varios días, entrando por la mañana) */
+  function cabeEnHorario(fecha, k, hora) {
+    const hor = abierto(fecha);
+    if (!hor) return false;
+    const s = SERVICIOS.find((x) => x.k === k);
+    const h = aHoras(hora);
+    if (h < hor[0]) return false;
+    if (s.dias) return h <= 10;
+    return h + s.h <= hor[1] + 0.001;
+  }
+  /** Cuántos coches hay dentro del taller en un instante (fecha + hora decimal, p. ej. 10.5 = 10:30). */
+  function ocupacion(fecha, t) {
+    if (typeof t === "string") t = aHoras(t);
     return E.citas.filter((c) => {
-      if (c.estado === "cancelada") return false;
+      if (c.estado === "cancelada" || c.estado === "hecha") return false;
       const s = servicio(c.servicio);
-      if (s.dias) {
-        const fin = sumarDias(c.fecha, s.dias - 1);
-        return c.fecha <= fecha && fecha <= fin;
-      }
+      if (s.dias) return diasTrabajo(c.fecha, s.dias).includes(fecha) && (c.fecha !== fecha || t >= aHoras(c.hora));
       if (c.fecha !== fecha) return false;
-      const ini = Number(c.hora.split(":")[0]) + Number(c.hora.split(":")[1]) / 60;
-      return h >= Math.floor(ini) && h < ini + s.h;
+      const ini = aHoras(c.hora);
+      return t >= ini && t < ini + s.h;
     }).length;
   }
   function huecos(fecha, k, esSocio) {
-    const d = new Date(fecha + "T12:00:00");
-    const hor = HORARIO[d.getDay()];
+    const hor = abierto(fecha);
     if (!hor) return [];
     const s = servicio(k);
     const lista = [];
     for (let h = hor[0]; h < hor[1]; h++) {
       const hora = `${String(h).padStart(2, "0")}:00`;
-      if (s.dias && h > 10) continue; // los trabajos largos se dejan por la mañana
-      if (!s.dias && h + Math.min(s.h, 9) > hor[1] + 0.01 && s.h < 7) continue;
-      if (s.h >= 7 && !s.dias && h > 10) continue;
-      const soloSocio = E.config.horasSocio.includes(hora);
-      const libre = ocupacion(fecha, hora) < PUESTOS;
+      if (!cabeEnHorario(fecha, k, hora)) continue;
       if (fecha === hoyISO() && h <= new Date().getHours()) continue;
+      // Libre solo si hay puesto durante TODO el trabajo, cada media hora (y cada día, si dura varios).
+      let libre = true;
+      const tramos = s.dias ? diasTrabajo(fecha, s.dias).map((d, i) => [d, i === 0 ? h : abierto(d)[0], abierto(d)[1]]) : [[fecha, h, h + s.h]];
+      for (const [d, desde, hasta] of tramos) {
+        for (let t = desde; t < hasta && libre; t += 0.5) if (ocupacion(d, t) >= PUESTOS) libre = false;
+      }
+      const soloSocio = E.config.horasSocio.includes(hora);
       lista.push({ hora, libre: libre && (!soloSocio || esSocio), soloSocio });
     }
     return lista;
@@ -318,6 +350,8 @@
     const regalo = r2((importe * E.config.bonoRecarga) / 100);
     s.saldo = r2(s.saldo + importe + regalo);
     movimiento(sid, "recarga", `Recarga de ${eur(importe)} (+${eur(regalo)} de regalo) · ${via}`, { saldo: importe + regalo });
+    // El dinero de la recarga entra en caja (no es una venta: la venta se cuenta cuando se paga con el saldo).
+    (E.entradasCaja = E.entradasCaja || []).push({ id: id("e"), fecha: new Date().toISOString(), socioId: sid, importe, regalo, via: via.split(" ")[0] });
     aviso(sid, `Recarga hecha: ${eur(importe)} + ${eur(regalo)} de regalo. Saldo: ${eur(s.saldo)}.`, "saldo");
     guardar();
     return regalo;
@@ -373,6 +407,7 @@
     return r2(lineas.reduce((t, l) => t + l.cant * l.precio * (1 - (l.dto || 0) / 100), 0));
   }
   function cobrar({ socioId = null, lineas, pagos, canjeCodigo = null, ordenId = null }) {
+    if (!lineas.some((l) => l.tipo !== "canje")) throw new Error(canjeCodigo ? "El canje va con algo en el ticket: añade el servicio o el producto." : "El ticket está vacío.");
     const s = socio(socioId);
     const total = totalTicket(lineas);
     const pagado = r2(Object.values(pagos).reduce((a, b) => a + (Number(b) || 0), 0));
@@ -399,7 +434,9 @@
     E.tickets.push(t);
     if (s) {
       movimiento(s.id, "compra", lineas.filter((l) => l.tipo !== "canje").map((l) => l.n + (l.cant > 1 ? ` ×${l.cant}` : "")).join(", ") || "Compra", { puntos: pts, saldo: pagos.saldo ? -pagos.saldo : undefined });
-      aviso(s.id, `Gracias por tu visita: ${eur(total)}${pts ? ` · +${pts} puntos` : ""}${canjeTexto ? ` · canjeado: ${canjeTexto}` : ""}.`, "compra");
+      aviso(s.id, total > 0
+        ? `Gracias por tu visita: ${eur(total)}${pts ? ` · +${pts} puntos` : ""}${canjeTexto ? ` · canjeado: ${canjeTexto}` : ""}.`
+        : `¡Disfruta de tu premio! Canjeado: ${canjeTexto || "tu recompensa"}. Gracias por tu visita.`, "compra");
     }
     if (ordenId) moverOrdenSinGuardar(ordenId, "entregado");
     guardar();
@@ -428,11 +465,16 @@
   }
   function ajustarPuntos(sid, n, motivo) {
     const s = socio(sid);
-    if (!s) return;
-    s.puntos = Math.max(0, s.puntos + n);
-    if (n > 0) s.acumulados += n;
-    movimiento(sid, "ajuste", `Ajuste: ${motivo || "manual"}`, { puntos: n });
+    if (!s) return 0;
+    n = Math.round(Number(n) || 0);
+    const antes = s.puntos;
+    if (n > 0) sumarPuntos(s, n);
+    else s.puntos = Math.max(0, antes + n);
+    const real = s.puntos - antes;
+    if (!real) return 0;
+    movimiento(sid, "ajuste", `Ajuste: ${motivo || "manual"}`, { puntos: real });
     guardar();
+    return real;
   }
   function enviarOferta(texto) {
     if (!texto.trim()) return;
@@ -464,7 +506,13 @@
     const del = E.tickets.filter((t) => t.fecha.slice(0, 10) === fecha);
     const formas = { efectivo: 0, tarjeta: 0, bizum: 0, saldo: 0 };
     for (const t of del) for (const [f, v] of Object.entries(t.pagos)) formas[f] = r2((formas[f] || 0) + v);
-    return { tickets: del, total: r2(del.reduce((a, t) => a + t.total, 0)), formas };
+    const recargas = (E.entradasCaja || []).filter((x) => x.fecha.slice(0, 10) === fecha);
+    const recargasPorVia = {};
+    for (const x of recargas) recargasPorVia[x.via] = r2((recargasPorVia[x.via] || 0) + x.importe);
+    // «entra»: dinero que entra de verdad hoy por cada vía (ventas no pagadas con saldo + recargas)
+    const entra = { efectivo: formas.efectivo, tarjeta: formas.tarjeta, bizum: formas.bizum || 0 };
+    for (const [v, n] of Object.entries(recargasPorVia)) entra[v] = r2((entra[v] || 0) + n);
+    return { tickets: del, total: r2(del.reduce((a, t) => a + t.total, 0)), formas, recargas, recargasPorVia, totalRecargas: r2(recargas.reduce((a, x) => a + x.importe, 0)), entra };
   }
   function informe(dias = 30) {
     const desde = sumarDias(hoyISO(), -dias + 1);
@@ -486,7 +534,7 @@
     SERVICIOS, NIVELES, ESTADOS, NOMBRE_ESTADO, HORARIO,
     servicio, producto, socio, coche, nivel, siguienteNivel, precioBase, precioSocio, totalTicket,
     // agenda y taller
-    huecos, reservar, cancelarCita, recibirCoche, moverOrden, cocheDeOrden, plazasDeOrden,
+    huecos, reservar, diasTrabajo, finTrabajo, cabeEnHorario, ocupacion, PUESTOS, cancelarCita, recibirCoche, moverOrden, cocheDeOrden, plazasDeOrden,
     // club
     recargar, generarCanje, buscarCanje, pedirProducto, entregarPedido, altaSocio, ajustarPuntos, enviarOferta, marcarLeidos, guardarConfig, guardarProducto,
     // caja

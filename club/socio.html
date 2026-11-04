@@ -16,7 +16,8 @@
   .campana { position: relative; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line2); background: var(--card); display: grid; place-items: center; }
   .campana b[hidden] { display: none; }
   .campana b { position: absolute; top: -4px; right: -4px; min-width: 19px; height: 19px; border-radius: 10px; background: var(--blue); font-size: 11px; display: grid; place-items: center; padding: 0 5px; }
-  main { padding: 16px 16px 10px; display: grid; gap: 14px; }
+  /* minmax(0,1fr): la columna no crece con el contenido (la fila de días hace scroll dentro de su tarjeta) */
+  main { padding: 16px 16px 10px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
   .hola { font-size: 22px; }
   /* La tarjeta del socio */
   .tarjeta { position: relative; overflow: hidden; border-radius: 22px; padding: 20px; min-height: 196px; background: radial-gradient(120% 140% at 100% 0%, rgba(47, 123, 255, 0.55), transparent 55%), linear-gradient(135deg, #10141c, #05070a); border: 1px solid #263044; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5); }
@@ -93,6 +94,11 @@
   .qr svg { display: block; width: 100%; height: auto; }
   .saldo-grande { font-family: Unbounded; font-weight: 800; font-size: 42px; line-height: 1; margin: 6px 0; }
   .importes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  /* Avisos dentro de una ventana (falta de saldo, código canjeado) */
+  .falta { background: rgba(255, 93, 93, 0.12); border: 1px solid rgba(255, 93, 93, 0.35); color: #ffc2c2; border-radius: 12px; padding: 10px 12px; font-size: 13.5px; margin: 10px 0 14px; }
+  .falta button { background: none; border: 0; padding: 0; color: #fff; font-weight: 700; text-decoration: underline; font-size: inherit; }
+  .canjeado { color: #7ee2ad; font-weight: 700; font-size: 15px; text-align: center; margin-top: 4px; }
+  .qr.usado { opacity: 0.25; filter: grayscale(1); transition: 0.3s; }
   /* Barra de abajo */
   nav.abajo { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 440px; display: grid; grid-template-columns: repeat(4, 1fr); background: rgba(10, 12, 16, 0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--line); padding: 8px 6px calc(10px + env(safe-area-inset-bottom)); z-index: 30; }
   nav.abajo button { background: none; border: 0; color: var(--mut); font-size: 11px; font-weight: 600; display: grid; justify-items: center; gap: 3px; padding: 4px 0; }
@@ -144,12 +150,22 @@ const reserva = { coche: null, servicio: null, fecha: null, hora: null };
 let avisosVistos = null;
 
 function yo() { return EMM.socio(SID) || EMM.estado.socios[0]; }
+/* Una ventana abierta con showModal() queda por encima de todo (top layer): los avisos que salgan
+   mientras está abierta van dentro de ella para verse nítidos sobre el fondo oscuro. Al cerrarla
+   vuelven al body. Devuelve true si el elemento ha cambiado de sitio. */
+function llevarACapa(el) {
+  const capa = [...document.querySelectorAll("dialog[open]")].pop() || document.body;
+  if (el.parentNode === capa) return false;
+  capa.appendChild(el);
+  return true;
+}
 function toast(t, error) {
   const el = $("#toast");
+  if (llevarACapa(el)) { el.className = "toast"; void el.offsetWidth; } // así entra con su animación
   el.textContent = t;
   el.className = "toast on" + (error ? " error" : "");
   clearTimeout(toast.t);
-  toast.t = setTimeout(() => (el.className = "toast"), 2600);
+  toast.t = setTimeout(() => (el.className = "toast" + (error ? " error" : "")), 2600);
 }
 function qrSvg(texto) {
   if (!window.qrcode) return `<div class="codigo" style="font-size:20px;color:#000">${esc(texto)}</div>`;
@@ -172,8 +188,10 @@ function revisarAvisos() {
   avisosVistos = new Set(mios.map((a) => a.id));
 }
 function notificar(texto) {
+  const n = $("#noti");
+  if (llevarACapa(n)) { n.classList.remove("on"); void n.offsetWidth; } // baja deslizándose también dentro de la ventana
   $("#notiTxt").textContent = texto;
-  $("#noti").classList.add("on");
+  n.classList.add("on");
   clearTimeout(notificar.t);
   notificar.t = setTimeout(() => $("#noti").classList.remove("on"), 5200);
 }
@@ -191,8 +209,14 @@ function abrir(html) {
   d.innerHTML = html;
   d.querySelectorAll("[data-cerrar]").forEach((b) => (b.onclick = () => d.close()));
   if (!d.open) d.showModal();
+  // Si ya había una notificación o un aviso a la vista, pasan delante del fondo oscuro
+  for (const el of [$("#noti"), $("#toast")]) if (el.classList.contains("on")) llevarACapa(el);
   return d;
 }
+// Al cerrar la ventana, los avisos vuelven a la página (si siguen a la vista, se siguen viendo)
+$("#dlg").addEventListener("close", () => {
+  for (const el of [$("#noti"), $("#toast")]) if (el.parentNode !== document.body) document.body.appendChild(el);
+});
 
 /* ───── Mi tarjeta ───── */
 function vistaInicio() {
@@ -257,8 +281,10 @@ function vistaReservar() {
   const dias = [];
   let d = EMM.hoyISO();
   while (dias.length < 10) { if (new Date(d + "T12:00:00").getDay() !== 0) dias.push(d); d = EMM.sumarDias(d, 1); }
-  if (!reserva.fecha) reserva.fecha = dias[0];
+  if (!reserva.fecha || !dias.includes(reserva.fecha)) reserva.fecha = dias[0];
   const huecos = reserva.servicio ? EMM.huecos(reserva.fecha, reserva.servicio, true) : [];
+  // Si otra pantalla ha ocupado la hora elegida mientras tanto, se suelta
+  if (reserva.hora && !huecos.some((h) => h.hora === reserva.hora && h.libre)) reserva.hora = null;
   const grupos = {};
   for (const sv of EMM.SERVICIOS) (grupos[sv.c] = grupos[sv.c] || []).push(sv);
   const listo = reserva.servicio && reserva.fecha && reserva.hora && ch;
@@ -394,6 +420,11 @@ $("#vista").onclick = (e) => {
   } else if (t.dataset.hora) {
     reserva.hora = t.dataset.hora; pintar();
   } else if (t.id === "confirmar") {
+    // Última comprobación: la hora puede haberse ocupado desde el taller hace un instante
+    if (!EMM.huecos(reserva.fecha, reserva.servicio, true).some((h) => h.hora === reserva.hora && h.libre)) {
+      reserva.hora = null; pintar();
+      return toast("Esa hora se acaba de ocupar. Elige otra.", true);
+    }
     const c = EMM.reservar({ socioId: s.id, cocheId: reserva.coche, servicio: reserva.servicio, fecha: reserva.fecha, hora: reserva.hora, origen: "app" });
     const sv = EMM.servicio(c.servicio);
     abrir(`<h3>¡Reserva hecha!</h3><p>${esc(sv.n)}<br><b>${EMM.fechaCorta(c.fecha)} a las ${c.hora}</b></p>
@@ -401,6 +432,7 @@ $("#vista").onclick = (e) => {
       <button class="btn btn-blue" style="width:100%" data-cerrar>Perfecto</button>`);
     Object.assign(reserva, { servicio: null, hora: null });
     vista = "inicio"; pintar();
+    scrollTo({ top: 0 }); // la tarjeta del socio, arriba del todo
   } else if (t.dataset.canje) {
     try {
       const cj = EMM.generarCanje(s.id, t.dataset.canje);
@@ -408,10 +440,22 @@ $("#vista").onclick = (e) => {
       const d = abrir(`<h3 style="text-align:center">${esc(r.n)}</h3><p class="mut peq" style="text-align:center">Enséñalo en el mostrador. Los puntos se descuentan al validarlo.</p>
         <div class="qr">${qrSvg(cj.codigo)}</div><div class="codigo">${cj.codigo}</div>
         <p class="mut peq" style="text-align:center" id="cuenta"></p><button class="btn btn-ghost" style="width:100%;margin-top:10px" data-cerrar>Cerrar</button>`);
+      // El reloj va atado a ESTA ventana: al cerrarla (o abrir otra) se para
+      const el = d.querySelector("#cuenta");
       const tick = () => {
+        if (!d.open || !el.isConnected) return clearInterval(iv);
+        // EMM.estado se recarga solo cuando el TPV guarda el cobro (BroadcastChannel)
+        const vivo = EMM.estado.canjes.find((x) => x.codigo === cj.codigo);
+        if (!vivo || vivo.usado) {
+          clearInterval(iv);
+          d.querySelector(".qr").classList.add("usado");
+          d.querySelector(".codigo").style.opacity = "0.35";
+          el.className = vivo ? "canjeado" : "mut peq";
+          el.textContent = vivo ? "Canjeado ✓ ¡Que lo disfrutes!" : "Este código ya no vale.";
+          if (vivo) setTimeout(() => { if (d.open && el.isConnected) d.close(); }, 2500);
+          return;
+        }
         const q = Math.max(0, cj.caduca - Date.now());
-        const el = d.querySelector("#cuenta");
-        if (!el) return clearInterval(iv);
         el.textContent = q ? `Caduca en ${Math.floor(q / 60000)}:${String(Math.floor((q % 60000) / 1000)).padStart(2, "0")}` : "Este código ha caducado";
       };
       const iv = setInterval(tick, 1000);
@@ -419,9 +463,14 @@ $("#vista").onclick = (e) => {
     } catch (err) { toast(err.message, true); }
   } else if (t.dataset.comprar) {
     const p = EMM.producto(t.dataset.comprar);
-    abrir(`<h3>${esc(p.n)}</h3><p>Pagas <b>${EMM.eur(p.precio)}</b> con tu saldo (${EMM.eur(s.saldo)}) y sumas ${Math.floor(p.precio)} puntos.</p>
-      <p class="mut peq" style="margin:8px 0 16px">Te lo dejamos preparado en el mostrador.</p>
-      <div class="fila"><button class="btn btn-ghost" style="flex:1" data-cerrar>Cancelar</button><button class="btn btn-blue" style="flex:1" id="pagarProd">Pagar</button></div>`);
+    const falta = EMM.r2(p.precio - s.saldo); // > 0: no llega con el saldo
+    const d = abrir(`<h3>${esc(p.n)}</h3><p>Pagas <b>${EMM.eur(p.precio)}</b> con tu saldo (${EMM.eur(s.saldo)}) y sumas ${Math.floor(p.precio)} puntos.</p>
+      ${falta > 0
+        ? `<p class="falta">Te faltan <b>${EMM.eur(falta)}</b> de saldo. <button type="button" data-ir="monedero">Recarga en el Monedero</button> y lo pides en un momento.</p>`
+        : `<p class="mut peq" style="margin:8px 0 16px">Te lo dejamos preparado en el mostrador.</p>`}
+      <div class="fila"><button class="btn btn-ghost" style="flex:1" data-cerrar>Cancelar</button><button class="btn btn-blue" style="flex:1" id="pagarProd" ${falta > 0 ? "disabled" : ""}>Pagar</button></div>`);
+    const ir = d.querySelector("[data-ir]");
+    if (ir) ir.onclick = () => { d.close(); vista = "monedero"; pintar(); scrollTo({ top: 0 }); };
     $("#pagarProd").onclick = () => {
       try { EMM.pedirProducto(s.id, p.id, 1); $("#dlg").close(); toast("Pedido hecho: recógelo en el taller"); }
       catch (err) { toast(err.message, true); }
@@ -436,12 +485,23 @@ $("#vista").onclick = (e) => {
     $("#pagarRec").onclick = () => {
       $("#pagarRec").disabled = true;
       $("#pagarRec").textContent = "Pagando…";
-      setTimeout(() => { EMM.recargar(s.id, n, "tarjeta (app)"); $("#dlg").close(); }, 900);
+      // Primero se cierra la ventana: así la notificación de la recarga baja limpia sobre la app
+      setTimeout(() => { $("#dlg").close(); EMM.recargar(s.id, n, "tarjeta (app)"); }, 900);
     };
   }
 };
 
-EMM.alCambiar(pintar);
+/* Si alguien reinicia la demo (desde la portada o el taller), la app suelta lo que tuviera a medias */
+let reinicioVisto = EMM.estado.reinicio;
+EMM.alCambiar(() => {
+  if (EMM.estado.reinicio !== reinicioVisto) {
+    reinicioVisto = EMM.estado.reinicio;
+    Object.assign(reserva, { coche: null, servicio: null, fecha: null, hora: null });
+    avisosVistos = null; // los avisos de la semilla no deben saltar como notificaciones nuevas
+    if ($("#dlg").open) $("#dlg").close();
+  }
+  pintar();
+});
 pintar();
 </script>
 </body>
