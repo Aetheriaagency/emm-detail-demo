@@ -281,6 +281,11 @@
     .sum{position:static;order:-1}
   }
   @media (max-width:680px){
+    /* Móvil: campos a 16 px (el iPhone no hace zoom al tocarlos) y enlaces con sitio para el dedo */
+    label.f input,label.f textarea{font-size:16px}
+    .legal input{width:22px;height:22px;flex:0 0 auto}
+    .ft button{padding:12px 0 12px 14px;margin:-12px 0;min-height:44px}
+    footer a,.faq a,.info a{display:inline-block;padding:10px 0}
     .links,nav .btn{display:none}
     .menu-btn{display:flex}
     .links.open{display:flex;flex-direction:column;gap:0;position:absolute;top:72px;left:0;right:0;background:rgba(7,8,10,.97);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:6px 16px 16px}
