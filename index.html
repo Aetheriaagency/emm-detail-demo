@@ -7,6 +7,9 @@
 <meta name="description" content="EMM Detail: lavados a mano, limpieza de tapicería, pulidos y tratamientos cerámicos en Lugo. Calle San Lorenzo 11. Consulta precios y reserva online.">
 <link rel="canonical" href="https://aetheriaagency.github.io/emm-detail-demo/">
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#07080a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="img/icono-192.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="EMM Detail">
 <meta property="og:locale" content="es_ES">
@@ -279,6 +282,15 @@
     .ba-wrap,.bk,.rev,.loc{grid-template-columns:minmax(0,1fr)}
     .steps{grid-template-columns:1fr 1fr}
     .sum{position:static;order:-1}
+  }
+  @media (max-width:900px){
+    /* Tablet en vertical: el menú se pliega para que la barra no se amontone */
+    .links{display:none}
+    .menu-btn{display:flex}
+    nav .btn{margin-left:auto;margin-right:10px}
+    .links.open{display:flex;flex-direction:column;gap:0;position:absolute;top:72px;left:0;right:0;background:rgba(7,8,10,.97);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:6px 16px 16px}
+    .links.open a{padding:14px 2px;border-bottom:1px solid var(--line);font-size:16px;color:#fff}
+    nav.menu-on{background:rgba(7,8,10,.97)}
   }
   @media (max-width:680px){
     /* Móvil: campos a 16 px (el iPhone no hace zoom al tocarlos) y enlaces con sitio para el dedo */
@@ -935,6 +947,10 @@ document.querySelectorAll('[data-book-link]').forEach(a => a.addEventListener('c
 
 renderTarifas();
 refresh();
+</script>
+<script>
+  // Funciona sin internet una vez abierta (para enseñarla en la tablet aunque no haya cobertura)
+  if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 </script>
 </body>
 </html>

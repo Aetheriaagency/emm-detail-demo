@@ -1,0 +1,26 @@
+{
+  "name": "EMM Detail · Demo",
+  "short_name": "EMM Detail",
+  "description": "Web, app del socio, gestión del taller y TPV de EMM Detail (demo de AetherIA).",
+  "lang": "es",
+  "start_url": "./club/?v=web",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#07080a",
+  "theme_color": "#07080a",
+  "icons": [
+    {
+      "src": "img/icono-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "img/icono-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#07080a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../img/icono-192.png">
 <title>EMM Detail · Club, TPV y taller</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,6 +41,32 @@
     .escena { grid-template-columns: 1fr; }
     .lado { position: static; }
   }
+
+  /* ───── Modo tablet: una pantalla cada vez, a pantalla completa, cambiando con un toque ───── */
+  .vistas, .vweb, .aviso-padre { display: none; }
+  body.tab { height: 100vh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
+  body.tab header { padding: 10px 16px; flex-wrap: nowrap; gap: 12px; }
+  body.tab header h1, body.tab #verWeb { display: none; }
+  body.tab .vistas { display: flex; gap: 4px; padding: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; }
+  .vistas button { position: relative; border: 0; background: none; color: var(--mut); font: 600 14px Inter, system-ui, sans-serif; padding: 10px 16px; min-height: 44px; border-radius: 999px; white-space: nowrap; cursor: pointer; }
+  .vistas button.on { background: var(--blue); color: #fff; box-shadow: 0 8px 24px var(--glow); }
+  .vistas .punto { position: absolute; top: 5px; right: 5px; width: 11px; height: 11px; border-radius: 50%; background: #ff5d5d; animation: latido 1.2s infinite; }
+  @keyframes latido { 0% { box-shadow: 0 0 0 0 rgba(255, 93, 93, 0.7); } 70%, 100% { box-shadow: 0 0 0 10px rgba(255, 93, 93, 0); } }
+  body.tab .escena { flex: 1; min-height: 0; display: block; padding: 12px 16px 14px; }
+  body.tab .lado, body.tab .derecha { display: none; height: 100%; }
+  body.tab[data-v="app"] .lado { display: grid; grid-template-rows: minmax(0, 1fr) auto; position: static; }
+  body.tab .movil { height: 100%; max-height: 880px; }
+  body.tab[data-v="taller"] .derecha, body.tab[data-v="tpv"] .derecha { display: block; }
+  body.tab .pestanas, body.tab .guia { display: none; }
+  body.tab .marco { height: 100%; min-height: 0; }
+  body.tab[data-v="web"] .vweb { display: block; height: 100%; border: 1px solid var(--line2); border-radius: 18px; overflow: hidden; }
+  .vweb iframe { width: 100%; height: 100%; border: 0; background: var(--bg); }
+  body.tab .aviso-padre { display: flex; align-items: center; gap: 12px; position: fixed; left: 50%; bottom: 22px; z-index: 20; transform: translate(-50%, 160%); transition: transform 0.35s; max-width: calc(100vw - 32px); padding: 12px 14px 12px 18px; background: #12161e; border: 1px solid var(--line2); border-radius: 16px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); font-size: 14px; }
+  body.tab .aviso-padre.on { transform: translate(-50%, 0); }
+  @media (max-width: 640px) {
+    body.tab header .logo { display: none; }
+    .vistas button { padding: 10px 11px; font-size: 13px; }
+  }
 </style>
 </head>
 <body>
@@ -43,8 +75,14 @@
     <span class="logo"><span class="w"><b>EMM</b><i>DETAIL</i></span><small>AUTOMOTIVE DETAILING</small></span>
     <h1>Club de socios · TPV · Gestión del taller <span class="mut" style="font-weight:500">— todo conectado</span></h1>
   </div>
+  <nav class="vistas" aria-label="Pantallas de la demo">
+    <button data-v="web">Web</button>
+    <button data-v="app">App cliente</button>
+    <button data-v="taller">Taller</button>
+    <button data-v="tpv">TPV</button>
+  </nav>
   <div class="fila">
-    <a class="btn btn-ghost btn-sm" href="https://aetheriaagency.github.io/emm-detail-demo/" target="_blank" rel="noopener">Ver la web</a>
+    <a class="btn btn-ghost btn-sm" id="verWeb" href="https://aetheriaagency.github.io/emm-detail-demo/" target="_blank" rel="noopener">Ver la web</a>
     <button class="btn btn-ghost btn-sm" id="reiniciar">Reiniciar demo</button>
   </div>
 </header>
@@ -74,7 +112,11 @@
       <iframe id="f-tpv" title="TPV" src="tpv.html"></iframe>
     </div>
   </div>
+
+  <div class="vweb"><iframe id="f-web" title="Web de EMM Detail"></iframe></div>
 </div>
+
+<div class="aviso-padre" id="avisoPadre" role="status"><span id="avisoTxt"></span><button class="btn btn-blue btn-sm" id="avisoVer">Verlo en su móvil</button></div>
 
 <script src="datos.js"></script>
 <script>
@@ -86,18 +128,78 @@
   }
   socios();
   EMM.alCambiar(socios);
-  sel.onchange = () => { document.getElementById("app").src = "socio.html?socio=" + sel.value; };
+  sel.onchange = () => {
+    document.getElementById("app").src = "socio.html?socio=" + sel.value;
+    vistos = new Set(misAvisos().map((a) => a.id));
+    pendiente = null;
+  };
+  function pestana(p) {
+    document.querySelectorAll(".pestana").forEach((x) => x.classList.toggle("on", x.dataset.p === p));
+    document.querySelectorAll(".marco iframe").forEach((f) => f.classList.toggle("on", f.id === "f-" + p));
+  }
   document.querySelector(".pestanas").onclick = (e) => {
     const b = e.target.closest("[data-p]");
-    if (!b) return;
-    document.querySelectorAll(".pestana").forEach((x) => x.classList.toggle("on", x === b));
-    document.querySelectorAll(".marco iframe").forEach((f) => f.classList.toggle("on", f.id === "f-" + b.dataset.p));
+    if (b) pestana(b.dataset.p);
   };
+
+  /* ───── Modo tablet: pestañas Web · App cliente · Taller · TPV ───── */
+  const q = new URLSearchParams(location.search);
+  const pantallaTactil = matchMedia("(max-width: 1100px), (pointer: coarse)");
+  const enTablet = () => document.body.classList.contains("tab");
+  function modo() { document.body.classList.toggle("tab", q.has("modo") ? q.get("modo") === "tablet" : pantallaTactil.matches); }
+  modo();
+  pantallaTactil.addEventListener("change", modo);
+
+  let pendiente = null; // aviso que llegó al móvil mientras se enseñaba otra pantalla
+  function mostrar(v) {
+    if (!["web", "app", "taller", "tpv"].includes(v)) v = "app";
+    document.body.dataset.v = v;
+    document.querySelectorAll(".vistas button").forEach((b) => b.classList.toggle("on", b.dataset.v === v));
+    if (v === "taller" || v === "tpv") pestana(v);
+    const web = document.getElementById("f-web");
+    if (v === "web" && !web.getAttribute("src")) web.src = "../index.html";
+    try { sessionStorage.setItem("emm-vista", v); } catch {}
+    if (v === "app") {
+      document.getElementById("avisoPadre").classList.remove("on");
+      document.querySelector('.vistas [data-v="app"] .punto')?.remove();
+      if (pendiente) {
+        const texto = pendiente;
+        pendiente = null;
+        setTimeout(() => { try { document.getElementById("app").contentWindow.notificar(texto); } catch {} }, 350);
+      }
+    }
+  }
+  document.querySelector(".vistas").onclick = (e) => { const b = e.target.closest("[data-v]"); if (b) mostrar(b.dataset.v); };
+  document.getElementById("avisoVer").onclick = () => mostrar("app");
+  let vistaGuardada = null;
+  try { vistaGuardada = sessionStorage.getItem("emm-vista"); } catch {}
+  mostrar(q.get("v") || vistaGuardada || "app");
+
+  // Si al socio le llega un aviso (coche listo, oferta…) mientras se enseña otra pantalla,
+  // se marca la pestaña de la app y, al abrirla, le cae la notificación como en un móvil de verdad.
+  const misAvisos = () => EMM.estado.avisos.filter((a) => a.socioId === sel.value);
+  let vistos = new Set(misAvisos().map((a) => a.id));
+  EMM.alCambiar(() => {
+    const nuevos = misAvisos().filter((a) => !vistos.has(a.id));
+    vistos = new Set(misAvisos().map((a) => a.id));
+    if (!nuevos.length || !enTablet() || document.body.dataset.v === "app") return;
+    pendiente = nuevos[nuevos.length - 1].texto;
+    const pest = document.querySelector('.vistas [data-v="app"]');
+    if (!pest.querySelector(".punto")) pest.insertAdjacentHTML("beforeend", '<span class="punto"></span>');
+    const nombre = (EMM.socio(sel.value)?.nombre || "").split(" ")[0];
+    document.getElementById("avisoTxt").textContent = "📱 Le ha llegado un aviso a " + nombre;
+    const av = document.getElementById("avisoPadre");
+    av.classList.add("on");
+    clearTimeout(mostrar.t);
+    mostrar.t = setTimeout(() => av.classList.remove("on"), 6000);
+  });
   document.getElementById("reiniciar").onclick = () => {
     if (!confirm("¿Volver a los datos de ejemplo del principio?")) return;
     EMM.reiniciar();
     location.reload();
   };
+  // Funciona sin internet una vez abierta (para enseñarla en la tablet aunque no haya cobertura)
+  if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("../sw.js", { scope: "../" }).catch(() => {}));
 </script>
 </body>
 </html>
